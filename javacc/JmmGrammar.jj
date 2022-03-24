@@ -2,16 +2,67 @@ PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 
-SKIP : " " | "\t" | "\r" | "\n";
+SKIP : " " | "\t" | "\r" | "\n"
+        | "/*" : InsideComment
+        | < "//" (~["\r", "\n"])* >
+;
+
+<InsideComment> SKIP: "*/ : DEFAULT"
+
+<InsideComment> MORE : <~[]>
 
 TOKEN :
-	< PLUS : "+" > |
-	< MINUS : "-" > |
-	< TIMES : "*" > |
-	< DIVIDE : "/" > |
-	< OPEN_PAREN : "(" > |
-	< CLOSE_PAREN : ")" > |
-	< INTEGER : (["0" - "9"])+ >
+	    // TODO add extra operators (||, ^, >, ==)
+	    < PLUS : "+" >
+	|   < MINUS : "-" >
+	|   < TIMES : "*" >
+	|   < DIVIDE : "/" >
+	|   < ASSIGN: "=" >
+	|   < AND: "&&" >
+	|   < NOT: "!" >
+	|   < LESS_THAN "<" >
+
+	|   < IF: "if" >
+	|   < ELSE: "else" >
+	|   < WHILE: "while" >
+
+	|   < OPEN_PARENTHESES : "(" >
+	|   < CLOSE_PARENTHESES : ")" >
+	|   < OPEN_SQUARE_BRACKETS : "[" >
+	|   < CLOSE_SQUARE_BRACKETS : "]" >
+	|   < OPEN_BRACES : "{" >
+	|   < CLOSE_BRACES : "}" >
+	|   < DOT: "." >
+	|   < COMMA: "," >
+	|   < COLON: ":" >
+	|   < SEMICOLON: ";" >
+
+	|   < TRUE: "true" >
+	|   < FALSE: "false" >
+	|   < #DIGIT : ["0"-"9"] >
+	|   < INTEGER_LITERAL: (<DIGIT>+) >
+	|   < IDENTIFIER: <ALPHA> (<ALPHA>|<DIGIT>)* >
+	|   < #UNDERSCORE: "_" >
+	|   < #ALPHA: ["_","a"-"z","A"-"Z"] >
+
+	|   < INT: "int" >
+	|   < INT_ARRAY: "int[]" >
+	|   < BOOLEAN: "boolean" >
+	|   < STRING: "String" >
+	|   < STRING_ARRAY: "String[]" >
+
+    |   < IMPORT: "import">
+    |   < CLASS: "class">
+    |   < PUBLIC: "public">
+    |   < STATIC: "static">
+    |   < MAIN: "main">
+    |   < EXTENDS: "extends" >
+    |   < VOID: "void">
+    |   < RETURN: "return" >
+    |   < LENGTH: "length">
+    |   < NEW: "new">
+    |   < THIS: "this" >
+
 ;
 
 Start : AdditiveExpression <EOF> ;
@@ -37,3 +88,21 @@ Factor :
 	< MINUS> Factor |
 	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
 ;
+
+
+void ClassDeclaration() : { Token token_name; } {
+    <CLASS> token_name = <IDENTIFIER> {jjtThis.name = token_name.image;} (ClassGeneralization)?
+    <OPEN_BRACES>
+        ClassBody()
+    <CLOSE_BRACES>
+}
+
+void ClassGeneralization() : { Token token_name; } {
+    <EXTENDS> token_name = <IDENTIFIER> {
+        jjtThis.name = token_name.image;
+    }
+}
+
+void ClassBody() #void : { int field_num = 0, method_num = 0; } {
+
+}
