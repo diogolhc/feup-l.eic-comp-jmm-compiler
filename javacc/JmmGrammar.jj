@@ -7,51 +7,51 @@ SKIP : " " | "\t" | "\r" | "\n"
         | < "//" (~["\r", "\n"])* >
 ;
 
-<InsideComment> SKIP: "*/ : DEFAULT"
+<InsideComment> SKIP: { "*/ : DEFAULT" }
 
-<InsideComment> MORE : <~[]>
+<InsideComment> MORE : { <~[]> }
 
-TOKEN :
-	    // TODO add extra operators (||, ^, >, ==)
-	    < PLUS : "+" >
-	|   < MINUS : "-" >
-	|   < TIMES : "*" >
-	|   < DIVIDE : "/" >
+TOKEN #NumericalLiteral :
+    < INTEGER_LITERAL :
+            <BINARY_LITERAL>
+        |   <OCTAL_LITERAL>
+        |   <HEX_LITERAL>
+        |   <DECIMAL_LITERAL>
+    > #IntegerLiteral
+    |   < #BINARY_LITERAL: "0" ["b", "B"] ["0", "1"] ((["0", "1", "_"])* ["0", "1"])? >
+    |   < #OCTAL_LITERAL: "0" ["0"-"7"] ((["0"-"7", "_"])* ["0"-"7"])? >
+	|   < #HEX_LITERAL: "0" ["x", "X"] <HEX_DIGITS> >
+	|   < #DECIMAL_LITERAL: ["0"-"9"]((["0"-"9","_"])*["0"-"9"])? >
+	|   < LONG_LITERAL: <INTEGER_LITERAL> (["l", "L"]) > #LongLiteral
+	|   < #HEX_DIGITS: ["0"-"9","a"-"f","A"-"F"]((["0"-"9","a"-"f","A"-"F","_"])*["0"-"9","a"-"f","A"-"F"])? >
+;
+
+TOKEN #Operator :
+	    < PLUS: "+" >
+	|   < MINUS: "-" >
+	|   < TIMES: "*" >
+	|   < DIVIDE: "/" >
 	|   < ASSIGN: "=" >
 	|   < AND: "&&" >
 	|   < NOT: "!" >
-	|   < LESS_THAN "<" >
+	|   < LT: "<" >
+;
 
-	|   < IF: "if" >
-	|   < ELSE: "else" >
-	|   < WHILE: "while" >
-
-	|   < OPEN_PARENTHESES : "(" >
-	|   < CLOSE_PARENTHESES : ")" >
-	|   < OPEN_SQUARE_BRACKETS : "[" >
-	|   < CLOSE_SQUARE_BRACKETS : "]" >
-	|   < OPEN_BRACES : "{" >
-	|   < CLOSE_BRACES : "}" >
+TOKEN #Delimiter :
+        < LPARENTHESES: "(" >
+    |   < RPARENTHESES: ")" >
+	|   < LSQUARE_BRACKETS: "[" >
+	|   < RSQUARE_BRACKETS: "]" >
+    |   < LBRACES: "{" >
+    |   < RBRACES: "}" >
 	|   < DOT: "." >
 	|   < COMMA: "," >
 	|   < COLON: ":" >
 	|   < SEMICOLON: ";" >
+;
 
-	|   < TRUE: "true" >
-	|   < FALSE: "false" >
-	|   < #DIGIT : ["0"-"9"] >
-	|   < INTEGER_LITERAL: (<DIGIT>+) >
-	|   < IDENTIFIER: <ALPHA> (<ALPHA>|<DIGIT>)* >
-	|   < #UNDERSCORE: "_" >
-	|   < #ALPHA: ["_","a"-"z","A"-"Z"] >
-
-	|   < INT: "int" >
-	|   < INT_ARRAY: "int[]" >
-	|   < BOOLEAN: "boolean" >
-	|   < STRING: "String" >
-	|   < STRING_ARRAY: "String[]" >
-
-    |   < IMPORT: "import">
+TOKEN #KeyWord :
+        < IMPORT: "import">
     |   < CLASS: "class">
     |   < PUBLIC: "public">
     |   < STATIC: "static">
@@ -62,10 +62,22 @@ TOKEN :
     |   < LENGTH: "length">
     |   < NEW: "new">
     |   < THIS: "this" >
-
+    |   < IF: "if" >
+    |   < ELSE: "else" >
+    |   < WHILE: "while" >
+    |   < TRUE: "true" > #BooleanLiteral
+    |   < FALSE: "false" > #BooleanLiteral
+    |   < INT: "int" > #Primitive
+    |   < BOOLEAN: "boolean" > #Primitive
 ;
 
-Start : AdditiveExpression <EOF> ;
+TOKEN :
+	    < IDENTIFIER: ["_","a"-"z","A"-"Z"] (["_","a"-"z","A"-"Z"] | ["0"-"9"])* > #Identifier
+;
+
+
+Start : <AdditiveExpression> <EOF>;
+
 
 AdditiveExpression :
 	MultiplicativeExpression
@@ -84,11 +96,10 @@ MultiplicativeExpression :
 ;
 
 Factor :
-	< INTEGER > |
+	< INTEGER_LITERAL > |
 	< MINUS> Factor |
-	< OPEN_PAREN > AdditiveExpression < CLOSE_PAREN >
+	< LPARENTHESES > AdditiveExpression < RPARENTHESES >
 ;
-
 
 void ClassDeclaration() : { Token token_name; } {
     <CLASS> token_name = <IDENTIFIER> {jjtThis.name = token_name.image;} (ClassGeneralization)?
@@ -106,3 +117,4 @@ void ClassGeneralization() : { Token token_name; } {
 void ClassBody() #void : { int field_num = 0, method_num = 0; } {
 
 }
+
