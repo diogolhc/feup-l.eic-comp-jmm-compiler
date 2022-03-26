@@ -1,6 +1,7 @@
 PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
+//BASE_NODE_CLASS="SimpleNode";
 
 SKIP : " " | "\t" | "\r" | "\n"
         | "/*" : InsideComment
@@ -76,7 +77,7 @@ TOKEN :
 ;
 
 
-Start : <AdditiveExpression> <EOF>;
+Start : AdditiveExpression <EOF>;
 
 
 AdditiveExpression :
@@ -101,20 +102,54 @@ Factor :
 	< LPARENTHESES > AdditiveExpression < RPARENTHESES >
 ;
 
-void ClassDeclaration() : { Token token_name; } {
-    <CLASS> token_name = <IDENTIFIER> {jjtThis.name = token_name.image;} (ClassGeneralization)?
-    <OPEN_BRACES>
-        ClassBody()
-    <CLOSE_BRACES>
+/*
+SimpleNode Program(): {} {
+    (ImportDeclaration())*
+    ClassDeclaration()
+    <EOF>
+
+    { return jjtThis; }
+}*/
+
+Start: Program;
+
+Program:
+    (ImportDeclaration())*
+    ClassDeclaration()
+    <EOF>
+;
+
+void ImportDeclaration() : { Token token1, token2; } {
+    <IMPORT> token1 = <IDENTIFIER> { /* jjtThis.put("name", token1.getImage()); */ }
+    (<DOT> token2 = <IDENTIFIER> { /* jjtThis.put("name", token2.getImage()); */ } )* <SEMICOLON>
 }
 
-void ClassGeneralization() : { Token token_name; } {
-    <EXTENDS> token_name = <IDENTIFIER> {
-        jjtThis.name = token_name.image;
-    }
+void ClassDeclaration() : { Token token; } {
+    <CLASS> token = <IDENTIFIER> {  /*jjtThis.put("name", token1.getImage());*/ } (ClassGeneralization)?
+    <LBRACES> ClassBody() <RBRACES>
 }
 
-void ClassBody() #void : { int field_num = 0, method_num = 0; } {
-
+void ClassGeneralization() : { Token token; } {
+    <EXTENDS> token = <IDENTIFIER> { /* jjtThis.put("name", token1.getImage()); */ }
 }
 
+void ClassBody() #void : {} {
+     // TODO: enforce 0 or 1 main (extra)
+    (VarDeclaration())* (<PUBLIC> (MainDeclaration() | MethodDeclaration()))*
+}
+
+void VarDeclaration() : {} {
+    <EOF>
+}
+
+void MethodDeclaration() : {} {
+    <EOF>
+}
+
+void MainDeclaration() : { Token token; } {
+    <STATIC> <VOID> <MAIN> <LPARENTHESES> "String" Array() token = <IDENTIFIER> {} <RPARENTHESES>
+}
+
+void Array() #void : {} {
+    <LSQUARE_BRACKETS> <RSQUARE_BRACKETS>
+}
