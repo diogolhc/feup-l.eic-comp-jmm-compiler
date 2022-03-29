@@ -1,16 +1,16 @@
 PARSER_PACKAGE=pt.up.fe.comp;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
-//BASE_NODE_CLASS="SimpleNode";
-
+BASE_NODE_CLASS="SimpleNode";
+//LOOKAHEAD = 1
 SKIP : " " | "\t" | "\r" | "\n"
-        | "/*" : InsideComment
-        | < "//" (~["\r", "\n"])* >
+        //| "/*" : InsideComment
+        //| < "//" (~["\r", "\n"])* >
 ;
 
-<InsideComment> SKIP: { "*/ : DEFAULT" }
+//<InsideComment> SKIP: { "*/ : DEFAULT" }
 
-<InsideComment> MORE : { <~[]> }
+//<InsideComment> MORE : { <~[]> }
 
 TOKEN #NumericalLiteral :
     < INTEGER_LITERAL :
@@ -76,9 +76,7 @@ TOKEN :
 	    < IDENTIFIER: ["_","a"-"z","A"-"Z"] (["_","a"-"z","A"-"Z"] | ["0"-"9"])* > #Identifier
 ;
 
-
-Start : AdditiveExpression <EOF>;
-
+Start: Program <EOF>;
 
 AdditiveExpression :
 	MultiplicativeExpression
@@ -111,12 +109,11 @@ SimpleNode Program(): {} {
     { return jjtThis; }
 }*/
 
-Start: Program;
-
 Program:
-    (ImportDeclaration())*
-    ClassDeclaration()
-    <EOF>
+
+    //(ImportDeclaration())*
+    //ClassDeclaration()
+    (<IMPORT>  <IDENTIFIER> (<DOT> <IDENTIFIER>)* <SEMICOLON>)*
 ;
 
 void ImportDeclaration() : { Token token1, token2; } {
@@ -135,21 +132,25 @@ void ClassGeneralization() : { Token token; } {
 
 void ClassBody() #void : {} {
      // TODO: enforce 0 or 1 main (extra)
-    (VarDeclaration())* (<PUBLIC> (MainDeclaration() | MethodDeclaration()))*
+    //(VarDeclaration())* (<PUBLIC> (MainDeclaration() | MethodDeclaration()))*
+    //(<PUBLIC> Method) * (MainDeclartion())? (MethodDeclaratiion)*
 }
-
+/*
+/*
 void VarDeclaration() : {} {
     <EOF>
-}
-
+}*/
+/*
 void MethodDeclaration() : {} {
     <EOF>
-}
-
+}*/
+/*
 void MainDeclaration() : { Token token; } {
     <STATIC> <VOID> <MAIN> <LPARENTHESES> "String" Array() token = <IDENTIFIER> {} <RPARENTHESES>
-}
+}*/
 
+/*
 void Array() #void : {} {
     <LSQUARE_BRACKETS> <RSQUARE_BRACKETS>
-}
+}*/
+;
