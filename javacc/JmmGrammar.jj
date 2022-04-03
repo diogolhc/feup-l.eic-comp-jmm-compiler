@@ -89,12 +89,12 @@ void ImportDeclaration() #Import : { Token token1, token2; } {
     (<DOT> token2 = <IDENTIFIER> { jjtThis.put("name", token2.getImage()); })* <SEMICOLON>
 }
 
-void ClassDeclaration() #Class : { Token token; } {
+void ClassDeclaration() #ClassDecl : { Token token; } {
     <CLASS> token = <IDENTIFIER> {  jjtThis.put("name", token.getImage()); } (ClassGeneralization())?
     <LBRACES> ClassBody() <RBRACES>
 }
 
-void ClassGeneralization() #void : { Token token; } {
+void ClassGeneralization() : { Token token; } {
     <EXTENDS> token = <IDENTIFIER> { jjtThis.put("name", token.getImage()); }
 }
 
@@ -103,7 +103,7 @@ void ClassBody() #void : {} {
     (<PUBLIC> (MainDeclaration() | MethodDeclaration()))*
 }
 
-void MethodDeclaration() #Method : {} {
+void MethodDeclaration() #MethodDecl : {} {
     MethodHeader()
     <LBRACES>
     //MethodBodyNoFinalReturn()
@@ -111,7 +111,7 @@ void MethodDeclaration() #Method : {} {
     <RBRACES>
 }
 
-void MethodHeader() #void : { Token token; String returnType; } {
+void MethodHeader() : { Token token; String returnType; } {
     returnType = Type() token = <IDENTIFIER> {
         jjtThis.put("name", token.getImage());
         jjtThis.put("returnType", returnType);
