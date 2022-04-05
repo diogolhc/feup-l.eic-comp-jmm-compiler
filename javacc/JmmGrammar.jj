@@ -106,7 +106,7 @@ void ClassBody() #void : {} {
 void MethodDeclaration() #MethodDecl : {} {
     MethodHeader()
     <LBRACES>
-    //MethodBodyNoFinalReturn()
+    MethodBodyNoFinalReturn()
     ReturnStatement()
     <RBRACES>
 }
@@ -153,25 +153,19 @@ void ReturnStatement() : {} {
 
 String Type() #void : { Token token; } {
     token = <INT> [Array() { return "array"; } ] { return "integer"; }
-   | token = <BOOLEAN> { return "boolean"; }
-   | token = <IDENTIFIER> { return token.getImage(); }
+    | token = <BOOLEAN> { return "boolean"; }
+    | token = <IDENTIFIER> { return token.getImage(); }
 }
 
 void Statement() #void : {} {
     <LBRACES> (Statement())* <RBRACES>
     | IfStatement()
     | WhileStatement()
+    | <IDENTIFIER> (
+        <ASSIGN> Expression() <SEMICOLON>
+        |   <IDENTIFIER> <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS> <ASSIGN> Expression() <SEMICOLON>
+    )
     | Expression() <SEMICOLON>
-    | <IDENTIFIER> <ASSIGN> Expression() <SEMICOLON>
-    | <IDENTIFIER> <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS> <ASSIGN> Expression() <SEMICOLON>
-}
-
-void Expression() : {} {
-        <INTEGER_LITERAL>
-    |   <TRUE>
-    |   <FALSE>
-    |   <THIS>
-    |   <IDENTIFIER>
 }
 
 void IfStatement() #void : {} {
@@ -183,20 +177,49 @@ void WhileStatement() #While : {} {
     <WHILE> <LPARENTHESES> Expression() <RPARENTHESES> Statement()
 }
 
-void ExpressionLogicAnd() #void : {} {
-    ExpressionLessThan() (<AND> ExpressionLessThan() #LogicAnd(2))*
+
+void Expression() : {} {
+    ExpressionLessThan() (<AND> ExpressionLessThan() #LogicAnd(2) )*
 }
 
 void ExpressionLessThan() #void : {} {
-    ExpressionAddSub() (<LT> ExpressionAddSub() #LessThan(2))*
+    ExpressionAddSub() (<LT> ExpressionAddSub() #LessThan(2) )*
 }
 
 void ExpressionAddSub() #void : {} {
-    ExpressionMulDiv() ((<PLUS> | <MINUS>) ExpressionMulDiv())*
+    ExpressionMulDiv() ((<PLUS> | <MINUS>) ExpressionMulDiv() #AddSub(2) )*
 }
 
 void ExpressionMulDiv() #void : {} {
-    "fill"
+    Factor() ((<TIMES> | <DIVIDE>) Factor() #MulDiv(2) )*
+}
+
+void Factor() #void : {} {
+    ExpressionSingles() (
+        <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>
+        |   <DOT> ExpressionDot()
+    )*
+}
+
+void ExpressionSingles() #void : {} {
+    <INTEGER_LITERAL>
+    |   <TRUE>
+    |   <FALSE>
+    |   <IDENTIFIER>
+    |   <THIS>
+    |   <NEW> ExpressionNew()
+    |   <NOT> Expression()
+    |   <LPARENTHESES> Expression() <RPARENTHESES>
+}
+
+void ExpressionNew() : {} {
+    <INT> <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>
+    |   <IDENTIFIER> <LPARENTHESES> <RPARENTHESES>
+}
+
+ExpressionDot() : {} {
+    <LENGTH>
+    |   <IDENTIFIER> <LPARENTHESES> (Expression() (<COMMA> Expression())* )? <RPARENTHESES>
 }
 
 

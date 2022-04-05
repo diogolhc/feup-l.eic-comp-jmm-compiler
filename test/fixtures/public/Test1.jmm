@@ -9,7 +9,8 @@ class A extends Socket {
     }
 
     public int g() {
-
-        return 1;
+        int d;
+        a = 2;
+        return a + 1;
     }
 }
