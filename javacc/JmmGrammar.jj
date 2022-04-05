@@ -3,13 +3,11 @@ PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 //BASE_NODE_CLASS="SimpleNode";
 
-SKIP : " " | "\t" | "\r" | "\n";
-        //| <"//"(~["\r","\n"])*>
-        //| <"/*">: InsideComment
-//;
-//<InsideComment> SKIP:  <"*/"> : DEFAULT
-   //                     | <~[]>
-//;
+SKIP: " " | "\t" | "\r" | "\n"
+        | <"//"(~["\r","\n"])*>
+        | <"/*" (~["*"])* "*" (~["*","/"] (~["*"])* "*" | "*")* "/">
+;
+
 
 TOKEN #NumericalLiteral :
     < INTEGER_LITERAL :
@@ -143,7 +141,7 @@ void ParameterDeclaration() #Parameter : { String type; Token token; } {
 }
 
 void MethodBodyNoFinalReturn() : {} {
-    (LOOKAHEAD(2) VarDeclaration())*
+    (SCAN 2 VarDeclaration())*
     (Statement())*
 }
 
@@ -161,9 +159,9 @@ void Statement() #void : {} {
     <LBRACES> (Statement())* <RBRACES>
     | IfStatement()
     | WhileStatement()
-    | <IDENTIFIER> (
+    | SCAN 2 <IDENTIFIER> (
         <ASSIGN> Expression() <SEMICOLON>
-        |   <IDENTIFIER> <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS> <ASSIGN> Expression() <SEMICOLON>
+        |   <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS> <ASSIGN> Expression() <SEMICOLON>
     )
     | Expression() <SEMICOLON>
 }
