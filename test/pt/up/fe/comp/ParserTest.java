@@ -15,12 +15,15 @@ package pt.up.fe.comp;
 
 import org.junit.Test;
 
+import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.specs.util.SpecsIo;
 
 public class ParserTest {
 
     private static void noErrors(String code) {
         var result = TestUtils.parse(code);
+        var root = ((JmmNode)result.getRootNode()).sanitize();
+        System.out.println(root.toTree());
         TestUtils.noErrors(result);
     }
 
@@ -71,6 +74,11 @@ public class ParserTest {
     @Test
     public void whileAndIf() {
         noErrors(SpecsIo.getResource("fixtures/public/WhileAndIf.jmm"));
+    }
+
+    @Test
+    public void MonteCarloPI() {
+        noErrors(SpecsIo.getResource("fixtures/public/MonteCarloPI.jmm"));
     }
 
     /* 

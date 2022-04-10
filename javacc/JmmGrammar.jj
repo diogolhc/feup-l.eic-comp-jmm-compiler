@@ -1,4 +1,5 @@
 PARSER_PACKAGE=pt.up.fe.comp;
+TOKENS_ARE_NODES = false;
 PARSER_CLASS=JmmGrammarParser;
 SMART_NODE_CREATION=false;
 //BASE_NODE_CLASS="SimpleNode";
@@ -84,7 +85,7 @@ Program:
 
 void ImportDeclaration() #Import : { Token token1, token2; } {
     <IMPORT> token1 = <IDENTIFIER> { jjtThis.put("name", token1.getImage()); }
-    (<DOT> token2 = <IDENTIFIER> { jjtThis.put("name", token2.getImage()); })* <SEMICOLON>
+    ((<DOT> token2 = <IDENTIFIER> { jjtThis.put("name", token2.getImage()); }) #Dot)* <SEMICOLON>
 }
 
 void ClassDeclaration() #ClassDecl : { Token token; } {
@@ -126,7 +127,7 @@ void Array() #void : {} {
     <LSQUARE_BRACKETS> <RSQUARE_BRACKETS>
 }
 
-void VarDeclaration() #Variable : { String type; Token token; } {
+void VarDeclaration() #Declaration : { String type; Token token; } {
     type = Type() token = <IDENTIFIER> {
         jjtThis.put("name", token.getImage());
         jjtThis.put("varType", type);
@@ -145,7 +146,7 @@ void MethodBodyNoFinalReturn() : {} {
     (Statement())*
 }
 
-void ReturnStatement() : {} {
+void ReturnStatement() #void : {} {
     <RETURN> Expression() <SEMICOLON> #Return(1)
 }
 
@@ -156,68 +157,82 @@ String Type() #void : { Token token; } {
 }
 
 void Statement() #void : {} {
-    <LBRACES> (Statement())* <RBRACES>
+    (<LBRACES> (Statement())* <RBRACES>) #Scope
     | IfStatement()
     | WhileStatement()
-    | SCAN 2 <IDENTIFIER> (
-        <ASSIGN> Expression() <SEMICOLON>
-        |   <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS> <ASSIGN> Expression() <SEMICOLON>
-    )
+    | SCAN 2 (Assignee() <ASSIGN> (Expression()) #Assigned <SEMICOLON>) #Assignment
     | Expression() <SEMICOLON>
 }
 
-void IfStatement() #void : {} {
-    (<IF> <LPARENTHESES> Expression() <RPARENTHESES> Statement()) #If
-    <ELSE> Statement() #Else
+void Assignee() : {} {
+    <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } (ArrayAccess())?
+}
+
+void IfStatement() : {} {
+    ((<IF> <LPARENTHESES> Expression() #Cond <RPARENTHESES> Statement()) #If) ((<ELSE> Statement()) #Else)
 }
 
 void WhileStatement() #While : {} {
-    <WHILE> <LPARENTHESES> Expression() <RPARENTHESES> Statement()
+    <WHILE> <LPARENTHESES> Expression() #Cond <RPARENTHESES> Statement()
 }
 
 
-void Expression() : {} {
-    ExpressionLessThan() (<AND> ExpressionLessThan() #LogicAnd(2) )*
+void Expression() #void : {} {
+    ExpressionLessThan() (<AND> ExpressionLessThan() ({ jjtThis.put("op", "and"); }) #BinOp(2) )*
 }
 
 void ExpressionLessThan() #void : {} {
-    ExpressionAddSub() (<LT> ExpressionAddSub() #LessThan(2) )*
+    ExpressionAddSub() (<LT> ExpressionAddSub() ({ jjtThis.put("op", "lessThan"); }) #BinOp(2) )*
 }
 
 void ExpressionAddSub() #void : {} {
-    ExpressionMulDiv() ((<PLUS> | <MINUS>) ExpressionMulDiv() #AddSub(2) )*
+    ExpressionMulDiv() (
+        (<PLUS> ExpressionMulDiv()) ({ jjtThis.put("op", "add"); }) #BinOp(2)
+        |   (<MINUS> ExpressionMulDiv()) ({ jjtThis.put("op", "sub"); }) #BinOp(2)
+    )*
 }
 
 void ExpressionMulDiv() #void : {} {
-    Factor() ((<TIMES> | <DIVIDE>) Factor() #MulDiv(2) )*
+    Factor() (
+        (<TIMES> Factor()) ({ jjtThis.put("op", "times"); }) #BinOp(2)
+        |   (<DIVIDE> Factor()) ({ jjtThis.put("op", "divide"); }) #BinOp(2)
+    )*
 }
 
 void Factor() #void : {} {
     ExpressionSingles() (
-        <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>
+        ArrayAccess()
         |   <DOT> ExpressionDot()
     )*
 }
 
+void ArrayAccess() : {} {
+    <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>
+}
+
 void ExpressionSingles() #void : {} {
-    <INTEGER_LITERAL>
-    |   <TRUE>
-    |   <FALSE>
-    |   <IDENTIFIER>
-    |   <THIS>
+    ExpressionTerminal()
     |   <NEW> ExpressionNew()
-    |   <NOT> Expression()
+    |   <NOT> ExpressionTerminal() #Not
+}
+
+void ExpressionTerminal() #void : {} {
+    (<INTEGER_LITERAL> {jjtThis.put("value", lastConsumedToken.getImage()); }) #IntLiteral
+    |   (<TRUE> {jjtThis.put("value", "true"); }) #Bool
+    |   (<FALSE> {jjtThis.put("value", "false"); }) #Bool
+    |   (<IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); }) #Id
+    |   <THIS> #This
     |   <LPARENTHESES> Expression() <RPARENTHESES>
 }
 
 void ExpressionNew() : {} {
-    <INT> <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>
-    |   <IDENTIFIER> <LPARENTHESES> <RPARENTHESES>
+    <INT> ArrayAccess()
+    |   <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } <LPARENTHESES> <RPARENTHESES>
 }
 
 ExpressionDot() : {} {
-    <LENGTH>
-    |   <IDENTIFIER> <LPARENTHESES> (Expression() (<COMMA> Expression())* )? <RPARENTHESES>
+    <LENGTH> #Length
+    |   <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } (<LPARENTHESES> (Expression() (<COMMA> Expression())* )? <RPARENTHESES>) #Args
 }
 
 

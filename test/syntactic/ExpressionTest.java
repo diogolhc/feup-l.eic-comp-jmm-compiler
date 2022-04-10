@@ -111,4 +111,18 @@ public class ExpressionTest {
         TestUtils.noErrors(parserResult.getReports());
     }
 
+    @Test
+    public void testExpressionSeveral4() {
+        JmmParserResult parserResult = TestUtils.parse("new int[4 + 5 * 1 + 2 - 3 && 1 < true]", "Expression");
+        parserResult.dumpReports();
+        TestUtils.noErrors(parserResult.getReports());
+    }
+
+    @Test
+    public void testExpressionSeveral5() {
+        JmmParserResult parserResult = TestUtils.parse("!5 + 6", "Expression");
+        parserResult.dumpReports();
+        TestUtils.noErrors(parserResult.getReports());
+    }
+
 }
