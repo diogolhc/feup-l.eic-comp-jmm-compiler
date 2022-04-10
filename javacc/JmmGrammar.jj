@@ -201,7 +201,7 @@ void ExpressionMulDiv() #void : {} {
 
 void Factor() #void : {} {
     ExpressionSingles() (
-        ArrayAccess()
+        (ArrayAccess())
         |   <DOT> ExpressionDot()
     )*
 }
@@ -232,7 +232,7 @@ void ExpressionNew() : {} {
 
 ExpressionDot() : {} {
     <LENGTH> #Length
-    |   <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } (<LPARENTHESES> (Expression() (<COMMA> Expression())* )? <RPARENTHESES>) #Args
+    |   <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } (<LPARENTHESES> ((Expression() #Arg) (<COMMA> (Expression() #Arg))* )? <RPARENTHESES>) #Args
 }
 
 
