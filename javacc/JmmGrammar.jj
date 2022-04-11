@@ -55,7 +55,7 @@ TOKEN #Operator :
 	|   < ASSIGN: "=" >
 	|   < AND: "&&" >
 	|   < NOT: "!" >
-	|   < LT: "<" >
+	|   < LESS_THAN: "<" >
 ;
 
 TOKEN #Delimiter :
@@ -182,7 +182,7 @@ void Expression() #void : {} {
 }
 
 void ExpressionLessThan() #void : {} {
-    ExpressionAddSub() (<LT> ExpressionAddSub() ({ jjtThis.put("op", "lessThan"); }) #BinOp(2) )*
+    ExpressionAddSub() (<LESS_THAN> ExpressionAddSub() ({ jjtThis.put("op", "lessThan"); }) #BinOp(2) )*
 }
 
 void ExpressionAddSub() #void : {} {
