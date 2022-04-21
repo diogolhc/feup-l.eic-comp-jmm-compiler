@@ -199,18 +199,20 @@ void ExpressionMulDiv() #void : {} {
     )*
 }
 
-void Factor() #void : {} {
-    ExpressionSingles() (
-        (ArrayAccess())
-        |   <DOT> ExpressionDot()
-    )*
+void Factor() #void: {} {
+    ExpressionSingles() (ExpressionDotArrayAccess())*
 }
 
-void ArrayAccess() : {} {
-    <LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>
+void ExpressionDotArrayAccess() #void : {} {
+        ArrayAccess() #ArrayAccess(2)
+        | <DOT> ExpressionDot()
 }
 
-void ExpressionSingles() #void : {} {
+void ArrayAccess() #void : {} {
+    (<LSQUARE_BRACKETS> Expression() <RSQUARE_BRACKETS>)
+}
+
+void ExpressionSingles() #void: {} {
     ExpressionTerminal()
     |   <NEW> ExpressionNew()
     |   <NOT> ExpressionTerminal() #Not
@@ -230,11 +232,18 @@ void ExpressionNew() : {} {
     |   <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } <LPARENTHESES> <RPARENTHESES>
 }
 
-ExpressionDot() : {} {
-    <LENGTH> #Length
-    |   <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } (<LPARENTHESES> ((Expression() #Arg) (<COMMA> (Expression() #Arg))* )? <RPARENTHESES>) #Args
+void ExpressionDot() #void: {} {
+(<LENGTH> #Length(1))
+| ( Id() <LPARENTHESES> Args() <RPARENTHESES> ) #ExpressionDot(3)
 }
 
+void Id() : {} {
+<IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); }
+}
+
+void Args() : {} {
+((Expression() #Arg) (<COMMA> (Expression() #Arg))* )?
+}
 
 INJECT BaseNode :
     import  pt.up.fe.comp.jmm.ast.JmmNode;
