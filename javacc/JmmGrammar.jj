@@ -87,7 +87,7 @@ void ImportDeclaration() #Import : { Token token1, token2; } {
     ((<DOT> token2 = <IDENTIFIER> { jjtThis.put("name", token2.getImage()); }) #Dot)* <SEMICOLON>
 }
 
-void ClassDeclaration() #ClassDecl : { Token token; } {
+void ClassDeclaration() : { Token token; } {
     <CLASS> token = <IDENTIFIER> {  jjtThis.put("name", token.getImage()); } (ClassGeneralization())?
     <LBRACES> ClassBody() <RBRACES>
 }
@@ -101,7 +101,7 @@ void ClassBody() #void : {} {
     (<PUBLIC> (MainDeclaration() | MethodDeclaration()))*
 }
 
-void MethodDeclaration() #MethodDecl : {} {
+void MethodDeclaration() : {} {
     MethodHeader()
     <LBRACES>
     MethodBodyNoFinalReturn()
@@ -164,17 +164,16 @@ void Statement() #void : {} {
 }
 
 void Assignee() : {} {
-    <IDENTIFIER> {jjtThis.put("name", lastConsumedToken.getImage()); } (ArrayAccess())?
+    <IDENTIFIER> { jjtThis.put("name", lastConsumedToken.getImage()); } (ArrayAccess())?
 }
 
 void IfStatement() : {} {
-    ((<IF> <LPARENTHESES> Expression() #Cond <RPARENTHESES> Statement()) #If) ((<ELSE> Statement()) #Else)
+    ((<IF> <LPARENTHESES> Expression() #Condition <RPARENTHESES> Statement()) #If) ((<ELSE> Statement()) #Else)
 }
 
 void WhileStatement() #While : {} {
-    <WHILE> <LPARENTHESES> Expression() #Cond <RPARENTHESES> Statement()
+    <WHILE> <LPARENTHESES> Expression() #Condition <RPARENTHESES> Statement()
 }
-
 
 void Expression() #void : {} {
     ExpressionLessThan() (<AND> ExpressionLessThan() ({ jjtThis.put("op", "and"); }) #BinOp(2) )*
@@ -186,15 +185,15 @@ void ExpressionLessThan() #void : {} {
 
 void ExpressionAddSub() #void : {} {
     ExpressionMulDiv() (
-        (<PLUS> ExpressionMulDiv()) ({ jjtThis.put("op", "add"); }) #BinOp(2)
-        |   (<MINUS> ExpressionMulDiv()) ({ jjtThis.put("op", "sub"); }) #BinOp(2)
+        (<PLUS> ExpressionMulDiv()) ({ jjtThis.put("op", "addition"); }) #BinOp(2)
+        |   (<MINUS> ExpressionMulDiv()) ({ jjtThis.put("op", "subtraction"); }) #BinOp(2)
     )*
 }
 
 void ExpressionMulDiv() #void : {} {
     Factor() (
-        (<TIMES> Factor()) ({ jjtThis.put("op", "times"); }) #BinOp(2)
-        |   (<DIVIDE> Factor()) ({ jjtThis.put("op", "divide"); }) #BinOp(2)
+        (<TIMES> Factor()) ({ jjtThis.put("op", "multiplication"); }) #BinOp(2)
+        |   (<DIVIDE> Factor()) ({ jjtThis.put("op", "division"); }) #BinOp(2)
     )*
 }
 
