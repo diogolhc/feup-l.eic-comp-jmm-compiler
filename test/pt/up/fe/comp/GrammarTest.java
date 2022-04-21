@@ -18,9 +18,8 @@ import org.junit.Test;
 public class GrammarTest {
 
     private static final String IMPORT = "ImportDeclaration";
-    // to use 1 less SCAN 2, our main and instance method don't have "public" inside them
-    private static final String MAIN_METHOD = "";
-    private static final String INSTANCE_METHOD = "";
+    private static final String MAIN_METHOD = "ClassBody";
+    private static final String INSTANCE_METHOD = "ClassBody";
     private static final String STATEMENT = "Statement";
     private static final String EXPRESSION = "Expression";
 

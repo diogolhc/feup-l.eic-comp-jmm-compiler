@@ -44,7 +44,6 @@ TOKEN #KeyWord :
     |   < FALSE: "false" > #BooleanLiteral
     |   < INT: "int" > #Primitive
     |   < BOOLEAN: "boolean" > #Primitive
-    |   < STRING: "String" >
 ;
 
 TOKEN #Operator :
@@ -119,7 +118,7 @@ void MethodHeader() : { Token token; String returnType; } {
 }
 
 void MainDeclaration() #Main : { Token token; } {
-    <STATIC> <VOID> <MAIN> <LPARENTHESES> <STRING> Array() token = <IDENTIFIER> { jjtThis.put("mainArray", token.getImage()); } <RPARENTHESES>
+    <STATIC> <VOID> <MAIN> <LPARENTHESES> <IDENTIFIER> { jjtThis.put("string", lastConsumedToken.getImage()); } Array() token = <IDENTIFIER> { jjtThis.put("mainArray", token.getImage()); } <RPARENTHESES>
     <LBRACES> MethodBodyNoFinalReturn() <RBRACES>
 }
 
