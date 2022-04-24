@@ -1,0 +1,14 @@
+import java.util;
+import java.net.Socket;
+class A extends Socket {
+    int a;
+    int b;
+    boolean c;
+    public int f() {
+        return 1;
+    }
+
+    public int g() {
+        return a + 1;
+    }
+}

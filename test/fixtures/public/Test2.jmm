@@ -1,0 +1,18 @@
+import java.util;
+import java.net.Socket;
+class A extends Socket {
+    public static void main(String[] args) {
+
+    }
+    public int f() {
+        return 1;
+    }
+
+    public int g() {
+        return 1;
+    }
+
+    public static void main(String[] args) {
+
+    }
+}

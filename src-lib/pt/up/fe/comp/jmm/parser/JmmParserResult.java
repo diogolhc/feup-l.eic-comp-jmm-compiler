@@ -58,4 +58,10 @@ public class JmmParserResult implements ReportsProvider {
                 .create();
         return gson.toJson(this, JmmParserResult.class);
     }
+
+    public void dumpReports() {
+        for (Report report : reports) {
+            report.getException().get().printStackTrace();
+        }
+    }
 }
