@@ -49,6 +49,7 @@ public class SimpleParser implements JmmParser {
                         "JmmNode interface not yet implemented, returning null root node"));
             }
 
+            // TODO: JUST FOR TESTING
             var importCollector = new ImportCollector();
             var imports = new ArrayList<String>();
             var visits = importCollector.visit((JmmNode) root, imports);
