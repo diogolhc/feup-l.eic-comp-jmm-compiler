@@ -11,29 +11,39 @@ public class ImportCollector extends AJmmVisitor<List<String>, Integer> {
 
     public ImportCollector() {
         this.visits = 0;
-        System.out.println("constructor");
         addVisit(AstNode.PROGRAM, this::visitProgram);
         addVisit(AstNode.IMPORT_DECL, this::visitImportDecl);
-
+        addVisit(AstNode.START, this::visitStart);
         setDefaultVisit((node, imports) -> ++visits);
     }
 
+    private Integer visitStart(JmmNode start, List<String> imports) {
+        visit(start.getChildren().get(0), imports);
+        return null;
+    }
+
     private Integer visitProgram(JmmNode program, List<String> imports) {
-        System.out.println("here program");
         for (var child : program.getChildren()) {
-            visit(child, imports);
+            if (child.getKind().equals(AstNode.IMPORT_DECL)) {
+                visit(child, imports);
+            }
         }
 
         return ++visits;
     }
 
     private Integer visitImportDecl(JmmNode importDecl, List<String> imports) {
-        System.out.println("here");
-        var importString = importDecl.getChildren().stream()
+        var importString = importDecl.get("name");
+
+        var importStr = importDecl.getChildren().stream()
                 .map(id -> id.get("name"))
                 .collect(Collectors.joining("."));
 
-        imports.add(importString);
+        if (importStr.equals("")) {
+            imports.add(importString);
+        } else {
+            imports.add(importString + "." + importStr);
+        }
 
         return ++visits;
     }
