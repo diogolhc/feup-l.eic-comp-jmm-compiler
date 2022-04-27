@@ -11,6 +11,7 @@ public class ImportCollector extends AJmmVisitor<List<String>, Integer> {
 
     public ImportCollector() {
         this.visits = 0;
+        addVisit(AstNode.START, this::visitStart);
         addVisit(AstNode.PROGRAM, this::visitProgram);
         addVisit(AstNode.IMPORT_DECL, this::visitImportDecl);
         setDefaultVisit((node, imports) -> ++visits);
