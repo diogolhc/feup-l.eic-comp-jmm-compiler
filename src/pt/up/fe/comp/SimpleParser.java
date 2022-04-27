@@ -6,9 +6,11 @@ import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
+import pt.up.fe.comp.visitors.ImportCollector;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsSystem;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 
@@ -46,6 +48,15 @@ public class SimpleParser implements JmmParser {
                 return JmmParserResult.newError(new Report(ReportType.WARNING, Stage.SYNTATIC, -1,
                         "JmmNode interface not yet implemented, returning null root node"));
             }
+
+            var importCollector = new ImportCollector();
+            var imports = new ArrayList<String>();
+            var visits = importCollector.visit((JmmNode) root, imports);
+
+            System.out.println("IMPORTS");
+            System.out.println(imports);
+            System.out.println(visits);
+            System.out.println("----END----");
 
             return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
 
