@@ -13,13 +13,12 @@ public class ImportCollector extends AJmmVisitor<List<String>, Integer> {
         this.visits = 0;
         addVisit(AstNode.PROGRAM, this::visitProgram);
         addVisit(AstNode.IMPORT_DECL, this::visitImportDecl);
-        addVisit(AstNode.START, this::visitStart);
         setDefaultVisit((node, imports) -> ++visits);
     }
 
     private Integer visitStart(JmmNode start, List<String> imports) {
         visit(start.getChildren().get(0), imports);
-        return null;
+        return ++visits;
     }
 
     private Integer visitProgram(JmmNode program, List<String> imports) {
