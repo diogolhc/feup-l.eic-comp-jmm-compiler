@@ -43,9 +43,58 @@ public class JasminBackender implements JasminBackend {
         }
 
         // methods
+        // .method <access-spec> <method-spec>
+        //     <statements>
+        // .end method
         for (Method method : this.classUnit.getMethods()) {
-            // TODO
+            stringBuilder.append(this.getMethodHeader(method));
+            stringBuilder.append(this.getMethodStatements(method));
+            stringBuilder.append(".end method\n");
         }
+
+        return stringBuilder.toString();
+    }
+
+    private String getMethodHeader(Method method) {
+        if (method.isConstructMethod()) {
+            return "\n.method public <init>()V\n";
+        }
+
+        StringBuilder stringBuilder = new StringBuilder("\n.method ");
+
+        // <access-spec>
+        stringBuilder.append(method.getMethodAccessModifier().name().toLowerCase()).append(" ");
+        if (method.isStaticMethod()) stringBuilder.append("static ");
+        if (method.isFinalMethod()) stringBuilder.append("final ");
+
+        // <method-spec>
+        stringBuilder.append(method.getMethodName()).append('(');
+        for (Element param : method.getParams()) {
+            stringBuilder.append(this.getFieldDescriptor(param.getType())).append(' ');
+        }
+        stringBuilder.append(')');
+        stringBuilder.append(this.getFieldDescriptor(method.getReturnType())).append('\n');
+
+        return stringBuilder.toString();
+    }
+
+    private String getMethodStatements(Method method) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if (method.isConstructMethod()) {
+            stringBuilder.append("aload_0\n");
+
+            String superClass = this.classUnit.getSuperClass();
+            if (superClass == null) {
+                superClass = "java/lang/Object";
+            }
+            stringBuilder.append("invokespecial ").append(superClass).append("/<init>()V\n");
+        }
+
+        // TODO
+
+
+        stringBuilder.append("return\n");
 
         return stringBuilder.toString();
     }
@@ -55,7 +104,7 @@ public class JasminBackender implements JasminBackend {
         ElementType elementType = type.getTypeOfElement();
 
         if (elementType == ElementType.ARRAYREF) {
-            stringBuilder.append("[ ");
+            stringBuilder.append('[');
             elementType = ((ArrayType) type).getTypeOfElements();
         }
 
@@ -63,12 +112,11 @@ public class JasminBackender implements JasminBackend {
             case INT32:stringBuilder.append('I'); break;
             case BOOLEAN: stringBuilder.append('Z'); break;
             case OBJECTREF:
-                String name = ((ClassType) type).getName(); // TODO check if this name already has imports or not
-                stringBuilder.append("L ").append(this.getClassFullName(name));
+                String name = ((ClassType) type).getName();
+                stringBuilder.append("L").append(this.getClassFullName(name));
                 break;
-            case CLASS: stringBuilder.append("CLASS");
-                break;
-            case STRING: stringBuilder.append("L java/lang/String ;"); break;
+            case CLASS: stringBuilder.append("CLASS"); break;
+            case STRING: stringBuilder.append("Ljava/lang/String;"); break;
             case VOID: stringBuilder.append('V'); break;
             default: break; // TODO (?)
         }
