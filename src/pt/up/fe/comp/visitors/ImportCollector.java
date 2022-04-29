@@ -48,10 +48,3 @@ public class ImportCollector extends AJmmVisitor<List<String>, Integer> {
         return ++visits;
     }
 }
-
-
-/*
-var importCollector = new ImportCollector();
-var imports = new ArrayList<String>();
-var visits = importCollector.visit(rootNode, imports);
- */

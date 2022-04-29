@@ -5,6 +5,8 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmNode;
+import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.visitors.ImportCollector;
 
 import java.util.*;
 
@@ -60,7 +62,9 @@ public class SymbolTableImpl implements SymbolTable {
     }
 
     private void setupImports(AJmmNode root) {
-        imports = new ArrayList<>();
+        var importCollector = new ImportCollector();
+        imports = new ArrayList<String>();
+        var visits = importCollector.visit((JmmNode) root, imports);
     }
 
     private void setupMethods(AJmmNode root) {
