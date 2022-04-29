@@ -1,11 +1,9 @@
 package pt.up.fe.comp.analysis.table;
 
-
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmNode;
-import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.visitors.ImportCollector;
 
 import java.util.*;
@@ -18,8 +16,8 @@ public class SymbolTableImpl implements SymbolTable {
     private Map<String, Method> methods;
 
     public SymbolTableImpl(AJmmNode root) throws VarAlreadyDefinedException {
-        setupFields(root);
         setupImports(root);
+        setupFields(root);
         setupMethods(root);
     }
 
@@ -63,8 +61,8 @@ public class SymbolTableImpl implements SymbolTable {
 
     private void setupImports(AJmmNode root) {
         var importCollector = new ImportCollector();
-        imports = new ArrayList<String>();
-        var visits = importCollector.visit((JmmNode) root, imports);
+        imports = new ArrayList<>();
+        var visits = importCollector.visit(root, imports);
     }
 
     private void setupMethods(AJmmNode root) {
@@ -111,21 +109,21 @@ public class SymbolTableImpl implements SymbolTable {
     public Type getReturnType(String methodSignature) {
         Method method = methods.get(methodSignature);
 
-        return method == null? null : method.getReturnType();
+        return method == null ? null : method.getReturnType();
     }
 
     @Override
     public List<Symbol> getParameters(String methodSignature) {
         Method method = methods.get(methodSignature);
 
-        return method == null? null : method.getParameters();
+        return method == null ? null : method.getParameters();
     }
 
     @Override
     public List<Symbol> getLocalVariables(String methodSignature) {
         Method method = methods.get(methodSignature);
 
-        return method == null? null : method.getLocalVariables();
+        return method == null ? null : method.getLocalVariables();
     }
 
     public static void main(String[] args) {
