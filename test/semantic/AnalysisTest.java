@@ -9,5 +9,6 @@ public class AnalysisTest {
     public void test() {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/NewHello.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
+        TestUtils.noErrors(results);
     }
 }

@@ -3,8 +3,6 @@ package pt.up.fe.comp.analysis.table;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
-import pt.up.fe.comp.jmm.ast.AJmmNode;
-import pt.up.fe.comp.visitors.ImportCollector;
 
 import java.util.*;
 
@@ -22,12 +20,6 @@ public class SymbolTableImpl implements SymbolTable {
         this.superclassName = null;
         this.methods = new HashMap<>();
         this.fields = new HashMap<>();
-    }
-
-    public SymbolTableImpl(AJmmNode root) throws VarAlreadyDefinedException {
-        //setupImports(root);
-        //setupFields(root);
-        //setupMethods(root);
     }
 
     public SymbolTableImpl(String className, String superclassName, List<String> imports,
@@ -66,14 +58,6 @@ public class SymbolTableImpl implements SymbolTable {
                 }
             }
         }
-    }
-
-    private void setupMethods(AJmmNode root) {
-        methods = new HashMap<>();
-    }
-
-    private void setupFields(AJmmNode root) {
-        fields = new HashMap<>();
     }
 
     @Override
@@ -200,22 +184,20 @@ public class SymbolTableImpl implements SymbolTable {
         this.superclassName = superclassName;
     }
 
-    private boolean hasMethod(String methodSignature) {
+    public boolean hasMethod(String methodSignature) {
+        // TODO: METHOD OVERLOADING
         return methods.containsKey(methodSignature);
     }
 
     public void addMethod(String methodSignature, Type returnType, List<Symbol> params) {
-        // TODO
-        if (hasMethod(methodSignature)) {
-            // TODO exceção ou reports
-        }
-
         Method method = new Method(returnType);
 
-        // TODO PARSE RETURNED BOOLEAN
+        // TODO: PARSE RETURNED BOOLEAN
         for (Symbol param : params) {
             method.addParameter(param);
         }
+
+        methods.put(methodSignature, method);
 
     }
 }
