@@ -51,7 +51,7 @@ public class SimpleParser implements JmmParser {
             }
 
             // TODO: JUST FOR TESTING
-            var importCollector = new ImportCollector();
+            /*var importCollector = new ImportCollector();
             var imports = new ArrayList<String>();
             var visits = importCollector.visit((JmmNode) root, imports);
 
@@ -68,7 +68,7 @@ public class SimpleParser implements JmmParser {
             System.out.println(methods);
             System.out.println(visits1);
             System.out.println("----END----");
-
+            */
             return new JmmParserResult((JmmNode) root, Collections.emptyList(), config);
 
         } catch (Exception ex) {

@@ -11,20 +11,29 @@ import java.util.*;
 public class SymbolTableImpl implements SymbolTable {
     private String className;
     private String superclassName;
+
     private Map<Type, List<Symbol>> fields;
     private List<String> imports;
     private Map<String, Method> methods;
 
+    public SymbolTableImpl() {
+        this.imports = new ArrayList<>();
+        this.className = null;
+        this.superclassName = null;
+        this.methods = new HashMap<>();
+        this.fields = new HashMap<>();
+    }
+
     public SymbolTableImpl(AJmmNode root) throws VarAlreadyDefinedException {
-        setupImports(root);
-        setupFields(root);
-        setupMethods(root);
+        //setupImports(root);
+        //setupFields(root);
+        //setupMethods(root);
     }
 
     public SymbolTableImpl(String className, String superclassName, List<String> imports,
-                            List<Symbol> fields, Map<String, List<Symbol>> parameters,
-                            Map<String, List<Symbol>> localVariables, Map<String, Type> methodTypes)
-                            throws VarAlreadyDefinedException {
+                           List<Symbol> fields, Map<String, List<Symbol>> parameters,
+                           Map<String, List<Symbol>> localVariables, Map<String, Type> methodTypes)
+                           throws VarAlreadyDefinedException {
         this.className = className;
         this.superclassName = superclassName;
         this.imports = imports;
@@ -57,12 +66,6 @@ public class SymbolTableImpl implements SymbolTable {
                 }
             }
         }
-    }
-
-    private void setupImports(AJmmNode root) {
-        var importCollector = new ImportCollector();
-        imports = new ArrayList<>();
-        var visits = importCollector.visit(root, imports);
     }
 
     private void setupMethods(AJmmNode root) {
@@ -121,18 +124,19 @@ public class SymbolTableImpl implements SymbolTable {
 
     @Override
     public List<Symbol> getLocalVariables(String methodSignature) {
-        Method method = methods.get(methodSignature);
+        /*Method method = methods.get(methodSignature);
 
-        return method == null ? null : method.getLocalVariables();
+        return method == null ? null : method.getLocalVariables();*/
+        return Collections.emptyList();
     }
 
-    public static void main(String[] args) {
+/*    public static void main(String[] args) {
         List<String> p = new ArrayList<>();
         p.add("String[]");
         p.add("int");
         p.add("ArrayList");
         System.out.println(SymbolTableImpl.toMethodSignature("f", p));
-    }
+    }*/
 
     private static String toMethodSignature(String methodName, List<String> parameterTypes) {
         var builder = new StringBuilder();
@@ -182,5 +186,36 @@ public class SymbolTableImpl implements SymbolTable {
         }
 
         return null;
+    }
+
+    public void addImport(String importResult) {
+        imports.add(importResult);
+    }
+
+    public void setclassName(String name) {
+        this.className = name;
+    }
+
+    public void setSuperclassName(String superclassName) {
+        this.superclassName = superclassName;
+    }
+
+    private boolean hasMethod(String methodSignature) {
+        return methods.containsKey(methodSignature);
+    }
+
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params) {
+        // TODO
+        if (hasMethod(methodSignature)) {
+            // TODO exceção ou reports
+        }
+
+        Method method = new Method(returnType);
+
+        // TODO PARSE RETURNED BOOLEAN
+        for (Symbol param : params) {
+            method.addParameter(param);
+        }
+
     }
 }
