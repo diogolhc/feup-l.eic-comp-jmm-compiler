@@ -178,6 +178,20 @@ public class SymbolTableImpl implements SymbolTable {
         imports.add(importResult);
     }
 
+    public boolean addField(Symbol field) {
+        // TODO: CHECK IF ALREADY EXISTS -> EXCEPTION
+        if (!fields.containsKey(field.getType())) {
+            List<Symbol> f = new ArrayList<>();
+            f.add(field);
+
+            fields.put(field.getType(), f);
+        } else {
+            fields.get(field.getType()).add(field);
+        }
+
+        return true;
+    }
+
     public void setclassName(String name) {
         this.className = name;
     }

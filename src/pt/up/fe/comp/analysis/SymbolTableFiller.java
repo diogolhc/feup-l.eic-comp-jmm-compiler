@@ -53,6 +53,18 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
         symbolTable.setclassName(classDecl.get("name"));
         classDecl.getOptional("superclass").ifPresent(symbolTable::setSuperclassName);
 
+        // Fields
+        var fields = classDecl.getChildren().stream()
+                .filter(node -> node.getKind().equals(AstNode.VAR_DECL))
+                .collect(Collectors.toList());
+
+        for (var variable : fields) {
+            symbolTable.addField(new Symbol(
+                    new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
+                            variable.get("varType").equals("array"))
+                    , variable.get("name")));
+        }
+
         return 0;
     }
 
