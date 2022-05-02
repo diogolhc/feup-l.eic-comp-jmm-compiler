@@ -31,7 +31,7 @@ public class JasminBackender implements JasminBackend {
         // .super  <class-name>
         String extendsClass = this.classUnit.getSuperClass();
         if (extendsClass != null) {
-            stringBuilder.append(".super ").append(extendsClass).append('\n');
+            stringBuilder.append(".super ").append(getClassFullName(extendsClass)).append('\n');
         } else {
             stringBuilder.append(".super java/lang/Object\n");
         }
@@ -63,14 +63,18 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder("\n.method ");
 
         // <access-spec>
-        stringBuilder.append(method.getMethodAccessModifier().name().toLowerCase()).append(" ");
+        String accessSpec = "";
+        if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT) {
+            accessSpec = method.getMethodAccessModifier().name().toLowerCase();
+        }
+        stringBuilder.append(accessSpec).append(" ");
         if (method.isStaticMethod()) stringBuilder.append("static ");
         if (method.isFinalMethod()) stringBuilder.append("final ");
 
         // <method-spec>
         stringBuilder.append(method.getMethodName()).append('(');
         for (Element param : method.getParams()) {
-            stringBuilder.append(this.getFieldDescriptor(param.getType())).append(' ');
+            stringBuilder.append(this.getFieldDescriptor(param.getType())).append(' '); // TODO should this be ';' instead of ' '?
         }
         stringBuilder.append(')');
         stringBuilder.append(this.getFieldDescriptor(method.getReturnType())).append('\n');
@@ -81,7 +85,7 @@ public class JasminBackender implements JasminBackend {
     private String getMethodStatements(Method method) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (method.isConstructMethod()) {
+        if (method.isConstructMethod()) { // TODO devemos retornar apenas isto para constructors? (deu essa impressão no vídeo)
             stringBuilder.append("aload_0\n");
 
             String superClass = this.classUnit.getSuperClass();
@@ -111,6 +115,7 @@ public class JasminBackender implements JasminBackend {
                 }
             }
 
+            method.buildVarTable();
             stringBuilder.append(this.getInstruction(instruction, method.getVarTable()));
         }
 
@@ -122,9 +127,7 @@ public class JasminBackender implements JasminBackend {
 
         switch (instruction.getInstType()) {
             case ASSIGN: return this.getAssignInstruction((AssignInstruction) instruction, varTable);
-            case CALL:
-                // TODO
-                break;
+            case CALL: return this.getCallInstruction((CallInstruction) instruction, varTable);
             case GOTO:
                 // TODO
                 break;
@@ -151,7 +154,13 @@ public class JasminBackender implements JasminBackend {
                 break;
         }
 
-        return "getInstruction() error";
+        return "getInstruction() error\n";
+    }
+
+    private String getCallInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
+        instruction.show();
+
+        return "";
     }
 
     private String getAssignInstruction(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
@@ -165,17 +174,18 @@ public class JasminBackender implements JasminBackend {
 
     private String getStore(Operand dest, HashMap<String, Descriptor> varTable) {
         return switch (dest.getType().getTypeOfElement()) {
-            // TODO may booleans be treated as INT32 here?
+            // BOOLEAN is represented as int in JVM
             case INT32, BOOLEAN -> "istore" + getVariableNumber(dest.getName(), varTable) + '\n';
             // TODO CheckPoint3
             case ARRAYREF -> "TODO CheckPoint3";
-            // TODO can STRING and THIS be treated as OBJECTREF?
             case OBJECTREF, THIS, STRING -> "astore" + getVariableNumber(dest.getName(), varTable) + '\n';
             default -> "getStore() error";
         };
     }
 
     private String getVariableNumber(String name, HashMap<String, Descriptor> varTable) {
+
+        //System.out.println("vartable: " + varTable);
         int virtualReg = varTable.get(name).getVirtualReg();
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -204,7 +214,7 @@ public class JasminBackender implements JasminBackend {
             case BOOLEAN -> stringBuilder.append('Z');
             case OBJECTREF -> {
                 String name = ((ClassType) type).getName();
-                stringBuilder.append("L").append(this.getClassFullName(name));
+                stringBuilder.append('L').append(this.getClassFullName(name));
             }
             case CLASS -> {}// TODO ?;
             case STRING -> stringBuilder.append("Ljava/lang/String;");
