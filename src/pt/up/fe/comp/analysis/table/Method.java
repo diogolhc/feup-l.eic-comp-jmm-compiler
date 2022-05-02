@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Method {
+public class Method {
     private final Map<Type, List<Symbol>> parameters;
     private final Map<Type, List<Symbol>> localVariables;
     private final Type returnType;
@@ -88,7 +88,7 @@ class Method {
         return true;
     }
 
-    protected boolean addLocalVariable(Symbol localVariable) {
+    public boolean addLocalVariable(Symbol localVariable) {
         var locals = localVariables.get(localVariable.getType());
         if (locals == null) {
             localVariables.put(localVariable.getType(), new ArrayList<>());

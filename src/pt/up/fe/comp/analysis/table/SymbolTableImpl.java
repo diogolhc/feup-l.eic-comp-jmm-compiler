@@ -108,10 +108,8 @@ public class SymbolTableImpl implements SymbolTable {
 
     @Override
     public List<Symbol> getLocalVariables(String methodSignature) {
-        /*Method method = methods.get(methodSignature);
-
-        return method == null ? null : method.getLocalVariables();*/
-        return Collections.emptyList();
+        Method method = methods.get(methodSignature);
+        return method == null ? null : method.getLocalVariables();
     }
 
 /*    public static void main(String[] args) {
@@ -172,6 +170,10 @@ public class SymbolTableImpl implements SymbolTable {
         return null;
     }
 
+    public Method findMethod(String methodName) {
+        return methods.get(methodName);
+    }
+
     public void addImport(String importResult) {
         imports.add(importResult);
     }
@@ -189,12 +191,14 @@ public class SymbolTableImpl implements SymbolTable {
         return methods.containsKey(methodSignature);
     }
 
-    public void addMethod(String methodSignature, Type returnType, List<Symbol> params) {
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params) /*throws VarAlreadyDefinedException*/ {
         Method method = new Method(returnType);
 
         // TODO: PARSE RETURNED BOOLEAN
         for (Symbol param : params) {
-            method.addParameter(param);
+            if (!method.addParameter(param)) {
+                //throw new VarAlreadyDefinedException(param, methodSignature);
+            }
         }
 
         methods.put(methodSignature, method);

@@ -3,6 +3,7 @@ package pt.up.fe.comp.analysis;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
+import pt.up.fe.comp.analysis.table.Method;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
@@ -56,7 +57,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
     }
 
     private Integer visitMethodDecl(JmmNode methodDecl, SymbolTableImpl symbolTable) {
-        // TODO: LOCAL VARS
         // First child of MethodDeclaration is MethodHeader
         JmmNode methodHeader = methodDecl.getJmmChild(0);
         var methodName = methodHeader.get("name");
@@ -72,8 +72,8 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
         Type returnType = new Type(returnTypeString.equals("array") ? "int" : returnTypeString,
                 returnTypeString.equals("array"));
 
+        // Parameters
         var parameters = methodHeader.getChildren();
-
         List<Symbol> paramsSymbols = parameters.stream().map(
                 param -> new Symbol(new Type(param.get("varType").equals("array") ? "int" : param.get("varType"),
                         param.get("varType").equals("array")),
@@ -81,11 +81,23 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
 
         symbolTable.addMethod(methodName, returnType, paramsSymbols);
 
+        // Local Variables
+        Method method = symbolTable.findMethod(methodName);
+        var vars = methodDecl.getJmmChild(1).getChildren().stream()
+                .filter(node -> node.getKind().equals(AstNode.VAR_DECL))
+                .collect(Collectors.toList());
+
+        for (var variable : vars) {
+            method.addLocalVariable(new Symbol(
+                    new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
+                        variable.get("varType").equals("array"))
+                    , variable.get("name")));
+        }
+
         return 0;
     }
 
     private Integer visitMainDecl(JmmNode mainDecl, SymbolTableImpl symbolTable) {
-        // TODO: LOCAL VARS
         var methodName = "main";
         Type returnType = new Type("void", false);
 
@@ -96,6 +108,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
             return -1;
         }
 
+        // Parameters
         var paramName = mainDecl.get("mainArray");
         var paramType = mainDecl.get("string");
         List<Symbol> params = new ArrayList<>();
@@ -103,8 +116,20 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
 
         symbolTable.addMethod(methodName, returnType, params);
 
+        // Local Variables
+        Method method = symbolTable.findMethod(methodName);
+        var vars = mainDecl.getJmmChild(0).getChildren().stream()
+                .filter(node -> node.getKind().equals(AstNode.VAR_DECL))
+                .collect(Collectors.toList());
+
+        for (var variable : vars) {
+            method.addLocalVariable(new Symbol(
+                    new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
+                            variable.get("varType").equals("array"))
+                    , variable.get("name")));
+        }
+
         return 0;
     }
-}
 
-// TODO: 1HOUR:20MIN PART 1
+}
