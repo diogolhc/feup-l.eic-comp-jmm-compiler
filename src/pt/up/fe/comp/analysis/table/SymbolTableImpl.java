@@ -195,7 +195,7 @@ public class SymbolTableImpl implements SymbolTable {
         return true;
     }
 
-    public void setclassName(String name) {
+    public void setClassName(String name) {
         this.className = name;
     }
 
@@ -218,6 +218,5 @@ public class SymbolTableImpl implements SymbolTable {
         }
 
         methods.put(methodSignature, method);
-
     }
 }

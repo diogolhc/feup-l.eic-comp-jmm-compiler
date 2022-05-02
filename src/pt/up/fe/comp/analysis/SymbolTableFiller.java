@@ -51,7 +51,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
     }
 
     private Integer visitClassDecl(JmmNode classDecl, SymbolTableImpl symbolTable) {
-        symbolTable.setclassName(classDecl.get("name"));
+        symbolTable.setClassName(classDecl.get("name"));
         classDecl.getOptional("superclass").ifPresent(symbolTable::setSuperclassName);
 
         // Fields
