@@ -72,15 +72,16 @@ public class Method {
     }
 
     protected boolean addParameter(Symbol parameter) {
+        for (var s : getParameters()) {
+            if (s.getName().equals(parameter.getName())) {
+                return false;
+            }
+        }
         var params = parameters.get(parameter.getType());
         if (params == null) {
             parameters.put(parameter.getType(), new ArrayList<>());
             parameters.get(parameter.getType()).add(parameter);
             return true;
-        }
-
-        if (params.contains(parameter)) {
-            return false;
         }
 
         params.add(parameter);
@@ -89,6 +90,12 @@ public class Method {
     }
 
     public boolean addLocalVariable(Symbol localVariable) {
+        for (var s : getLocalVariables()) {
+            if (s.getName().equals(localVariable.getName())) {
+                return false;
+            }
+        }
+
         var locals = localVariables.get(localVariable.getType());
         if (locals == null) {
             localVariables.put(localVariable.getType(), new ArrayList<>());
@@ -96,14 +103,13 @@ public class Method {
             return true;
         }
 
-        if (locals.contains(localVariable)) {
-            return false;
-        }
-
+        // Checks if local variable name already exists as parameter
         var params = parameters.get(localVariable.getType());
         if (params != null) {
-            if (params.contains(localVariable)) {
-                return false;
+            for (var s : getParameters()) {
+                if (s.getName().equals(localVariable.getName())) {
+                    return false;
+                }
             }
         }
 

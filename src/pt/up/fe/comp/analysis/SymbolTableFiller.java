@@ -1,6 +1,7 @@
 package pt.up.fe.comp.analysis;
 
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
+import pt.up.fe.comp.analysis.table.VarAlreadyDefinedException;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.analysis.table.Method;
@@ -59,10 +60,16 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
                 .collect(Collectors.toList());
 
         for (var variable : fields) {
-            symbolTable.addField(new Symbol(
+            if (!symbolTable.addField(new Symbol(
                     new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
                             variable.get("varType").equals("array"))
-                    , variable.get("name")));
+                    , variable.get("name")))) {
+
+                reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
+                        Integer.parseInt(variable.get("col")),
+                        "Found duplicated field with signature '" + variable.get("name") + "'", null));
+                return -1;
+            }
         }
 
         return 0;
@@ -91,7 +98,15 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
                         param.get("varType").equals("array")),
                         param.get("name"))).collect(Collectors.toList());
 
-        symbolTable.addMethod(methodName, returnType, paramsSymbols);
+
+        try {
+            symbolTable.addMethod(methodName, returnType, paramsSymbols);
+        } catch (VarAlreadyDefinedException e) {
+            reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(methodDecl.get("line")),
+                    Integer.parseInt(methodDecl.get("col")),
+                    e.getMessage(), e));
+            return -1;
+        }
 
         // Local Variables
         Method method = symbolTable.findMethod(methodName);
@@ -100,10 +115,16 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
                 .collect(Collectors.toList());
 
         for (var variable : vars) {
-            method.addLocalVariable(new Symbol(
+            if (!method.addLocalVariable(new Symbol(
                     new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
                         variable.get("varType").equals("array"))
-                    , variable.get("name")));
+                    , variable.get("name")))) {
+
+                reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
+                        Integer.parseInt(variable.get("col")),
+                        "Found duplicated local variable '" + variable.get("name") + "'" , null));
+                return -1;
+            }
         }
 
         return 0;
@@ -126,7 +147,14 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
         List<Symbol> params = new ArrayList<>();
         params.add(new Symbol(new Type(paramType, true), paramName));
 
-        symbolTable.addMethod(methodName, returnType, params);
+        try {
+            symbolTable.addMethod(methodName, returnType, params);
+        } catch (VarAlreadyDefinedException e) {
+            reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(mainDecl.get("line")),
+                    Integer.parseInt(mainDecl.get("col")),
+                    e.getMessage(), e));
+            return -1;
+        }
 
         // Local Variables
         Method method = symbolTable.findMethod(methodName);
@@ -135,10 +163,16 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
                 .collect(Collectors.toList());
 
         for (var variable : vars) {
-            method.addLocalVariable(new Symbol(
+            if (!method.addLocalVariable(new Symbol(
                     new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
                             variable.get("varType").equals("array"))
-                    , variable.get("name")));
+                    , variable.get("name")))) {
+
+                reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
+                        Integer.parseInt(variable.get("col")),
+                        "Found duplicated local variable '" + variable.get("name") + "'" , null));
+                return -1;
+            }
         }
 
         return 0;

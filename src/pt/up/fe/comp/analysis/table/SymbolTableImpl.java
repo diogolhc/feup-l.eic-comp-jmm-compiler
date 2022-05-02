@@ -179,7 +179,10 @@ public class SymbolTableImpl implements SymbolTable {
     }
 
     public boolean addField(Symbol field) {
-        // TODO: CHECK IF ALREADY EXISTS -> EXCEPTION
+        if (findField(field.getName()) != null) {
+            return false;
+        }
+
         if (!fields.containsKey(field.getType())) {
             List<Symbol> f = new ArrayList<>();
             f.add(field);
@@ -205,13 +208,12 @@ public class SymbolTableImpl implements SymbolTable {
         return methods.containsKey(methodSignature);
     }
 
-    public void addMethod(String methodSignature, Type returnType, List<Symbol> params) /*throws VarAlreadyDefinedException*/ {
+    public void addMethod(String methodSignature, Type returnType, List<Symbol> params) throws VarAlreadyDefinedException {
         Method method = new Method(returnType);
 
-        // TODO: PARSE RETURNED BOOLEAN
         for (Symbol param : params) {
             if (!method.addParameter(param)) {
-                //throw new VarAlreadyDefinedException(param, methodSignature);
+                throw new VarAlreadyDefinedException(param, methodSignature);
             }
         }
 
