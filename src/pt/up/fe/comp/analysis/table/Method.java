@@ -17,12 +17,6 @@ public class Method {
         this.returnType = returnType;
     }
 
-    public static void main(String[] args) {
-        Method m = new Method(null);
-        var s1 = new Symbol(new Type("int", false), "v1");
-        var s2 = new Symbol(new Type("int", false), "v1");
-    }
-
     protected Type getReturnType() {
         return returnType;
     }

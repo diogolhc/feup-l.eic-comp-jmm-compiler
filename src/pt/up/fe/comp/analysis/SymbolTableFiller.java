@@ -9,7 +9,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.PreorderJmmVisitor;
 import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.Stage;
-import pt.up.fe.comp.visitors.AstNode;
+import pt.up.fe.comp.analysis.table.AstNode;
 
 import java.util.ArrayList;
 import java.util.List;

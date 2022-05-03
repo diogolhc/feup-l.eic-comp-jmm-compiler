@@ -8,8 +8,4 @@ public class VarAlreadyDefinedException extends Exception {
         super("error: variable " + var.getName() + " is already defined in method " + signature);
     }
 
-    public static void main(String[] args) {
-        VarAlreadyDefinedException a = new VarAlreadyDefinedException(new Symbol(null, "b"), "f()");
-        System.out.println(a.getMessage());
-    }
 }

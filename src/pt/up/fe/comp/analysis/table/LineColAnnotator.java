@@ -1,4 +1,4 @@
-package pt.up.fe.comp.visitors;
+package pt.up.fe.comp.analysis.table;
 
 import pt.up.fe.comp.BaseNode;
 import pt.up.fe.comp.jmm.ast.JmmNode;

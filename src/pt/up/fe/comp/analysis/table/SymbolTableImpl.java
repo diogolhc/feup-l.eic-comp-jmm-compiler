@@ -112,14 +112,6 @@ public class SymbolTableImpl implements SymbolTable {
         return method == null ? null : method.getLocalVariables();
     }
 
-/*    public static void main(String[] args) {
-        List<String> p = new ArrayList<>();
-        p.add("String[]");
-        p.add("int");
-        p.add("ArrayList");
-        System.out.println(SymbolTableImpl.toMethodSignature("f", p));
-    }*/
-
     private static String toMethodSignature(String methodName, List<String> parameterTypes) {
         var builder = new StringBuilder();
         builder.append(methodName);
@@ -204,7 +196,6 @@ public class SymbolTableImpl implements SymbolTable {
     }
 
     public boolean hasMethod(String methodSignature) {
-        // TODO: METHOD OVERLOADING
         return methods.containsKey(methodSignature);
     }
 
