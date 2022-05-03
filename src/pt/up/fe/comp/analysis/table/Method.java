@@ -4,18 +4,16 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Method {
-    private final Map<Type, List<Symbol>> parameters;
-    private final Map<Type, List<Symbol>> localVariables;
+    private final List<Symbol> parameters;
+    private final List<Symbol> localVariables;
     private final Type returnType;
 
     protected Method(Type returnType) {
-        this.parameters = new HashMap<>();
-        this.localVariables = new HashMap<>();
+        this.parameters = new ArrayList<>();
+        this.localVariables = new ArrayList<>();
         this.returnType = returnType;
     }
 
@@ -30,29 +28,15 @@ public class Method {
     }
 
     protected List<Symbol> getParameters() {
-        List<Symbol> params = new ArrayList<>();
-
-        for (Type type : parameters.keySet()) {
-            List<Symbol> symbols = parameters.get(type);
-            params.addAll(symbols);
-        }
-
-        return params;
+        return this.parameters;
     }
 
     protected List<Symbol> getLocalVariables() {
-        List<Symbol> locals = new ArrayList<>();
-
-        for (Type type : localVariables.keySet()) {
-            List<Symbol> symbols = localVariables.get(type);
-            locals.addAll(symbols);
-        }
-
-        return locals;
+        return this.localVariables;
     }
 
     protected Symbol findParameter(String name) {
-        for (Symbol symbol : getParameters()) {
+        for (Symbol symbol : this.parameters) {
             if (symbol.getName().equals(name)) {
                 return symbol;
             }
@@ -62,7 +46,7 @@ public class Method {
     }
 
     protected Symbol findLocalVariable(String name) {
-        for (Symbol symbol : getLocalVariables()) {
+        for (Symbol symbol : this.localVariables) {
             if (symbol.getName().equals(name)) {
                 return symbol;
             }
@@ -72,48 +56,32 @@ public class Method {
     }
 
     protected boolean addParameter(Symbol parameter) {
-        for (var s : getParameters()) {
+        for (var s : this.parameters) {
             if (s.getName().equals(parameter.getName())) {
                 return false;
             }
         }
-        var params = parameters.get(parameter.getType());
-        if (params == null) {
-            parameters.put(parameter.getType(), new ArrayList<>());
-            parameters.get(parameter.getType()).add(parameter);
-            return true;
-        }
 
-        params.add(parameter);
+        this.parameters.add(parameter);
 
         return true;
     }
 
     public boolean addLocalVariable(Symbol localVariable) {
-        for (var s : getLocalVariables()) {
+        for (var s : this.localVariables) {
             if (s.getName().equals(localVariable.getName())) {
                 return false;
             }
         }
 
-        var locals = localVariables.get(localVariable.getType());
-        if (locals == null) {
-            localVariables.put(localVariable.getType(), new ArrayList<>());
-            localVariables.get(localVariable.getType()).add(localVariable);
-            return true;
-        }
-
         // Checks if local variable name already exists as parameter
-        var params = parameters.get(localVariable.getType());
-        if (params != null) {
-            for (var s : getParameters()) {
-                if (s.getName().equals(localVariable.getName())) {
-                    return false;
-                }
+        for (var s : parameters) {
+            if (s.getName().equals(localVariable.getName())) {
+                return false;
             }
         }
 
-        locals.add(localVariable);
+        this.localVariables.add(localVariable);
 
         return true;
     }

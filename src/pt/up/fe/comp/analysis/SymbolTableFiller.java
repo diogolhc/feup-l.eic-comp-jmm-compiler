@@ -98,7 +98,6 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
                         param.get("varType").equals("array")),
                         param.get("name"))).collect(Collectors.toList());
 
-
         try {
             symbolTable.addMethod(methodName, returnType, paramsSymbols);
         } catch (VarAlreadyDefinedException e) {
