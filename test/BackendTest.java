@@ -23,7 +23,7 @@ public class BackendTest {
 
     @Test
     public void testBackend() {
-        var result = TestUtils.backend(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/myclass1.ollir"), Collections.emptyMap()));
+        var result = TestUtils.backend(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/Fac.ollir"), Collections.emptyMap()));
         System.out.println("==============JASMIN:==============");
         System.out.println(result.getJasminCode());
         System.out.println("====================================");
