@@ -87,13 +87,9 @@ void ImportDeclaration() #Import : { Token token1, token2; } {
     ((<DOT> token2 = <IDENTIFIER> { jjtThis.put("name", token2.getImage()); }) #Dot)* <SEMICOLON>
 }
 
-void ClassDeclaration() : { Token token; } {
-    <CLASS> token = <IDENTIFIER> {  jjtThis.put("name", token.getImage()); } (ClassGeneralization())?
+void ClassDeclaration() : { Token token1, token2; } {
+    <CLASS> token1 = <IDENTIFIER> {  jjtThis.put("name", token1.getImage()); } (<EXTENDS> token2 = <IDENTIFIER> { jjtThis.put("superclass", token2.getImage()); })?
     <LBRACES> ClassBody() <RBRACES>
-}
-
-void ClassGeneralization() : { Token token; } {
-    <EXTENDS> token = <IDENTIFIER> { jjtThis.put("name", token.getImage()); }
 }
 
 void ClassBody() #void : {} {

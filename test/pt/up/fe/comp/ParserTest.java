@@ -42,6 +42,11 @@ public class ParserTest {
     }
 
     @Test
+    public void newHello() {
+        noErrors(SpecsIo.getResource("fixtures/public/NewHello.jmm"));
+    }
+
+    @Test
     public void findMaximum() {
         noErrors(SpecsIo.getResource("fixtures/public/FindMaximum.jmm"));
     }
