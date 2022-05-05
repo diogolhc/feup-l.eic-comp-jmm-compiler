@@ -32,22 +32,25 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
 
         boolean found = false;
 
-        System.out.println(variable);
-
         Method parent_method = null;
 
         var parent_method_node = variable.getAncestor(AstNode.METHOD_DECL);
 
+        List<Symbol> symbols = new ArrayList<>();
+
         if (parent_method_node.isPresent()){
             var method_header = parent_method_node.get().getJmmChild(0);
             parent_method = symbolTable.findMethod(method_header.get("name"));
-        } else {
+        } else if (variable.getAncestor(AstNode.MAIN_DECL).isPresent()){
             parent_method = symbolTable.findMethod("main");
         }
 
-        List<Symbol> symbols = new ArrayList<>();
-        symbols.addAll(parent_method.getParameters());
-        symbols.addAll(parent_method.getLocalVariables());
+        if (parent_method != null){
+            symbols.addAll(parent_method.getParameters());
+            symbols.addAll(parent_method.getLocalVariables());
+        }
+
+        symbols.addAll(symbolTable.getFields());
 
         for (var symbol : symbols){
             if (Objects.equals(symbol.getName(), variable.get("name"))){

@@ -12,7 +12,6 @@ class Simple {
         int b;
         int c;
         Simple s;
-        z = 1;
         a = 20;
         b = 10;
         s = new Simple();
