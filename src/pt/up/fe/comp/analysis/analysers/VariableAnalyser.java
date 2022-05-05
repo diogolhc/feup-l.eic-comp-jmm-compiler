@@ -44,7 +44,6 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
         } else if (variable.getAncestor(AstNode.MAIN_DECL).isPresent()){
             parent_method = symbolTable.findMethod("main");
         }
-
         if (parent_method != null){
             symbols.addAll(parent_method.getParameters());
             symbols.addAll(parent_method.getLocalVariables());

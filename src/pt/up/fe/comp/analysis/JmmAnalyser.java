@@ -1,5 +1,6 @@
 package pt.up.fe.comp.analysis;
 
+import pt.up.fe.comp.analysis.analysers.OperandCompatibilityAnalyser;
 import pt.up.fe.comp.analysis.analysers.VariableAnalyser;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.jmm.analysis.JmmAnalysis;
@@ -7,7 +8,9 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.jmm.report.Report;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JmmAnalyser implements JmmAnalysis {
@@ -22,13 +25,12 @@ public class JmmAnalyser implements JmmAnalysis {
 
         reports.addAll(symbolTableFiller.getReports());
 
-        // TODO do this to all the analysers
+        List<PreorderSemanticAnalyser> analysers = Arrays.asList(new VariableAnalyser(), new OperandCompatibilityAnalyser());
 
-        VariableAnalyser variableAnalyser = new VariableAnalyser();
-        variableAnalyser.visit(parserResult.getRootNode(), symbolTable);
-
-        reports.addAll(variableAnalyser.getReports());
-
+        for (var analyser : analysers){
+            analyser.visit(parserResult.getRootNode(), symbolTable);
+            reports.addAll(analyser.getReports());
+        }
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }

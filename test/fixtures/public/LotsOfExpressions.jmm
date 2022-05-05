@@ -1,0 +1,12 @@
+import io;
+import MathUtils;
+
+class Simple {
+    public int testing(int a, int b){
+            int c;
+            c = a * b;
+            c = a + MathUtils.random(0-100, 100);
+            c = a + L[0];
+            return c;
+        }
+}
