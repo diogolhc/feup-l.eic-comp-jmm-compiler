@@ -5,6 +5,7 @@ import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
@@ -19,7 +20,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         addVisit(AstNode.PROGRAM, this::programVisit);
         addVisit(AstNode.CLASS_DECL, this::classDeclVisit);
         addVisit(AstNode.METHOD_DECL, this::methodDeclVisit);
-        addVisit(AstNode.MAIN_DECL, this::mainDeclVisit);
+        addVisit(AstNode.MAIN_DECL, this::methodDeclVisit);
 
     }
 
@@ -62,31 +63,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer methodDeclVisit(JmmNode methodDecl, Integer dummy) {
-        // First child of MethodDeclaration is MethodHeader
-        JmmNode methodHeader = methodDecl.getJmmChild(0);
-        var methodName = methodHeader.get("name");
+        var methodName = "";
 
-        code.append(".method public ").append(methodName).append("(");
+        if (methodDecl.getKind().equals(AstNode.MAIN_DECL)) {
+            methodName = "main";
+            code.append(".method public static ").append(methodName).append("(");
+        } else {
+            // First child of MethodDeclaration is MethodHeader
+            JmmNode methodHeader = methodDecl.getJmmChild(0);
+            methodName = methodHeader.get("name");
 
-        var params = symbolTable.getParameters(methodName);
-
-        var paramCode = params.stream()
-                .map(OllirUtils::getCode).
-                collect(Collectors.joining(", "));
-
-        code.append(paramCode).append(").");
-        code.append(OllirUtils.getCode(symbolTable.getReturnType(methodName)));
-
-        code.append(" {\n");
-        // TODO
-        code.append("}\n");
-
-        return 0;
-    }
-
-    private Integer mainDeclVisit(JmmNode mainDecl, Integer dummy) {
-        var methodName = "main";
-        code.append(".method public static ").append(methodName).append("(");
+            code.append(".method public ").append(methodName).append("(");
+        }
 
         var params = symbolTable.getParameters(methodName);
 
@@ -98,7 +86,21 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(OllirUtils.getCode(symbolTable.getReturnType(methodName)));
 
         code.append(" {\n");
+
         // TODO
+        List<JmmNode> stmts;
+        if (methodDecl.getKind().equals(AstNode.MAIN_DECL)) {
+            stmts = methodDecl.getJmmChild(0).getChildren();
+
+        } else {
+            stmts = methodDecl.getJmmChild(1).getChildren();
+        }
+
+        System.out.println("STMTS: " + stmts);
+        /*for (var child : stmts) {
+            visit(child);
+        }*/
+
         code.append("}\n");
 
         return 0;
