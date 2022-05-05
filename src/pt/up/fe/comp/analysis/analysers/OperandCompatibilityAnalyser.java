@@ -80,11 +80,8 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
             default -> "invalid";
         };
     }
-
-    // TODO implement
+    
     private Type typeOfOperation(String op, Type leftType, Type rightType){
-
-        System.out.println("YOOOOOO " + leftType + rightType);
 
         boolean valid = (
                 (Objects.equals(leftType.getName(), expectedTypeForOp(op)) ||
@@ -137,7 +134,5 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
         this.evaluateExpressionType(expression, symbolTable);
         return 0;
     }
-
-
 
 }
