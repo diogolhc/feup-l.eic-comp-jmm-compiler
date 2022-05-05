@@ -61,7 +61,8 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
             case "BinOp" -> this.evaluateExpressionType(child, symbolTable);
             case "ArrayAccess", "IntLiteral" -> new Type("integer", false);
             case "Bool" -> new Type("boolean", false);
-            default -> new Type("ignore", false);
+            case "ExpressionDot" -> new Type("ignore", false);
+            default -> new Type("invalid", false);
         };
     }
 
@@ -80,7 +81,7 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
             default -> "invalid";
         };
     }
-    
+
     private Type typeOfOperation(String op, Type leftType, Type rightType){
 
         boolean valid = (
@@ -115,6 +116,8 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
         if (Objects.equals(ret.getName(), "invalid")){
 
+            // TODO error message sometimes gives ignore as type
+            // TODO array type coming out as int
             String error_message = "Invalid types for operation. ";
             error_message += "Expected " + expectedTypeForOp(operation) + " types for operation " + operation + ". ";
             error_message += "Found " + getChildType(leftChild, symbolTable).getName() + " and "

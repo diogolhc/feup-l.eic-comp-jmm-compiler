@@ -3,6 +3,8 @@ import MathUtils;
 
 class Simple {
     public int testing(int a, int b){
+            int[] lineLenA;
+            int[] lineLenB;
             int c;
             c = a * b;
             c = a + MathUtils.random(0-100, 100);
