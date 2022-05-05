@@ -16,8 +16,11 @@ import org.junit.Test;
 import pt.up.fe.comp.TestUtils;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsStrings;
 
 import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
 
 public class BackendTest {
 
@@ -29,12 +32,16 @@ public class BackendTest {
         System.out.println("====================================");
 
         TestUtils.noErrors(result.getReports());
-        var output = result.run();
-        System.out.println(output.trim());
+
+        var output = TestUtils.runJasmin(result.getJasminCode());
+        //assertEquals("Hello World!\nHello World Again!\n", SpecsStrings.normalizeFileContents(output));
+
+        //var output = result.run();
+        //System.out.println(output.trim());
         //assertEquals("Hello, World!", output.trim());
 
     }
-/*
+
     @Test
     public void testHelloWorld() {
 
@@ -42,6 +49,6 @@ public class BackendTest {
         var output = TestUtils.runJasmin(jasminCode);
         assertEquals("Hello World!\nHello World Again!\n", SpecsStrings.normalizeFileContents(output));
     }
- */
+
 
 }
