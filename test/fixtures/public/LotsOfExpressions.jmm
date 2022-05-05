@@ -9,7 +9,7 @@ class Simple {
             int c;
             c = a * b;
             c = a + MathUtils.random(0-100, 100);
-            c = a + L[0];
+            c = a + L[c + 1 * 2];
             return c;
         }
 }
