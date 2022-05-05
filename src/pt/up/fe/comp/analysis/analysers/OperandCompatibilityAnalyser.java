@@ -54,6 +54,7 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
         return null;
     }
 
+    // TODO implement this somewhere else to be used by other methods
     private Type getChildType(JmmNode child, SymbolTableImpl symbolTable){
 
         Type childType = null;
