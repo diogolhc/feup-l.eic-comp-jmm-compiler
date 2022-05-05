@@ -23,11 +23,6 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
         addVisit(AstNode.BIN_OP, this::visitOp);
     }
 
-
-
-
-
-
     private Integer visitOp(JmmNode expression, SymbolTableImpl symbolTable) {
         this.evaluateExpressionType(expression, symbolTable);
         return 0;

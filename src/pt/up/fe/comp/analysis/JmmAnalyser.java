@@ -1,5 +1,6 @@
 package pt.up.fe.comp.analysis;
 
+import pt.up.fe.comp.analysis.analysers.ArrayAccessAnalyser;
 import pt.up.fe.comp.analysis.analysers.OperandCompatibilityAnalyser;
 import pt.up.fe.comp.analysis.analysers.VariableAnalyser;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
@@ -25,7 +26,8 @@ public class JmmAnalyser implements JmmAnalysis {
 
         reports.addAll(symbolTableFiller.getReports());
 
-        List<PreorderSemanticAnalyser> analysers = Arrays.asList(new VariableAnalyser(), new OperandCompatibilityAnalyser());
+        List<PreorderSemanticAnalyser> analysers = Arrays.asList(
+                new VariableAnalyser(), new OperandCompatibilityAnalyser(), new ArrayAccessAnalyser());
 
         for (var analyser : analysers){
             analyser.visit(parserResult.getRootNode(), symbolTable);

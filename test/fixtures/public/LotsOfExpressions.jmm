@@ -5,6 +5,7 @@ class Simple {
     public int testing(int a, int b){
             int[] lineLenA;
             int[] lineLenB;
+            int[] L;
             int c;
             c = a * b;
             c = a + MathUtils.random(0-100, 100);
