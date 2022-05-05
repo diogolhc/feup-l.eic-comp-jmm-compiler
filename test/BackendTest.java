@@ -25,6 +25,15 @@ import static org.junit.Assert.assertEquals;
 public class BackendTest {
 
     @Test
+    public void testFacOllir() {
+        var result = TestUtils.backend(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/Fac.ollir"), Collections.emptyMap()));
+        TestUtils.noErrors(result.getReports());
+
+        var output = TestUtils.runJasmin(result.getJasminCode());
+        assertEquals("3628800\n", SpecsStrings.normalizeFileContents(output));
+    }
+
+    @Test
     public void testBackend() {
         var result = TestUtils.backend(new OllirResult(SpecsIo.getResource("fixtures/public/ollir/Fac.ollir"), Collections.emptyMap()));
         System.out.println("==============JASMIN:==============");
@@ -34,12 +43,6 @@ public class BackendTest {
         TestUtils.noErrors(result.getReports());
 
         var output = TestUtils.runJasmin(result.getJasminCode());
-        //assertEquals("Hello World!\nHello World Again!\n", SpecsStrings.normalizeFileContents(output));
-
-        //var output = result.run();
-        //System.out.println(output.trim());
-        //assertEquals("Hello, World!", output.trim());
-
     }
 
     @Test

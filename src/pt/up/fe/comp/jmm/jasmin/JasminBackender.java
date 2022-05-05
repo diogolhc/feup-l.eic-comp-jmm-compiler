@@ -280,10 +280,11 @@ public class JasminBackender implements JasminBackend {
 
         if (element instanceof LiteralElement) {
             String literal = ((LiteralElement) element).getLiteral();
-            int parsedInt = Integer.parseInt(literal);
 
             if (element.getType().getTypeOfElement() == ElementType.INT32
                     || element.getType().getTypeOfElement() == ElementType.BOOLEAN) {
+
+                int parsedInt = Integer.parseInt(literal);
 
                 if (parsedInt >= -1 && parsedInt <= 5) { // [-1,5]
                     stringBuilder.append("\ticonst_");
@@ -294,15 +295,17 @@ public class JasminBackender implements JasminBackend {
                 } else {
                     stringBuilder.append("\tldc "); // int
                 }
+
+                if (parsedInt == -1) {
+                    stringBuilder.append("m1");
+                } else {
+                    stringBuilder.append(parsedInt);
+                }
+
             } else {
-                stringBuilder.append("\tldc ");
+                stringBuilder.append("\tldc ").append(literal);
             }
 
-            if (parsedInt == -1) {
-                stringBuilder.append("m1");
-            } else {
-                stringBuilder.append(parsedInt);
-            }
 
         } else if (element instanceof ArrayOperand) {
             // TODO Check Point 3
@@ -313,7 +316,7 @@ public class JasminBackender implements JasminBackend {
             switch (operand.getType().getTypeOfElement()) {
                 case INT32: case BOOLEAN: stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable)); break;
                 case ARRAYREF: stringBuilder.append("; CP3"); break; // TODO Check Point 3
-                case OBJECTREF: stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)); break;
+                case OBJECTREF: case STRING: stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)); break;
                 case THIS: stringBuilder.append("\taload_0"); break;
                 default:
                     stringBuilder.append("; ERROR: getLoadToStack() operand " + operand.getType().getTypeOfElement() + "\n");
@@ -469,11 +472,16 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getClassFullName(String classNameWithoutImports) {
+        if (classNameWithoutImports == "this") {
+            return this.classUnit.getClassName();
+        }
+
         for (String importName : this.classUnit.getImports()) {
             if (importName.endsWith("." + classNameWithoutImports)) {
                 return importName.replaceAll("\\.", "/");
             }
         }
+
         return classNameWithoutImports;
     }
 
