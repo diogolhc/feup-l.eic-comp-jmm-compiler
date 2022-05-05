@@ -29,6 +29,7 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
     private Integer visitVariable(JmmNode variable, SymbolTableImpl symbolTable) {
         // TODO also handle imports
         // TODO might be out of any method? (this is probs syntax)
+        // TODO check stuff like dot expression and array access
 
         boolean found = false;
 

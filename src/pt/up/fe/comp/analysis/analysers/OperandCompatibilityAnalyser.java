@@ -8,6 +8,9 @@ import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
+import pt.up.fe.comp.jmm.report.Report;
+import pt.up.fe.comp.jmm.report.ReportType;
+import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +65,11 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
             childType = this.evaluateExpressionType(child, symbolTable);
         } else if (Objects.equals(child.getKind(), "ArrayAccess")){
             //TODO is it correct to assume this? since it will be analysed somewhere else
-            childType = new Type("int", false);
+            childType = new Type("integer", false);
+        } else if (Objects.equals(child.getKind(), "IntLiteral")){
+            childType = new Type("integer", false);
+        } else if (Objects.equals(child.getKind(), "Bool")){
+            childType = new Type("boolean", false);
         } else {
             // Dummy value
             // TODO is this "legal" ?
@@ -72,9 +79,38 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
         return childType;
     }
 
+    private String expectedTypeForOp(String op){
+        return switch (op) {
+            case "and" -> "boolean";
+            case "lessThan", "division", "multiplication", "addition", "subtraction" -> "integer";
+            default -> "invalid";
+        };
+    }
+
+    private String resultTypeFromOp(String op){
+        return switch (op) {
+            case "and", "lessThan" -> "boolean";
+            case "division", "multiplication", "addition", "subtraction" -> "integer";
+            default -> "invalid";
+        };
+    }
+
     // TODO implement
     private Type typeOfOperation(String op, Type leftType, Type rightType){
-        return null;
+
+        System.out.println("YOOOOOO " + leftType + rightType);
+
+        boolean valid = (
+                (Objects.equals(leftType.getName(), expectedTypeForOp(op)) ||
+                        Objects.equals(leftType.getName(), "ignore")) &&
+                        (Objects.equals(rightType.getName(), expectedTypeForOp(op)) ||
+                                Objects.equals(rightType.getName(), "ignore")));
+
+        if (valid){
+            return new Type(resultTypeFromOp(op), false);
+        }
+
+        return new Type("invalid", false);
     }
 
     private Type evaluateExpressionType(JmmNode expression, SymbolTableImpl symbolTable) {
@@ -92,11 +128,27 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
             return new Type("invalid", false); // Return invalid
         }
 
-        return this.typeOfOperation(operation, leftChildType, rightChildType);
+        Type ret = this.typeOfOperation(operation, leftChildType, rightChildType);
+
+        if (Objects.equals(ret.getName(), "invalid")){
+
+            String error_message = "Invalid types for operation. ";
+            error_message += "Expected " + expectedTypeForOp(operation) + " types for operation " + operation + ". ";
+            error_message += "Found " + getChildType(leftChild, symbolTable).getName() + " and "
+                    + getChildType(rightChild, symbolTable).getName() + ".";
+
+            addReport(new Report(
+                    ReportType.ERROR, Stage.SEMANTIC,
+                    Integer.parseInt(expression.get("line")),
+                    Integer.parseInt(expression.get("col")),
+                    error_message));
+        }
+
+        return ret;
     }
 
     private Integer visitOp(JmmNode expression, SymbolTableImpl symbolTable) {
-
+        this.evaluateExpressionType(expression, symbolTable);
         return 0;
     }
 
