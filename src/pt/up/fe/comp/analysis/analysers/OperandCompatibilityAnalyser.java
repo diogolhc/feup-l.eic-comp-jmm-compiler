@@ -56,28 +56,13 @@ public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
     // TODO implement this somewhere else to be used by other methods
     private Type getChildType(JmmNode child, SymbolTableImpl symbolTable){
-
-        Type childType = null;
-
-        if (Objects.equals(child.getKind(), "Id")){
-            String leftChildName = child.get("name");
-            childType = this.getIdType(child, symbolTable);
-        } else if (Objects.equals(child.getKind(), "BinOp")){
-            childType = this.evaluateExpressionType(child, symbolTable);
-        } else if (Objects.equals(child.getKind(), "ArrayAccess")){
-            //TODO is it correct to assume this? since it will be analysed somewhere else
-            childType = new Type("integer", false);
-        } else if (Objects.equals(child.getKind(), "IntLiteral")){
-            childType = new Type("integer", false);
-        } else if (Objects.equals(child.getKind(), "Bool")){
-            childType = new Type("boolean", false);
-        } else {
-            // Dummy value
-            // TODO is this "legal" ?
-            childType = new Type("ignore", false);
-        }
-
-        return childType;
+        return switch (child.getKind()) {
+            case "Id" -> this.getIdType(child, symbolTable);
+            case "BinOp" -> this.evaluateExpressionType(child, symbolTable);
+            case "ArrayAccess", "IntLiteral" -> new Type("integer", false);
+            case "Bool" -> new Type("boolean", false);
+            default -> new Type("ignore", false);
+        };
     }
 
     private String expectedTypeForOp(String op){
