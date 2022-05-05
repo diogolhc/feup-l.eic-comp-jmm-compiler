@@ -7,7 +7,7 @@ import pt.up.fe.specs.util.SpecsIo;
 public class AnalysisTest {
     @Test
     public void test() {
-        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/NewHello.jmm"));
+        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/Simple.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
         TestUtils.noErrors(results);
     }

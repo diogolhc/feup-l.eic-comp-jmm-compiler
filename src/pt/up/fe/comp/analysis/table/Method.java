@@ -21,11 +21,11 @@ public class Method {
         return returnType;
     }
 
-    protected List<Symbol> getParameters() {
+    public List<Symbol> getParameters() {
         return this.parameters;
     }
 
-    protected List<Symbol> getLocalVariables() {
+    public List<Symbol> getLocalVariables() {
         return this.localVariables;
     }
 

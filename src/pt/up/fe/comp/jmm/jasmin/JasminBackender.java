@@ -164,7 +164,7 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getStore(Operand dest, HashMap<String, Descriptor> varTable) {
-        return switch (dest.getType().getTypeOfElement()) {
+        /*return switch (dest.getType().getTypeOfElement()) {
             // TODO may booleans be treated as INT32 here?
             case INT32, BOOLEAN -> "istore" + getVariableNumber(dest.getName(), varTable) + '\n';
             // TODO CheckPoint3
@@ -172,7 +172,7 @@ public class JasminBackender implements JasminBackend {
             // TODO can STRING and THIS be treated as OBJECTREF?
             case OBJECTREF, THIS, STRING -> "astore" + getVariableNumber(dest.getName(), varTable) + '\n';
             default -> "getStore() error";
-        };
+        };*/ return null;
     }
 
     private String getVariableNumber(String name, HashMap<String, Descriptor> varTable) {
