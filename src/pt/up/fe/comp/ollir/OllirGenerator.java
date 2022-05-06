@@ -54,8 +54,8 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         code.append(" {\n");
 
-        for (var child : classDecl.getChildren()) {
-            visit(child);   // TODO : FIELDS
+        for (var field : symbolTable.getFields()) {
+            code.append(".field ").append(field.getName()).append(".").append(OllirUtils.getCode(field.getType())).append(";\n");
         }
 
         code.append("}\n");
@@ -105,4 +105,5 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         return 0;
     }
+
 }
