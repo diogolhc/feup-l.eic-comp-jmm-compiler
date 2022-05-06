@@ -54,8 +54,22 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         code.append(" {\n");
 
+        // fields
         for (var field : symbolTable.getFields()) {
-            code.append(".field ").append(field.getName()).append(".").append(OllirUtils.getCode(field.getType())).append(";\n");
+            code.append("\t.field ").append(field.getName()).append(".").append(OllirUtils.getCode(field.getType())).append(";\n");
+        }
+
+        code.append("\n");
+
+        // default constructor
+        code.append("\t.construct ").append(symbolTable.getClassName()).append("().V {\n")
+            .append("\t\tinvokespecial(this, \"<init>\").V;\n")
+            .append("\t}");
+
+        // methods
+        for (var child : classDecl.getChildren()) {
+            code.append("\n");
+            visit(child);
         }
 
         code.append("}\n");
@@ -67,13 +81,13 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
 
         if (methodDecl.getKind().equals(AstNode.MAIN_DECL)) {
             methodName = "main";
-            code.append(".method public static ").append(methodName).append("(");
+            code.append("\t.method public static ").append(methodName).append("(");
         } else {
             // First child of MethodDeclaration is MethodHeader
             JmmNode methodHeader = methodDecl.getJmmChild(0);
             methodName = methodHeader.get("name");
 
-            code.append(".method public ").append(methodName).append("(");
+            code.append("\t.method public ").append(methodName).append("(");
         }
 
         var params = symbolTable.getParameters(methodName);
@@ -88,20 +102,19 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
         code.append(" {\n");
 
         // TODO
-        List<JmmNode> stmts;
+        List<JmmNode> statements;
         if (methodDecl.getKind().equals(AstNode.MAIN_DECL)) {
-            stmts = methodDecl.getJmmChild(0).getChildren();
+            statements = methodDecl.getJmmChild(0).getChildren();
 
         } else {
-            stmts = methodDecl.getJmmChild(1).getChildren();
+            statements = methodDecl.getJmmChild(1).getChildren();
         }
 
-        System.out.println("STMTS: " + stmts);
-        /*for (var child : stmts) {
+        /*for (var child : statements) {
             visit(child);
         }*/
 
-        code.append("}\n");
+        code.append("\t}\n");
 
         return 0;
     }
