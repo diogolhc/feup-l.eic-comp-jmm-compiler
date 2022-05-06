@@ -162,8 +162,17 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getUnaryOperationInstruction(UnaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return this.getLoadToStack(instruction.getOperand(), varTable)
-                + "\t" + this.getOperation(instruction.getOperation()) + "\n";
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append(this.getLoadToStack(instruction.getOperand(), varTable))
+                     .append("\t").append(this.getOperation(instruction.getOperation()));
+
+        Boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOT;
+        if (isBooleanOperation) {
+            stringBuilder.append(this.getBooleanOperationResultToStack());
+        }
+
+        return stringBuilder.toString();
     }
 
     private String getBinaryOperationInstruction(BinaryOpInstruction instruction, HashMap<String, Descriptor> varTable) {
@@ -171,6 +180,8 @@ public class JasminBackender implements JasminBackend {
 
         Element leftElement = instruction.getLeftOperand();
         Element rightElement = instruction.getRightOperand();
+
+        // TODO add "iinc" case
 
         stringBuilder.append(this.getLoadToStack(leftElement, varTable))
                      .append(this.getLoadToStack(rightElement, varTable))
@@ -183,12 +194,10 @@ public class JasminBackender implements JasminBackend {
                 || opType == OperationType.GTE
                 || opType == OperationType.LTH
                 || opType == OperationType.LTE
-                || opType == OperationType.NEQ
-                || opType == OperationType.NOTB; // TODO what is NOTB? is it negation? if so, its a unary operation
+                || opType == OperationType.NEQ;
 
         if (isBooleanOperation) {
-            stringBuilder.append(" TRUE" + conditionalNumber + "\n");
-            stringBuilder.append(this.getBooleanOperationResultToStack(conditionalNumber++));
+            stringBuilder.append(this.getBooleanOperationResultToStack());
         }
 
         stringBuilder.append("\n");
@@ -212,6 +221,7 @@ public class JasminBackender implements JasminBackend {
         }
 
         stringBuilder.append(this.getInstruction(condition, varTable));
+        // TODO check if this is valid for "if" without "else"
         stringBuilder.append("\tifne ").append(instruction.getLabel()).append("\n");
 
         return stringBuilder.toString();
@@ -219,13 +229,14 @@ public class JasminBackender implements JasminBackend {
 
     private String getOperation(Operation operation) {
         return switch (operation.getOpType()) {
-            // TODO which one is "!"?
             case EQ -> "if_icmpeq";
             case GTH -> "if_icmpgt";
             case GTE -> "if_icmpge";
             case LTH -> "if_icmplt";
             case LTE -> "if_icmple";
-            case NOTB, NEQ -> "if_icmpne";
+            case NEQ -> "if_icmpne";
+
+            case NOT -> "ifeq";
 
             case ADD -> "iadd";
             case SUB -> "isub";
@@ -485,12 +496,13 @@ public class JasminBackender implements JasminBackend {
         return classNameWithoutImports;
     }
 
-    private String getBooleanOperationResultToStack(int i) {
-        return "\ticonst_0\n"
-             + "\tgoto NEXT" + i + "\n"
-             + "TRUE" + i + ":\n"
+    private String getBooleanOperationResultToStack() {
+        return " TRUE" + this.conditionalNumber + "\n"
+             + "\ticonst_0\n"
+             + "\tgoto NEXT" + this.conditionalNumber + "\n"
+             + "TRUE" + this.conditionalNumber + ":\n"
              + "\ticonst_1\n"
-             + "NEXT" + i + ":";
+             + "NEXT" + this.conditionalNumber++ + ":";
     }
 
 }
