@@ -1,5 +1,6 @@
 import io;
 import MathUtils;
+import Testing.something.smart;
 
 class Simple {
     public int testing(int a, int b){
@@ -9,6 +10,8 @@ class Simple {
             int c;
             c = a * b;
             c = a + MathUtils.random(0-100, 100);
+            c = smart;
+            b = MathUtils.hello().bye();
             c = a + L[c + 1 * 2];
             return c;
         }
