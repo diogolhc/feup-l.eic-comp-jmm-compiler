@@ -12,6 +12,7 @@ public class JmmOptimizer implements JmmOptimization {
         var ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable());
         ollirGenerator.visit(semanticsResult.getRootNode());
 
+        System.out.println("\n===================\n\n" + semanticsResult.getRootNode().toTree() + "\n===================\n");
         var ollirCode = ollirGenerator.getCode();
 
         System.out.println("OLLIR CODE : \n" + ollirCode);

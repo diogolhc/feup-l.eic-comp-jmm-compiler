@@ -45,7 +45,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, Integer> {
     }
 
     private Integer classDeclVisit(JmmNode classDecl, Integer dummy) {
-        code.append("public").append(symbolTable.getClassName());
+        code.append("public ").append(symbolTable.getClassName());
         var superClass = symbolTable.getSuper();
 
         if (superClass != null) {

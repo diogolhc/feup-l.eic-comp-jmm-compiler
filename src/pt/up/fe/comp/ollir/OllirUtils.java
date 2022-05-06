@@ -21,13 +21,12 @@ public class OllirUtils {
     }
 
     public static String getOllirType(String jmmType) {
-        // TODO complete
-
-        switch (jmmType) {
-            case "void":
-                return "V";
-            default:
-                return jmmType;
-        }
+        return switch (jmmType) {
+            case "void" -> "V";
+            case "integer" -> "i32";
+            case "boolean" -> "bool";
+            default -> jmmType;
+        };
     }
+
 }
