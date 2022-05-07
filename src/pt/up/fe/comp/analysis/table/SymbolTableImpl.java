@@ -152,6 +152,23 @@ public class SymbolTableImpl implements SymbolTable {
         throw new VarNotInScopeException(variableName, methodSignature);
     }
 
+    public boolean isField(String methodSignature, String variableName) {
+        Method method = methods.get(methodSignature);
+
+        Symbol asLocalVariable = method.findLocalVariable(variableName);
+        if (asLocalVariable != null) {
+            return false;
+        }
+
+        Symbol asParameter = method.findParameter(variableName);
+        if (asParameter != null) {
+            return false;
+        }
+
+        Symbol asField = findField(variableName);
+        return asField != null;
+    }
+
     private Symbol findField(String name) {
         for (Symbol symbol : getFields()) {
             if (symbol.getName().equals(name)) {

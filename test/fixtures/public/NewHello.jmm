@@ -3,14 +3,18 @@ import BoardBase;
 import java.io.File;
 
 class HelloWorld extends BoardBase {
-    public int met(int i) {
-        //ioPlus.printHelloWorld();
-        //3 + this.met(3+4*this.met(4*6));
-        //true && false;
-        return 5 + this.met(3+4);
+    int i;
+
+    public int met(int k) {
+        int i;
+
+        i = this.met(i);
+
+        return 0;
     }
 
     public static void main(String[] args) {
 
     }
+
 }

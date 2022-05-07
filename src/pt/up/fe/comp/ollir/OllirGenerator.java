@@ -1,6 +1,8 @@
 package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.analysis.table.AstNode;
+import pt.up.fe.comp.analysis.table.SymbolTableImpl;
+import pt.up.fe.comp.analysis.table.VarNotInScopeException;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
@@ -8,6 +10,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class OllirGenerator extends AJmmVisitor<Integer, String> {
@@ -21,6 +24,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         this.tempVar = 1;
 
         // TODO check if there are already symbols "t{n}" in order to avoid them
+        // just add an '_' to every user variable
 
         addVisit(AstNode.START, this::startVisit);
         addVisit(AstNode.PROGRAM, this::programVisit);
@@ -31,6 +35,9 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         addVisit(AstNode.BIN_OP, this::binOpVisit);
         addVisit(AstNode.INT_LITERAL, this::intLiteralVisit);
         addVisit(AstNode.BOOL, this::boolVisit);
+        addVisit(AstNode.NOT, this::notVisit);
+        addVisit(AstNode.ASSIGNMENT, this::assignmentVisit);
+        addVisit(AstNode.ID, this::idVisit);
     }
 
     public String getCode() {
@@ -76,7 +83,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         // default constructor
         code.append("\t.construct ").append(symbolTable.getClassName()).append("().V {\n")
             .append("\t\tinvokespecial(this, \"<init>\").V;\n")
-            .append("\t}\n");
+            .append("\t}");
 
         // methods
         for (var child : classDecl.getChildren()) {
@@ -141,7 +148,6 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
     }
 
     private String expressionDotVisit(JmmNode expressionDot, Integer dummy) {
-        // TODO this is just the base case
         String firstArg;
         if (expressionDot.getJmmChild(0).getKind().equals("This")) {
             firstArg = "this";
@@ -207,6 +213,65 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
 
     private String boolVisit(JmmNode bool, Integer dummy) {
         return OllirUtils.getBoolValue(bool.get("value")) + ".bool";
+    }
+
+    private String notVisit(JmmNode not, Integer dummy) {
+        String child = visit(not.getJmmChild(0));
+
+        code.append("\t\tt").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
+
+        return "t" + tempVar++ + ".bool";
+    }
+
+    private String assignmentVisit(JmmNode assignment, Integer dummy) {
+        String child = visit(assignment.getJmmChild(1).getJmmChild(0));
+
+        String type = "." + child.split("\\.")[1];
+
+        String assignee = assignment.getJmmChild(0).get("name");
+
+        String methodName = getCurrentMethodName(assignment);
+
+        if (((SymbolTableImpl) symbolTable).isField(methodName, assignee)) {
+            code.append("\t\tputfield(this, ").append(assignee).append(type).append(", ").append(child).append(").V;\n");
+        } else {
+            code.append("\t\t").append(assignee).append(type).append(" :=").append(type).append(" ").append(child).append(";\n");
+        }
+
+        return "";
+    }
+
+    private String idVisit(JmmNode id, Integer dummy) {
+        try {
+            String idName = id.get("name");
+            String stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(id), idName).getType().getName());
+
+            String methodName = getCurrentMethodName(id);
+
+            if (((SymbolTableImpl) symbolTable).isField(methodName, idName)) {
+                code.append("\t\tt").append(tempVar).append(stringType).append(" :=").append(stringType).append(" getfield(this, ")
+                    .append(idName).append(stringType).append(")").append(stringType).append(";\n");
+
+                return "t" + tempVar++ + stringType;
+            } else {
+                return idName + stringType;
+            }
+
+        } catch (VarNotInScopeException ignored) {}
+
+        return "";
+    }
+
+
+
+
+    private static String getCurrentMethodName(JmmNode jmmNode) {
+        Optional<JmmNode> methodDecl = jmmNode.getAncestor(AstNode.METHOD_DECL);
+        String methodName = "main";
+        if (methodDecl.isPresent()) {
+            methodName = methodDecl.get().getJmmChild(0).get("name");
+        }
+        return methodName;
     }
 
 }
