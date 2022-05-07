@@ -11,4 +11,5 @@ public final class AstNode {
     public static final String EXPRESSION_DOT = "ExpressionDot";
     public static final String BIN_OP = "BinOp";
     public static final String INT_LITERAL = "IntLiteral";
+    public static final String BOOL = "Bool";
 }

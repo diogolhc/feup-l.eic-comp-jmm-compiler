@@ -4,8 +4,13 @@ import java.io.File;
 
 class HelloWorld extends BoardBase {
     public int met(int i) {
-        ioPlus.printHelloWorld();
-        3 + this.met(3+4*this.met(4*6));
-        return 0;
+        //ioPlus.printHelloWorld();
+        //3 + this.met(3+4*this.met(4*6));
+        //true && false;
+        return 5 + this.met(3+4);
+    }
+
+    public static void main(String[] args) {
+
     }
 }

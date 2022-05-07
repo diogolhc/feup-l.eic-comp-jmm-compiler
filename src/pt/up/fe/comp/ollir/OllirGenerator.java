@@ -30,6 +30,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         addVisit(AstNode.EXPRESSION_DOT, this::expressionDotVisit);
         addVisit(AstNode.BIN_OP, this::binOpVisit);
         addVisit(AstNode.INT_LITERAL, this::intLiteralVisit);
+        addVisit(AstNode.BOOL, this::boolVisit);
     }
 
     public String getCode() {
@@ -90,16 +91,24 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
 
     private String methodDeclVisit(JmmNode methodDecl, Integer dummy) {
         var methodName = "";
+        List<JmmNode> statements;
 
-        if (methodDecl.getKind().equals(AstNode.MAIN_DECL)) {
+        boolean isMain = methodDecl.getKind().equals(AstNode.MAIN_DECL);
+
+        if (isMain) {
             methodName = "main";
             code.append("\t.method public static ").append(methodName).append("(");
+
+            statements = methodDecl.getJmmChild(0).getChildren();
+
         } else {
             // First child of MethodDeclaration is MethodHeader
             JmmNode methodHeader = methodDecl.getJmmChild(0);
             methodName = methodHeader.get("name");
 
             code.append("\t.method public ").append(methodName).append("(");
+
+            statements = methodDecl.getJmmChild(1).getChildren();
         }
 
         var params = symbolTable.getParameters(methodName);
@@ -113,20 +122,18 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
 
         code.append(" {\n");
 
-        List<JmmNode> statements;
-        if (methodDecl.getKind().equals(AstNode.MAIN_DECL)) {
-            statements = methodDecl.getJmmChild(0).getChildren();
-
-        } else {
-            statements = methodDecl.getJmmChild(1).getChildren();
-        }
-
         for (var child : statements) {
             visit(child);
         }
 
         // return
-        // TODO
+        if (isMain) {
+            code.append("\t\tret.V;\n");
+        } else {
+            String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0));
+            code.append("\t\tret").append(OllirUtils.getCode(symbolTable.getReturnType(methodName))).append(" ")
+                    .append(returnReg).append(";\n");
+        }
 
         code.append("\t}\n");
 
@@ -196,6 +203,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
 
     private String intLiteralVisit(JmmNode intLiteral, Integer dummy) {
         return intLiteral.get("value") + ".i32";
+    }
+
+    private String boolVisit(JmmNode bool, Integer dummy) {
+        return OllirUtils.getBoolValue(bool.get("value")) + ".bool";
     }
 
 }

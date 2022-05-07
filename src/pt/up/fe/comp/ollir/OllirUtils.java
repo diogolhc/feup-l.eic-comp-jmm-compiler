@@ -73,10 +73,12 @@ public class OllirUtils {
         };
     }
 
-//    // returns Pair<Code, t>
-//    public static Pair<String, String> getCode(JmmNode binOp) {
-//
-//
-//    }
+    public static String getBoolValue(String value) {
+        return switch (value) {
+            case "true" -> "1";
+            case "false" -> "0";
+            default -> "// ERROR: invalid bool value\n";
+        };
+    }
 
 }
