@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -153,6 +154,11 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
             returnString = OllirUtils.getOllirType(returnType.getName());
         }
 
+        List<String> args = new ArrayList<>();
+        for (JmmNode arg : expressionDot.getJmmChild(2).getChildren()) {
+            args.add(visit(arg.getJmmChild(0)));
+        }
+
         code.append("\t\t");
 
         if (!returnString.equals(".V")) {
@@ -161,7 +167,10 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
 
         code.append(invokeType).append("(").append(firstArg).append(", \"").append(method).append("\"");
 
-        // TODO args
+        // args
+        for (String arg : args) {
+            code.append(", ").append(arg);
+        }
 
         code.append(")")
             .append(returnString)
@@ -182,7 +191,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
             .append(OllirUtils.getOperator(binOp.get("op")))
                 .append(" ").append(rhs).append(";\n");
 
-       return "t" + tempVar++ + returnType;
+        return "t" + tempVar++ + returnType;
     }
 
     private String intLiteralVisit(JmmNode intLiteral, Integer dummy) {
