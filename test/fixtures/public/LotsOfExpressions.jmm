@@ -8,11 +8,21 @@ class Simple {
             int[] lineLenB;
             int[] L;
             int c;
+            bool cp;
             c = a * b;
             c = a + MathUtils.random(0-100, 100);
             c = smart;
             b = MathUtils.hello().bye();
             c = a + L[c + 1 * 2];
+
+            cp = c < 2;
+
+            if((c + 2) < a ){
+                c  = a-1;
+            }else{
+                c = b-1;
+            }
+
             return c;
         }
 }

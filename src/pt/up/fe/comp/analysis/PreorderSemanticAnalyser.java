@@ -75,7 +75,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
             case "Id" -> this.getIdType(node, symbolTable);
             case "BinOp" -> this.evaluateExpressionType(node, symbolTable);
             case "ArrayAccess", "IntLiteral" -> new Type("integer", false);
-            case "Bool" -> new Type("boolean", false);
+            case "Bool" -> new Type("bool", false);
             case "ExpressionDot" -> new Type("ignore", false);
             default -> new Type("invalid", false);
         };
@@ -83,7 +83,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
 
     private String expectedTypeForOp(String op){
         return switch (op) {
-            case "and" -> "boolean";
+            case "and" -> "bool";
             case "lessThan", "division", "multiplication", "addition", "subtraction" -> "integer";
             default -> "invalid";
         };
@@ -91,7 +91,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
 
     private String resultTypeFromOp(String op){
         return switch (op) {
-            case "and", "lessThan" -> "boolean";
+            case "and", "lessThan" -> "bool";
             case "division", "multiplication", "addition", "subtraction" -> "integer";
             default -> "invalid";
         };
