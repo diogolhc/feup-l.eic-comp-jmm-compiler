@@ -12,4 +12,5 @@ public final class AstNode {
     public static final String ARRAY_ACCESS = "ArrayAccess";
     public static final String ASSIGNMENT = "Assignment";
     public static final String CONDITION = "Condition";
+    public static final String THIS = "This";
 }

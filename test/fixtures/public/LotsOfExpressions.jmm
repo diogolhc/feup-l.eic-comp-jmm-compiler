@@ -3,6 +3,11 @@ import MathUtils;
 import Testing.something.smart;
 
 class Simple {
+
+    public int give_num(int n, bool d){
+        return n;
+    }
+
     public int testing(int a, int b){
             int[] lineLenA;
             int[] lineLenB;
@@ -22,6 +27,10 @@ class Simple {
             }else{
                 c = b-1;
             }
+
+            c = this.give_num(2, false);
+
+            this.doesNotExist();
 
             return c;
         }
