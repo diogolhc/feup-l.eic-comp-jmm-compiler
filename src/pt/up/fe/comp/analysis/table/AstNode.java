@@ -8,4 +8,7 @@ public final class AstNode {
     public static final String METHOD_DECL = "MethodDeclaration";
     public static final String MAIN_DECL = "Main";
     public static final String VAR_DECL = "Declaration";
+    public static final String EXPRESSION_DOT = "ExpressionDot";
+    public static final String BIN_OP = "BinOp";
+    public static final String INT_LITERAL = "IntLiteral";
 }

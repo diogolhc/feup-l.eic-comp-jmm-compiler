@@ -17,15 +17,22 @@ public class JmmOptimizer implements JmmOptimization {
 
         System.out.println("OLLIR CODE : \n" + ollirCode);
 
-        /*String ollirCode = "import ioPlus;\n" +
-                "import BoardBase;\n" +
-                "import java.io.File;\n" +
-                "\n" +
-                "HelloWorld extends BoardBase {\n" +
-                "    .method public static main(args.array.String).V {\n" +
-                "\tinvokestatic(ioPlus, \"printHelloWorld\").V;\n" +
-                "    }\n" +
-                "}\n";*/
+//        String ollirCode = "import ioPlus;\n" +
+//                "import BoardBase;\n" +
+//                "import java.io.File;\n" +
+//                "\n" +
+//                "public HelloWorld extends BoardBase {\n" +
+//                "\n" +
+//                "\t.construct HelloWorld().V {\n" +
+//                "\t\tinvokespecial(this, \"<init>\").V;\n" +
+//                "\t}\n" +
+//                "\n" +
+//                "\t.method public met().i32 {\n" +
+//                "\t\tt1.i32 :=.i32 1.i32 +.i32 2.i32;\n" +
+//                "\t\tt2.i32 :=.i32 3.i32 *.i32 4.i32;\n" +
+//                "\t\tt3.i32 :=.i32 t1.i32 +.i32 t2.i32;\n" +
+//                "\t}\n" +
+//                "}";
 
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
