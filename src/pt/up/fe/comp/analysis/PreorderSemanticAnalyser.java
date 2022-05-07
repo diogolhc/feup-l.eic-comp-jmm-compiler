@@ -12,6 +12,7 @@ import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,6 +56,14 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         for (var symbol : symbols){
             if(Objects.equals(symbol.getName(), node.get("name"))){
                 return symbol.getType();
+            }
+        }
+
+        for (String imp : symbolTable.getImports()){
+            List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
+            if (Objects.equals(node.get("name"), split_imports.get(split_imports.size() - 1))){
+                //TODO should we ignore?
+                return new Type("ignore", false);
             }
         }
 

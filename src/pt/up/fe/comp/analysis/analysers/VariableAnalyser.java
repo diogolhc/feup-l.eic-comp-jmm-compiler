@@ -60,9 +60,7 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
         // Searching on imports
         if (!found){
             for (String imp : symbolTable.getImports()){
-
                 List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
-
                 if (Objects.equals(variable.get("name"), split_imports.get(split_imports.size() - 1))){
                     found = true;
                     break;

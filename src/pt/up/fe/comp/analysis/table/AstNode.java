@@ -10,4 +10,5 @@ public final class AstNode {
     public static final String ID = "Id";
     public static final String BIN_OP = "BinOp";
     public static final String ARRAY_ACCESS = "ArrayAccess";
+    public static final String ASSIGNMENT = "Assignment";
 }
