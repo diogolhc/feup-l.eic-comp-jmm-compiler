@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class OllirGenerator extends AJmmVisitor<Integer, String> {
+public class OllirGenerator extends AJmmVisitor<String, String> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
     private int tempVar;
@@ -44,12 +44,12 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return code.toString();
     }
 
-    private String startVisit(JmmNode start, Integer dummy) {
+    private String startVisit(JmmNode start, String dummy) {
         visit(start.getChildren().get(0));
         return "";
     }
 
-    private String programVisit(JmmNode program, Integer dummy) {
+    private String programVisit(JmmNode program, String dummy) {
         for (var importString : symbolTable.getImports()) {
             code.append("import ").append(importString).append(";\n");
         }
@@ -63,7 +63,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "";
     }
 
-    private String classDeclVisit(JmmNode classDecl, Integer dummy) {
+    private String classDeclVisit(JmmNode classDecl, String dummy) {
         code.append("public ").append(symbolTable.getClassName());
         var superClass = symbolTable.getSuper();
 
@@ -96,7 +96,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "";
     }
 
-    private String methodDeclVisit(JmmNode methodDecl, Integer dummy) {
+    private String methodDeclVisit(JmmNode methodDecl, String dummy) {
         var methodName = "";
         List<JmmNode> statements;
 
@@ -147,24 +147,48 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "";
     }
 
-    private String expressionDotVisit(JmmNode expressionDot, Integer dummy) {
+    private String expressionDotVisit(JmmNode expressionDot, String inferedType) {
         String firstArg;
-        if (expressionDot.getJmmChild(0).getKind().equals("This")) {
+        if (expressionDot.getJmmChild(0).getKind().equals(AstNode.THIS)) {
             firstArg = "this";
         } else {
-            firstArg = expressionDot.getJmmChild(0).get("name");
+            if (expressionDot.getJmmChild(0).getKind().equals(AstNode.EXPRESSION_DOT)) {
+                firstArg = visit(expressionDot.getJmmChild(0));
+            } else {
+                firstArg = expressionDot.getJmmChild(0).get("name");
+
+            }
         }
 
         String invokeType = OllirUtils.getInvokeType(firstArg, symbolTable);
-        String returnString = ".V";
 
         String method = expressionDot.getJmmChild(1).get("name");
-        Type returnType = symbolTable.getReturnType(method);
 
-        if (returnType == null) {
-            // TODO check type, assume VOID? or if it is inside an expression it is from the same type?
+
+        String returnString;
+        if (inferedType == null) {
+            String type;
+            if (firstArg.equals("this")) {
+                type = symbolTable.getClassName();
+            } else {
+                String[] firstArgsSplit = firstArg.split("\\.");
+                if (firstArgsSplit.length == 1) {
+                    type = firstArgsSplit[0];
+                } else {
+                    type = firstArgsSplit[1];
+                }
+            }
+
+            if (type.equals(symbolTable.getClassName())) {
+                Type returnType = symbolTable.getReturnType(method);
+                returnString = OllirUtils.getOllirType(returnType.getName());
+            } else {
+                // This is the case where an unknown method is not the last method call on a chain of calls
+                // and due to that, it's not possible to know its return type
+                returnString = ".V";
+            }
         } else {
-            returnString = OllirUtils.getOllirType(returnType.getName());
+            returnString = inferedType;
         }
 
         List<String> args = new ArrayList<>();
@@ -192,12 +216,14 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "t" + tempVar++ + returnString;
     }
 
-    private String binOpVisit(JmmNode binOp, Integer dummy) {
-
-        String lhs = visit(binOp.getJmmChild(0));
-        String rhs = visit(binOp.getJmmChild(1));
+    private String binOpVisit(JmmNode binOp, String dummy) {
 
         String returnType = OllirUtils.getReturnType(binOp.get("op"));
+
+        String assignmentType = OllirUtils.getOperandType(binOp.get("op"));
+
+        String lhs = visit(binOp.getJmmChild(0), assignmentType);
+        String rhs = visit(binOp.getJmmChild(1), assignmentType);
 
         code.append("\t\tt").append(tempVar).append(returnType).append(" :=")
                 .append(returnType).append(" ").append(lhs).append(" ")
@@ -207,15 +233,15 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "t" + tempVar++ + returnType;
     }
 
-    private String intLiteralVisit(JmmNode intLiteral, Integer dummy) {
+    private String intLiteralVisit(JmmNode intLiteral, String dummy) {
         return intLiteral.get("value") + ".i32";
     }
 
-    private String boolVisit(JmmNode bool, Integer dummy) {
+    private String boolVisit(JmmNode bool, String dummy) {
         return OllirUtils.getBoolValue(bool.get("value")) + ".bool";
     }
 
-    private String notVisit(JmmNode not, Integer dummy) {
+    private String notVisit(JmmNode not, String dummy) {
         String child = visit(not.getJmmChild(0));
 
         code.append("\t\tt").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
@@ -223,14 +249,17 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "t" + tempVar++ + ".bool";
     }
 
-    private String assignmentVisit(JmmNode assignment, Integer dummy) {
-        String child = visit(assignment.getJmmChild(1).getJmmChild(0));
-
-        String type = "." + child.split("\\.")[1];
-
+    private String assignmentVisit(JmmNode assignment, String dummy) {
         String assignee = assignment.getJmmChild(0).get("name");
+        String type = "";
 
         String methodName = getCurrentMethodName(assignment);
+
+        try {
+            type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assignee).getType().getName());
+        } catch (VarNotInScopeException ignored) {}
+
+        String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
 
         if (((SymbolTableImpl) symbolTable).isField(methodName, assignee)) {
             code.append("\t\tputfield(this, ").append(assignee).append(type).append(", ").append(child).append(").V;\n");
@@ -241,7 +270,7 @@ public class OllirGenerator extends AJmmVisitor<Integer, String> {
         return "";
     }
 
-    private String idVisit(JmmNode id, Integer dummy) {
+    private String idVisit(JmmNode id, String dummy) {
         try {
             String idName = id.get("name");
             String stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(id), idName).getType().getName());

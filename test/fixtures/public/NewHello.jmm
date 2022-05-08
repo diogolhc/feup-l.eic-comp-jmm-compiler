@@ -5,10 +5,17 @@ import java.io.File;
 class HelloWorld extends BoardBase {
     int i;
 
-    public int met(int k) {
-        int i;
+    public HelloWorld hw() {
+        return h;
+    }
 
-        i = this.met(i);
+    public Hello met(int k) {
+        boolean b;
+        int i;
+        Hello hello;
+
+        b = this.hw().met().h(File.h()+ioPlus.h()) + ioPlus.h() < 3;
+        hello = this.met(i);
 
         return 0;
     }

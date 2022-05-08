@@ -63,12 +63,8 @@ public class OllirUtils {
 
     public static String getReturnType(String javaCCOperator) {
         return switch (javaCCOperator) {
-            case "addition" -> ".i32";
-            case "subtraction" -> ".i32";
-            case "multiplication" -> ".i32";
-            case "division" -> ".i32";
-            case "and" -> ".bool";
-            case "lessThan" -> ".bool";
+            case "addition", "subtraction", "multiplication", "division" -> ".i32";
+            case "and", "lessThan" -> ".bool";
             default -> "// ERROR: invalid javaCCOperator\n";
         };
     }
@@ -78,6 +74,14 @@ public class OllirUtils {
             case "true" -> "1";
             case "false" -> "0";
             default -> "// ERROR: invalid bool value\n";
+        };
+    }
+
+    public static String getOperandType(String javaCCOperator) {
+        return switch (javaCCOperator) {
+            case "addition", "lessThan", "subtraction", "multiplication", "division" -> ".i32";
+            case "and" -> ".bool";
+            default -> "// ERROR: invalid javaCCOperator\n";
         };
     }
 
