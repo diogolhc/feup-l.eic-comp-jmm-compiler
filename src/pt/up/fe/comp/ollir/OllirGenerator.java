@@ -38,6 +38,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.NOT, this::notVisit);
         addVisit(AstNode.ASSIGNMENT, this::assignmentVisit);
         addVisit(AstNode.ID, this::idVisit);
+        addVisit(AstNode.ASSIGNEE, this::idVisit);
         addVisit(AstNode.EXPRESSION_NEW, this::expressionNewVisit);
     }
 
@@ -251,21 +252,22 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     }
 
     private String assignmentVisit(JmmNode assignment, String dummy) {
-        String assignee = assignment.getJmmChild(0).get("name");
+        String assigneeName = assignment.getJmmChild(0).get("name");
+        String assignee = visit(assignment.getJmmChild(0));
         String type = "";
 
         String methodName = getCurrentMethodName(assignment);
 
         try {
-            type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assignee).getType().getName());
+            type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assigneeName).getType().getName());
         } catch (VarNotInScopeException ignored) {}
 
         String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
 
         if (((SymbolTableImpl) symbolTable).isField(methodName, assignee)) {
-            code.append("\t\tputfield(this, ").append(assignee).append(type).append(", ").append(child).append(").V;\n");
+            code.append("\t\tputfield(this, ").append(assignee).append(", ").append(child).append(").V;\n");
         } else {
-            code.append("\t\t").append(assignee).append(type).append(" :=").append(type).append(" ").append(child).append(";\n");
+            code.append("\t\t").append(assignee).append(" :=").append(type).append(" ").append(child).append(";\n");
         }
 
         return "";
@@ -284,7 +286,8 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
                 return "t" + tempVar++ + stringType;
             } else {
-                return idName + stringType;
+                String ollirLikeReference = ((SymbolTableImpl) symbolTable).getOllirLikeReference(methodName, idName);
+                return ollirLikeReference + idName + stringType;
             }
 
         } catch (VarNotInScopeException ignored) {}

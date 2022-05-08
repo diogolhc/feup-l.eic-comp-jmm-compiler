@@ -4,15 +4,9 @@ import java.io.File;
 
 class HelloWorld extends BoardBase {
 
-    public HelloWorld met(int k) {
-        HelloWorld h;
-        int[] arrayVar;
-
-        h = new HelloWorld();
-
-        arrayVar = new int[1+4*5];
-
-        return h;
+    public int met(int[] j, int k) {
+        j = new int[k];
+        return 0;
     }
 
     public static void main(String[] args) {

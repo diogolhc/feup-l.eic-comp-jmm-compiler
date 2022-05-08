@@ -17,4 +17,5 @@ public final class AstNode {
     public static final String ID = "Id";
     public static final String THIS = "This";
     public static final String EXPRESSION_NEW = "ExpressionNew";
+    public static final String ASSIGNEE = "Assignee";
 }

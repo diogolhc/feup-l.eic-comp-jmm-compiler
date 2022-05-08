@@ -227,4 +227,22 @@ public class SymbolTableImpl implements SymbolTable {
 
         methods.put(methodSignature, method);
     }
+
+    public String getOllirLikeReference(String methodSignature, String variableName) {
+        // This method assumes all class methods are not static
+
+        Method method = methods.get(methodSignature);
+
+        List<Symbol> parameters = method.getParameters();
+        int index = -1;
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i).getName().equals(variableName)) {
+                index = i+1;
+                break;
+            }
+        }
+
+        return index == -1 ? "" : "$" + index + ".";
+    }
+
 }
