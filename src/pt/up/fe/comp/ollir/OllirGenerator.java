@@ -40,6 +40,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.ID, this::idVisit);
         addVisit(AstNode.ASSIGNEE, this::idVisit);
         addVisit(AstNode.EXPRESSION_NEW, this::expressionNewVisit);
+        addVisit(AstNode.LENGTH, this::lengthVisit);
     }
 
     public String getCode() {
@@ -323,6 +324,11 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "t" + tempVar++ + "." + type;
     }
 
+    private String lengthVisit(JmmNode lengthNode, String dummy) {
+        String child = visit(lengthNode.getJmmChild(0));
+        code.append("\t\tt").append(tempVar).append(".i32 :=.i32 arraylength(").append(child).append(").i32;\n");
+        return "t" + tempVar++ + ".i32";
+    }
 
 
 

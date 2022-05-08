@@ -4,9 +4,10 @@ import java.io.File;
 
 class HelloWorld extends BoardBase {
 
-    public int met(int[] j, int k) {
-        j = new int[k];
-        return 0;
+    public int[] met(int[] j, int k) {
+
+        k = this.met().length;
+        return j;
     }
 
     public static void main(String[] args) {
