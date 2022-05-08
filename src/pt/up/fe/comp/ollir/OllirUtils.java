@@ -4,6 +4,7 @@ import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class OllirUtils {
@@ -76,6 +77,20 @@ public class OllirUtils {
             case "and" -> ".bool";
             default -> "// ERROR: invalid javaCCOperator\n";
         };
+    }
+
+    public static boolean isIntegerString(String string) {
+        try {
+            Integer.parseInt(string);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static String getArrayIdWithoutType(String child) {
+        String[] childSplit = child.split("\\.");
+        return String.join(".", Arrays.copyOf(childSplit, childSplit.length == 3 ? 1 : 2));
     }
 
 }

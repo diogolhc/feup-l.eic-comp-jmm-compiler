@@ -38,9 +38,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.NOT, this::notVisit);
         addVisit(AstNode.ASSIGNMENT, this::assignmentVisit);
         addVisit(AstNode.ID, this::idVisit);
-        addVisit(AstNode.ASSIGNEE, this::idVisit);
         addVisit(AstNode.EXPRESSION_NEW, this::expressionNewVisit);
+        addVisit(AstNode.ASSIGNEE, this::assigneeVisit);
         addVisit(AstNode.LENGTH, this::lengthVisit);
+        addVisit(AstNode.ARRAY_ACCESS, this::arrayAccessVisit);
     }
 
     public String getCode() {
@@ -259,9 +260,14 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         String methodName = getCurrentMethodName(assignment);
 
-        try {
-            type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assigneeName).getType().getName());
-        } catch (VarNotInScopeException ignored) {}
+        // if assignment to array at index
+        if (assignment.getJmmChild(0).getNumChildren() > 0) {
+            type = ".i32";
+        } else {
+            try {
+                type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assigneeName).getType().getName());
+            } catch (VarNotInScopeException ignored) {}
+        }
 
         String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
 
@@ -319,9 +325,29 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         code.append(").").append(type).append(";\n");
 
-        code.append("\t\tinvokespecial(t").append(tempVar).append(".").append(type).append(", \"<init>\").V;\n");
+        if (!isArrayNew) {
+            code.append("\t\tinvokespecial(t").append(tempVar).append(".").append(type).append(", \"<init>\").V;\n");
+        }
 
         return "t" + tempVar++ + "." + type;
+    }
+
+    private String assigneeVisit(JmmNode assignee, String dummy) {
+        String idLikeVisit = idVisit(assignee, "");
+
+        // if is assignment to array at index
+        if (assignee.getNumChildren() > 0) {
+            String index = visit(assignee.getJmmChild(0));
+
+            boolean isImmediateValueIndex = OllirUtils.isIntegerString(index.substring(0,1));
+            if (isImmediateValueIndex) {
+                index = getImmediateIndexIntoReg(index);
+            }
+
+            return OllirUtils.getArrayIdWithoutType(idLikeVisit) + "[" + index + "].i32";
+        } else {
+            return idLikeVisit;
+        }
     }
 
     private String lengthVisit(JmmNode lengthNode, String dummy) {
@@ -330,7 +356,33 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "t" + tempVar++ + ".i32";
     }
 
+    private String arrayAccessVisit(JmmNode arrayAccess, String dummy) {
+        String child = visit(arrayAccess.getJmmChild(0));
 
+        String id = OllirUtils.getArrayIdWithoutType(child);
+
+        String index = visit(arrayAccess.getJmmChild(1));
+        String indexReg = index;
+
+        boolean isImmediateValueIndex = OllirUtils.isIntegerString(index.substring(0,1));
+        if (isImmediateValueIndex) {
+            indexReg = getImmediateIndexIntoReg(index);
+        }
+
+        code.append("\t\tt").append(tempVar).append(".i32 :=.i32 ").append(id)
+            .append("[").append(indexReg).append("].i32;\n");
+
+        return "t" + tempVar++ + ".i32";
+    }
+
+
+
+
+
+    private String getImmediateIndexIntoReg(String index) {
+        code.append("\t\tt").append(tempVar).append(".i32 :=.i32 ").append(index).append(";\n");
+        return "t" + tempVar++ + ".i32";
+    }
 
     private static String getCurrentMethodName(JmmNode jmmNode) {
         Optional<JmmNode> methodDecl = jmmNode.getAncestor(AstNode.METHOD_DECL);

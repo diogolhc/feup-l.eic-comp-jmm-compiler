@@ -19,4 +19,5 @@ public final class AstNode {
     public static final String EXPRESSION_NEW = "ExpressionNew";
     public static final String ASSIGNEE = "Assignee";
     public static final String LENGTH = "Length";
+    public static final String ARRAY_ACCESS = "ArrayAccess";
 }
