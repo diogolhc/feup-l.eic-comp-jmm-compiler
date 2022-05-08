@@ -38,6 +38,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.NOT, this::notVisit);
         addVisit(AstNode.ASSIGNMENT, this::assignmentVisit);
         addVisit(AstNode.ID, this::idVisit);
+        addVisit(AstNode.EXPRESSION_NEW, this::expressionNewVisit);
     }
 
     public String getCode() {
@@ -83,7 +84,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         // default constructor
         code.append("\t.construct ").append(symbolTable.getClassName()).append("().V {\n")
             .append("\t\tinvokespecial(this, \"<init>\").V;\n")
-            .append("\t}");
+            .append("\t}\n");
 
         // methods
         for (var child : classDecl.getChildren()) {
@@ -289,6 +290,34 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         } catch (VarNotInScopeException ignored) {}
 
         return "";
+    }
+
+    private String expressionNewVisit(JmmNode expressionNew, String dummy) {
+        boolean isArrayNew = expressionNew.getNumChildren() > 0;
+
+        String type;
+        String arraySizeVar = null;
+        if (isArrayNew) {
+            type = "array.i32";
+            arraySizeVar = visit(expressionNew.getJmmChild(0));
+        } else {
+            type = expressionNew.get("name");
+        }
+
+        code.append("\t\tt").append(tempVar).append(".").append(type).append(" :=.").append(type).append(" ")
+            .append("new(");
+
+        if (isArrayNew) {
+            code.append("array, ").append(arraySizeVar);
+        } else {
+            code.append(type);
+        }
+
+        code.append(").").append(type).append(";\n");
+
+        code.append("\t\tinvokespecial(t").append(tempVar).append(".").append(type).append(", \"<init>\").V;\n");
+
+        return "t" + tempVar++ + "." + type;
     }
 
 

@@ -12,15 +12,7 @@ public class OllirUtils {
     }
 
     public static String getCode(Type type) {
-        StringBuilder code = new StringBuilder();
-
-        if (type.isArray()) {
-            code.append(".array");
-        }
-
-        code.append(getOllirType(type.getName()));
-
-        return code.toString();
+        return getOllirType(type.getName());
     }
 
     public static String getOllirType(String jmmType) {
@@ -28,6 +20,7 @@ public class OllirUtils {
             case "void" -> ".V";
             case "integer" -> ".i32";
             case "boolean" -> ".bool";
+            case "int" -> ".array.i32";
             default -> "." + jmmType;
         };
     }

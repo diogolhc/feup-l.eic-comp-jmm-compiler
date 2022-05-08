@@ -3,21 +3,16 @@ import BoardBase;
 import java.io.File;
 
 class HelloWorld extends BoardBase {
-    int i;
 
-    public HelloWorld hw() {
+    public HelloWorld met(int k) {
+        HelloWorld h;
+        int[] arrayVar;
+
+        h = new HelloWorld();
+
+        arrayVar = new int[1+4*5];
+
         return h;
-    }
-
-    public Hello met(int k) {
-        boolean b;
-        int i;
-        Hello hello;
-
-        b = this.hw().met().h(File.h()+ioPlus.h()) + ioPlus.h() < 3;
-        hello = this.met(i);
-
-        return 0;
     }
 
     public static void main(String[] args) {
