@@ -17,11 +17,13 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
     private int tempVar;
+    private int ifThenElseNum;
 
     public OllirGenerator(SymbolTable symbolTable) {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
         this.tempVar = 1;
+        this.ifThenElseNum = 1;
 
         // TODO check if there are already symbols "t{n}" in order to avoid them
         // just add an '_' to every user variable
@@ -42,6 +44,11 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.ASSIGNEE, this::assigneeVisit);
         addVisit(AstNode.LENGTH, this::lengthVisit);
         addVisit(AstNode.ARRAY_ACCESS, this::arrayAccessVisit);
+        addVisit(AstNode.IF_STATEMENT, this::ifStatementVisit);
+    }
+
+    public int getAndAddIfThenElseNum() {
+        return this.ifThenElseNum++;
     }
 
     public String getCode() {
@@ -373,6 +380,32 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             .append("[").append(indexReg).append("].i32;\n");
 
         return "t" + tempVar++ + ".i32";
+    }
+
+    private String ifStatementVisit(JmmNode ifStatement, String dummy) {
+        JmmNode condition = ifStatement.getJmmChild(0).getJmmChild(0).getJmmChild(0);
+        JmmNode ifTrueScope = ifStatement.getJmmChild(0).getJmmChild(1);
+        JmmNode ifFalseScope = ifStatement.getJmmChild(1).getJmmChild(0);
+
+        int ifThenElseNum = getAndAddIfThenElseNum();
+
+        String conditionReg = visit(condition);
+
+        code.append("\t\tif (").append(conditionReg).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
+
+        for (JmmNode node : ifFalseScope.getChildren()) {
+            visit(node);
+        }
+        code.append("\t\tgoto endIf").append(ifThenElseNum).append(";\n");
+
+        code.append("\t\tifTrue").append(ifThenElseNum).append(":\n");
+
+        for (JmmNode node : ifTrueScope.getChildren()) {
+            visit(node);
+        }
+        code.append("\t\tendIf").append(ifThenElseNum++).append(":\n");
+
+        return "";
     }
 
 
