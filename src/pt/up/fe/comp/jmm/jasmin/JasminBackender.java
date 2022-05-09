@@ -269,12 +269,14 @@ public class JasminBackender implements JasminBackend {
             stringBuilder.append(this.getLoadToStack(instruction.getOperand(), varTable));
         }
 
-        ElementType elementType = instruction.getOperand().getType().getTypeOfElement();
+        if (instruction.getOperand() != null) {
+            ElementType elementType = instruction.getOperand().getType().getTypeOfElement();
 
-        if (elementType == ElementType.INT32 || elementType == ElementType.BOOLEAN) {
-            stringBuilder.append("\ti");
-        } else {
-            stringBuilder.append("\ta");
+            if (elementType == ElementType.INT32 || elementType == ElementType.BOOLEAN) {
+                stringBuilder.append("\ti");
+            } else {
+                stringBuilder.append("\ta");
+            }
         }
 
         stringBuilder.append("return\n");
