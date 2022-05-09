@@ -21,6 +21,8 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
         addVisit(AstNode.THIS, this::visitThis);
     }
 
+
+
     public Integer visitThis(JmmNode node, SymbolTableImpl symbolTable){
 
         Method method = symbolTable.findMethod(node.getJmmParent().getJmmChild(1).get("name"));
@@ -35,8 +37,8 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(node.get("line")),
                     Integer.parseInt(node.get("col")),
-                    "Method call doesn't match the number of parameter required by the method."));
-            //TODO method name?
+                    "Method " + node.getJmmParent().getJmmChild(1).get("name") +
+                            " call doesn't match the number of parameter required by the method."));
         }
 
         for (int i = 0; i < method_args.size(); i++){
@@ -46,9 +48,9 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
                         ReportType.ERROR, Stage.SEMANTIC,
                         Integer.parseInt(node.get("line")),
                         Integer.parseInt(node.get("col")),
-                        "Method call argument " + i + " of type " + cur_arg_type.getName() +
-                (cur_arg_type.isArray() ? "[]" : "" ) + " doesn't match method parameter " +
-                                method_args.get(i).getType().getName() +
+                        "Method " + node.getJmmParent().getJmmChild(1).get("name") + " call argument " +
+                                i + " of type " + cur_arg_type.getName() + (cur_arg_type.isArray() ? "[]" : "" ) +
+                                " doesn't match method parameter " + method_args.get(i).getType().getName() +
                                 (method_args.get(i).getType().isArray() ? "[]" : "" )));
                 return 0;
             }
