@@ -11,7 +11,7 @@ class HelloWorld extends BoardBase {
     }
 */
     public int[] met(int[] j, int k) {
-        j[k] = j[j[j[j[k / this.met(j,k)[-1]] + j[-2 * k] - this.mint()]]];
+        //j[k] = j[j[j[j[k / this.met(j,k)[-1]] + j[-2 * k] - this.mint()]]];
 
 /*
         while (true && k < 3) {
@@ -24,6 +24,8 @@ class HelloWorld extends BoardBase {
             }
         }
 */
+        // TODO 2-4 parser '-'
+        i = new H().g();
         return j;
     }
 
