@@ -483,12 +483,12 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getClassFullName(String classNameWithoutImports) {
-        if (classNameWithoutImports == "this") {
+        if (classNameWithoutImports.equals("this")) {
             return this.classUnit.getClassName();
         }
 
         for (String importName : this.classUnit.getImports()) {
-            if (importName.endsWith("." + classNameWithoutImports)) {
+            if (importName.endsWith(classNameWithoutImports)) {
                 return importName.replaceAll("\\.", "/");
             }
         }

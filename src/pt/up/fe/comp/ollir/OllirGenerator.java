@@ -202,7 +202,9 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
                 firstArg = visit(expressionDot.getJmmChild(0));
             } else {
                 firstArg = expressionDot.getJmmChild(0).get("name");
-
+                try {
+                    firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType().getName());
+                } catch (VarNotInScopeException ignored) {}
             }
         }
 
@@ -216,11 +218,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             if (firstArg.equals("this")) {
                 type = symbolTable.getClassName();
             } else {
-                String[] firstArgsSplit = firstArg.split("\\.");
-                if (firstArgsSplit.length == 1) {
-                    type = firstArgsSplit[0];
+                if (((SymbolTableImpl) symbolTable).isExternalClass(getCurrentMethodName(expressionDot), firstArg)) {
+                    type = firstArg;
                 } else {
-                    type = firstArgsSplit[1];
+                    type = OllirUtils.getOllirIdWithoutParamNum(firstArg);
                 }
             }
 

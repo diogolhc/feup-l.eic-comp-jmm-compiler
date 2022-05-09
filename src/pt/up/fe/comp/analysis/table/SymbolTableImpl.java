@@ -245,4 +245,32 @@ public class SymbolTableImpl implements SymbolTable {
         return index == -1 ? "" : "$" + index + ".";
     }
 
+    public boolean isExternalClass(String methodSignature, String variableName) {
+        Method method = methods.get(methodSignature);
+
+        Symbol asLocalVariable = method.findLocalVariable(variableName);
+        if (asLocalVariable != null) {
+            return false;
+        }
+
+        Symbol asParameter = method.findParameter(variableName);
+        if (asParameter != null) {
+            return false;
+        }
+
+        Symbol asField = findField(variableName);
+        if (asField != null) {
+            return false;
+        }
+
+        for (String importName : this.getImports()) {
+            if (importName.endsWith(variableName)) {
+                return true;
+            }
+        }
+
+        // NOTE: this false is not semantically equal to the previous ones
+        return false;
+    }
+
 }
