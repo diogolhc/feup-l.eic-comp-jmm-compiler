@@ -302,7 +302,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
     private String assignmentVisit(JmmNode assignment, String dummy) {
         String assignee = visit(assignment.getJmmChild(0));
-        String assigneeName = OllirUtils.getOllirIdWithoutType(assignee);
+        String assigneeName = OllirUtils.getOllirIdWithoutTypeAndParamNum(assignee);
 
         String type = "";
 
@@ -409,8 +409,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
                 return "t" + tempVar + ".array.i32";
             } else {
-                boolean isImmediateValueIndex = OllirUtils.isIntegerString(index.substring(0, 1));
-                if (isImmediateValueIndex) {
+                if (OllirUtils.isImmediateValueIndex(index)) {
                     index = getImmediateIndexIntoReg(index);
                 }
 
@@ -438,8 +437,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String index = visit(arrayAccess.getJmmChild(1));
         String indexReg = index;
 
-        boolean isImmediateValueIndex = OllirUtils.isIntegerString(index.substring(0,1));
-        if (isImmediateValueIndex) {
+        if (OllirUtils.isImmediateValueIndex(index)) {
             indexReg = getImmediateIndexIntoReg(index);
         }
 

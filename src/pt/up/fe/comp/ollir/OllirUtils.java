@@ -93,8 +93,17 @@ public class OllirUtils {
         return String.join(".", Arrays.copyOf(childSplit, childSplit.length == 3 ? 1 : 2));
     }
 
-    public static String getOllirIdWithoutType(String ollirId) {
-        return ollirId.split("\\.")[0];
+    public static String getOllirIdWithoutTypeAndParamNum(String ollirId) {
+        String[] splitted = ollirId.split("\\.");
+        int n = ollirId.charAt(0) == '$' ? 1 : 0;
+        return splitted[n];
+    }
+
+    public static boolean isImmediateValueIndex(String index) {
+        if (index.charAt(0) == '-') {
+            return isIntegerString(index.substring(0,2));
+        }
+        return isIntegerString(index.substring(0,1));
     }
 
 }

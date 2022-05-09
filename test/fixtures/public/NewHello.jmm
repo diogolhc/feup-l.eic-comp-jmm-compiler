@@ -11,21 +11,19 @@ class HelloWorld extends BoardBase {
     }
 */
     public int[] met(int[] j, int k) {
-        //j[k] = j[j[j[j[k / this.met(j,k)[0]] + j[2 * k] - this.mint()]]];
+        j[k] = j[j[j[j[k / this.met(j,k)[-1]] + j[-2 * k] - this.mint()]]];
 
-        // TODO after included '-' syntactically, include it in OLLIR
-        //k = -k;
-
+/*
         while (true && k < 3) {
-            if (k < 4) {
+            if (k < -4) {
                 k = 0;
             } else {
                 while (true) {
-                    k = 1;
+                    k = -1;
                 }
             }
         }
-
+*/
         return j;
     }
 
