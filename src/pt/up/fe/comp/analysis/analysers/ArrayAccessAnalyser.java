@@ -38,7 +38,7 @@ public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(array_access.get("line")),
                     Integer.parseInt(array_access.get("col")),
-                    "Array must be of time int"));
+                    "Array must be of type int"));
         }
         // TODO getJmmNodeType should be able to handle IntLiteral by itself
         if (!(Objects.equals(access_node.getKind(), "IntLiteral") ||
@@ -47,7 +47,7 @@ public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(array_access.get("line")),
                     Integer.parseInt(array_access.get("col")),
-                    "Array access index must be of integer type."));
+                    "Array access index must be of type integer."));
         }
 
         return 0;

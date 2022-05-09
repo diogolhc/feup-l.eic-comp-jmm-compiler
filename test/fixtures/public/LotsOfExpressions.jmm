@@ -30,6 +30,8 @@ class Simple {
 
             c = this.give_num(2, false);
 
+            smart.c().b();
+
             return c;
         }
 }
