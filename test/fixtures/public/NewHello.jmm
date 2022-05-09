@@ -4,6 +4,7 @@ import java.io.File;
 
 class HelloWorld extends BoardBase {
     int i;
+    int[] iArray;
 /*
     public int mint() {
         return 0;
@@ -17,6 +18,7 @@ class HelloWorld extends BoardBase {
 
         // TODO putfield not working:
         //i = k;
+        //iArray[i] = 0;
 
         while (true && k < 3) {
             if (k < 4) {

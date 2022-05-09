@@ -126,7 +126,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         code.append(getIndentation()).append("}\n");
 
         // methods
-        for (var child : classDecl.getChildren()) {
+        for (var child : classDecl.getChildren().subList(symbolTable.getFields().size(), classDecl.getNumChildren())) {
             code.append("\n");
             visit(child);
         }
@@ -188,7 +188,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         this.decrementIndentation();
 
-        code.append("}\n");
+        code.append(getIndentation()).append("}\n");
 
         return "";
     }
