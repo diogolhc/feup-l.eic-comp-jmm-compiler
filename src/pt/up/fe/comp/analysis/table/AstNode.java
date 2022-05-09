@@ -14,4 +14,5 @@ public final class AstNode {
     public static final String CONDITION = "Condition";
     public static final String THIS = "This";
     public static final String EXPRESSION_DOT= "ExpressionDot";
+    public static final String RETURN = "Return";
 }

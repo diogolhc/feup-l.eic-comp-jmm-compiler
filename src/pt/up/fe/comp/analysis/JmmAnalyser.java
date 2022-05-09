@@ -26,7 +26,7 @@ public class JmmAnalyser implements JmmAnalysis {
         List<PreorderSemanticAnalyser> analysers = Arrays.asList(
                 new VariableAnalyser(), new OperandCompatibilityAnalyser(), new ArrayAccessAnalyser(),
                 new AssignmentCompatibilityAnalyser(), new ConditionAnalyser(), new FunctionCallCompatibilityAnalyser(),
-                new MethodExistanceAnalyser(), new MethodLiteralCallAnalyser());
+                new MethodExistanceAnalyser(), new MethodLiteralCallAnalyser(), new MethodReturnAnalyser());
 
         for (var analyser : analysers){
             analyser.visit(parserResult.getRootNode(), symbolTable);

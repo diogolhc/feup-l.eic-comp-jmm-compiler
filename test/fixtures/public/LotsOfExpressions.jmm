@@ -2,6 +2,7 @@ import io;
 import MathUtils;
 import Testing.something.smart;
 import Smart;
+import Sup;
 
 class Simple {
 
@@ -34,6 +35,8 @@ class Simple {
             c = this.give_num(2, false);
 
             smart.c().b();
+
+            sm.smt();
 
             return c;
         }
