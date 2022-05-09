@@ -16,10 +16,6 @@ class HelloWorld extends BoardBase {
         // TODO after included '-' syntactically, include it in OLLIR
         //k = -k;
 
-        // TODO putfield not working:
-        //i = k;
-        //iArray[i] = 0;
-
         while (true && k < 3) {
             if (k < 4) {
                 k = 0;

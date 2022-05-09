@@ -93,4 +93,8 @@ public class OllirUtils {
         return String.join(".", Arrays.copyOf(childSplit, childSplit.length == 3 ? 1 : 2));
     }
 
+    public static String getOllirIdWithoutType(String ollirId) {
+        return ollirId.split("\\.")[0];
+    }
+
 }

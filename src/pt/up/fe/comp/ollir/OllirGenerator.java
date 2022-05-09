@@ -301,8 +301,9 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     }
 
     private String assignmentVisit(JmmNode assignment, String dummy) {
-        String assigneeName = assignment.getJmmChild(0).get("name");
         String assignee = visit(assignment.getJmmChild(0));
+        String assigneeName = OllirUtils.getOllirIdWithoutType(assignee);
+
         String type = "";
 
         String methodName = getCurrentMethodName(assignment);
@@ -318,7 +319,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
 
-        if (((SymbolTableImpl) symbolTable).isField(methodName, assignee)) {
+        if (((SymbolTableImpl) symbolTable).isField(methodName, assigneeName)) {
             code.append(getIndentation()).append("putfield(this, ").append(assignee).append(", ").append(child).append(").V;\n");
         } else {
             code.append(getIndentation()).append(assignee).append(" :=").append(type).append(" ").append(child).append(";\n");
@@ -384,18 +385,37 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     }
 
     private String assigneeVisit(JmmNode assignee, String dummy) {
-        String idLikeVisit = idVisit(assignee, "");
+        String idName = assignee.get("name");
+        String stringType = null;
+        try {
+            stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(assignee), idName).getType().getName());
+        } catch (VarNotInScopeException ignored) {}
+
+        String methodName = getCurrentMethodName(assignee);
+
+        String ollirLikeReference = ((SymbolTableImpl) symbolTable).getOllirLikeReference(methodName, idName);
+        String idLikeVisit = ollirLikeReference + idName + stringType;
 
         // if is assignment to array at index
         if (assignee.getNumChildren() > 0) {
             String index = visit(assignee.getJmmChild(0));
 
-            boolean isImmediateValueIndex = OllirUtils.isIntegerString(index.substring(0,1));
-            if (isImmediateValueIndex) {
-                index = getImmediateIndexIntoReg(index);
-            }
+            boolean isField = ((SymbolTableImpl) symbolTable).isField(methodName, idName);
+            if (isField) {
+                int tempVar = getAndAddTempVar();
 
-            return OllirUtils.getArrayIdWithoutType(idLikeVisit) + "[" + index + "].i32";
+                code.append(getIndentation()).append("t").append(tempVar).append(".array.i32 :=.array.i32 ")
+                    .append("getfield(this, ").append(idName).append(".array.i32).array.i32;\n");
+
+                return "t" + tempVar + ".array.i32";
+            } else {
+                boolean isImmediateValueIndex = OllirUtils.isIntegerString(index.substring(0, 1));
+                if (isImmediateValueIndex) {
+                    index = getImmediateIndexIntoReg(index);
+                }
+
+                return OllirUtils.getArrayIdWithoutType(idLikeVisit) + "[" + index + "].i32";
+            }
         } else {
             return idLikeVisit;
         }
