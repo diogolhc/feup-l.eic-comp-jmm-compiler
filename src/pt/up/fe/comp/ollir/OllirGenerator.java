@@ -16,14 +16,16 @@ import java.util.stream.Collectors;
 public class OllirGenerator extends AJmmVisitor<String, String> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
-    private int tempVar;
+    private int tempVarNum;
     private int ifThenElseNum;
+    private int whileNum;
 
     public OllirGenerator(SymbolTable symbolTable) {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
-        this.tempVar = 1;
+        this.tempVarNum = 1;
         this.ifThenElseNum = 1;
+        this.whileNum = 1;
 
         // TODO check if there are already symbols "t{n}" in order to avoid them
         // just add an '_' to every user variable
@@ -45,14 +47,19 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.LENGTH, this::lengthVisit);
         addVisit(AstNode.ARRAY_ACCESS, this::arrayAccessVisit);
         addVisit(AstNode.IF_STATEMENT, this::ifStatementVisit);
+        addVisit(AstNode.WHILE, this::whileVisit);
     }
 
     public int getAndAddTempVar() {
-        return this.tempVar++;
+        return this.tempVarNum++;
     }
 
     public int getAndAddIfThenElseNum() {
         return this.ifThenElseNum++;
+    }
+
+    public int getAndAddWhileNum() {
+        return this.whileNum++;
     }
 
     public String getCode() {
@@ -178,7 +185,6 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String invokeType = OllirUtils.getInvokeType(firstArg, symbolTable);
 
         String method = expressionDot.getJmmChild(1).get("name");
-
 
         String returnString;
         if (inferedType == null) {
@@ -423,6 +429,32 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             visit(node);
         }
         code.append("\t\tendIf").append(ifThenElseNum).append(":\n");
+
+        return "";
+    }
+
+    private String whileVisit(JmmNode whileNode, String dummy) {
+        JmmNode condition = whileNode.getJmmChild(0).getJmmChild(0);
+        JmmNode whileScope = whileNode.getJmmChild(1);
+
+        int whileNum = getAndAddWhileNum();
+
+        code.append("\t\twhile").append(whileNum).append(":\n");
+
+        String conditionReg = visit(condition);
+
+        code.append("\t\tif (").append(conditionReg).append(") goto whileBody").append(whileNum).append(";\n");
+        code.append("\t\tgoto endWhile").append(whileNum).append(";\n");
+
+        code.append("\t\twhileBody").append(whileNum).append(":\n");
+
+        for (JmmNode node : whileScope.getChildren()) {
+            visit(node);
+        }
+
+        code.append("\t\tgoto while").append(whileNum).append(";\n");
+
+        code.append("\t\tendWhile").append(whileNum).append(":\n");
 
         return "";
     }

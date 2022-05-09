@@ -21,4 +21,5 @@ public final class AstNode {
     public static final String LENGTH = "Length";
     public static final String ARRAY_ACCESS = "ArrayAccess";
     public static final String IF_STATEMENT = "IfStatement";
+    public static final String WHILE = "While";
 }
