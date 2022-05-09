@@ -73,7 +73,7 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(variable.get("line")),
                     Integer.parseInt(variable.get("col")),
-                    "Variable " + variable.get("name") + " was not declared."));
+                    "Identifier " + variable.get("name") + " was not recognized."));
         }
 
         return 0;
