@@ -16,10 +16,10 @@ public class ConditionAnalyser extends PreorderSemanticAnalyser {
         addVisit(AstNode.CONDITION, this::visitCondition);
     }
 
-    public Integer visitCondition(JmmNode condition, SymbolTableImpl symbolTable){
+    public Integer visitCondition(JmmNode condition, SymbolTableImpl symbolTable) {
         //TODO this types are currently hardcoded strings change this!!
-        if(!this.getJmmNodeType(condition.getJmmChild(0), symbolTable).equals(
-                new Type("bool", false))){
+        if (!this.getJmmNodeType(condition.getJmmChild(0), symbolTable).equals(
+                new Type("bool", false))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(condition.get("line")),

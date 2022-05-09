@@ -8,7 +8,7 @@ import pt.up.fe.comp.jmm.ast.JmmNode;
 
 public class OperandCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
-    public OperandCompatibilityAnalyser(){
+    public OperandCompatibilityAnalyser() {
         super();
         addVisit(AstNode.BIN_OP, this::visitOp);
     }

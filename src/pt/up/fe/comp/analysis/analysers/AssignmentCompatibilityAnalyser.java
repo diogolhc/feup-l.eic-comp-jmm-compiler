@@ -18,14 +18,14 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
         addVisit(AstNode.ASSIGNMENT, this::visitAssignment);
     }
 
-    public Integer visitAssignment(JmmNode assignment, SymbolTableImpl symbolTable){
+    public Integer visitAssignment(JmmNode assignment, SymbolTableImpl symbolTable) {
 
         // TODO don't allow imports as assignee?
 
         Type assignee_type = this.getIdType(assignment.getJmmChild(0), symbolTable);
 
         JmmNode assignment_val;
-        if (Objects.equals(assignment.getJmmChild(1).getJmmChild(0).getKind(), "ExpressionNew")){
+        if (Objects.equals(assignment.getJmmChild(1).getJmmChild(0).getKind(), "ExpressionNew")) {
             assignment_val = assignment.getJmmChild(1).getJmmChild(0).getJmmChild(0);
         } else {
             assignment_val = assignment.getJmmChild(1).getJmmChild(0);
@@ -33,15 +33,15 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
         Type assignment_type = this.getJmmNodeType(assignment_val, symbolTable);
 
-        if (! (Objects.equals(assignee_type, assignment_type) ||
-                assignment_type.equals(new Type("ignore", false)))){
+        if (!(Objects.equals(assignee_type, assignment_type) ||
+                assignment_type.equals(new Type("ignore", false)))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(assignment.get("line")),
                     Integer.parseInt(assignment.get("col")),
-                    "Assignee ( " + assignee_type.getName() + (assignee_type.isArray() ? "[]" : "" )
+                    "Assignee ( " + assignee_type.getName() + (assignee_type.isArray() ? "[]" : "")
                             + " ) must be of the same type as assignment (" + assignment_type.getName() +
-                            (assignment_type.isArray() ? "[]" : "" ) + ")."));
+                            (assignment_type.isArray() ? "[]" : "") + ")."));
         }
 
         return 0;

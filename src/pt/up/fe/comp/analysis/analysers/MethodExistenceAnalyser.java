@@ -9,20 +9,20 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
-public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
-    public MethodExistanceAnalyser(){
+public class MethodExistenceAnalyser extends PreorderSemanticAnalyser {
+    public MethodExistenceAnalyser() {
         super();
         addVisit(AstNode.THIS, this::visitThis);
     }
 
-    public Integer visitThis(JmmNode node, SymbolTableImpl symbolTable){
+    public Integer visitThis(JmmNode node, SymbolTableImpl symbolTable) {
 
         Method method = symbolTable.findMethod(node.getJmmParent().getJmmChild(1).get("name"));
 
         //TODO also check for class fields
 
-        // if method isn't implemented in the class and doesn't have a super class
-        if(method == null && symbolTable.getSuper() == null) {
+        // If method isn't implemented in the class and doesn't have a super class
+        if (method == null && symbolTable.getSuper() == null) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(node.get("line")),

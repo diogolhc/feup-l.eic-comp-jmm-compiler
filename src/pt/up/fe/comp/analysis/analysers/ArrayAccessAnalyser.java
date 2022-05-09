@@ -10,7 +10,6 @@ import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
 
@@ -42,7 +41,7 @@ public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
         }
         // TODO getJmmNodeType should be able to handle IntLiteral by itself
         if (!(Objects.equals(access_node.getKind(), "IntLiteral") ||
-                Objects.equals(this.getJmmNodeType(access_node, symbolTable).getName(), "integer"))){
+                Objects.equals(this.getJmmNodeType(access_node, symbolTable).getName(), "integer"))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(array_access.get("line")),
