@@ -18,7 +18,6 @@ class HelloWorld extends BoardBase {
         // TODO putfield not working:
         // i = k;
 
-
         if (k < 1) {
             if (true) {
                 k = 0;

@@ -47,6 +47,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.IF_STATEMENT, this::ifStatementVisit);
     }
 
+    public int getAndAddTempVar() {
+        return this.tempVar++;
+    }
+
     public int getAndAddIfThenElseNum() {
         return this.ifThenElseNum++;
     }
@@ -209,6 +213,8 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         code.append("\t\t");
 
+        int tempVar = getAndAddTempVar();
+
         if (!returnString.equals(".V")) {
             code.append("t").append(tempVar).append(returnString).append(" :=").append(returnString).append(" ");
         }
@@ -224,7 +230,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             .append(returnString)
             .append(";\n");
 
-        return "t" + tempVar++ + returnString;
+        return "t" + tempVar + returnString;
     }
 
     private String binOpVisit(JmmNode binOp, String dummy) {
@@ -236,12 +242,14 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String lhs = visit(binOp.getJmmChild(0), assignmentType);
         String rhs = visit(binOp.getJmmChild(1), assignmentType);
 
+        int tempVar = getAndAddTempVar();
+
         code.append("\t\tt").append(tempVar).append(returnType).append(" :=")
                 .append(returnType).append(" ").append(lhs).append(" ")
             .append(OllirUtils.getOperator(binOp.get("op")))
                 .append(" ").append(rhs).append(";\n");
 
-        return "t" + tempVar++ + returnType;
+        return "t" + tempVar + returnType;
     }
 
     private String intLiteralVisit(JmmNode intLiteral, String dummy) {
@@ -255,9 +263,11 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     private String notVisit(JmmNode not, String dummy) {
         String child = visit(not.getJmmChild(0));
 
+        int tempVar = getAndAddTempVar();
+
         code.append("\t\tt").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
 
-        return "t" + tempVar++ + ".bool";
+        return "t" + tempVar + ".bool";
     }
 
     private String assignmentVisit(JmmNode assignment, String dummy) {
@@ -295,10 +305,12 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             String methodName = getCurrentMethodName(id);
 
             if (((SymbolTableImpl) symbolTable).isField(methodName, idName)) {
+                int tempVar = getAndAddTempVar();
+
                 code.append("\t\tt").append(tempVar).append(stringType).append(" :=").append(stringType).append(" getfield(this, ")
                     .append(idName).append(stringType).append(")").append(stringType).append(";\n");
 
-                return "t" + tempVar++ + stringType;
+                return "t" + tempVar + stringType;
             } else {
                 String ollirLikeReference = ((SymbolTableImpl) symbolTable).getOllirLikeReference(methodName, idName);
                 return ollirLikeReference + idName + stringType;
@@ -321,6 +333,8 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             type = expressionNew.get("name");
         }
 
+        int tempVar = getAndAddTempVar();
+
         code.append("\t\tt").append(tempVar).append(".").append(type).append(" :=.").append(type).append(" ")
             .append("new(");
 
@@ -336,7 +350,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             code.append("\t\tinvokespecial(t").append(tempVar).append(".").append(type).append(", \"<init>\").V;\n");
         }
 
-        return "t" + tempVar++ + "." + type;
+        return "t" + tempVar + "." + type;
     }
 
     private String assigneeVisit(JmmNode assignee, String dummy) {
@@ -359,8 +373,11 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
     private String lengthVisit(JmmNode lengthNode, String dummy) {
         String child = visit(lengthNode.getJmmChild(0));
+
+        int tempVar = getAndAddTempVar();
+
         code.append("\t\tt").append(tempVar).append(".i32 :=.i32 arraylength(").append(child).append(").i32;\n");
-        return "t" + tempVar++ + ".i32";
+        return "t" + tempVar + ".i32";
     }
 
     private String arrayAccessVisit(JmmNode arrayAccess, String dummy) {
@@ -376,10 +393,12 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             indexReg = getImmediateIndexIntoReg(index);
         }
 
+        int tempVar = getAndAddTempVar();
+
         code.append("\t\tt").append(tempVar).append(".i32 :=.i32 ").append(id)
             .append("[").append(indexReg).append("].i32;\n");
 
-        return "t" + tempVar++ + ".i32";
+        return "t" + tempVar + ".i32";
     }
 
     private String ifStatementVisit(JmmNode ifStatement, String dummy) {
@@ -403,7 +422,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         for (JmmNode node : ifTrueScope.getChildren()) {
             visit(node);
         }
-        code.append("\t\tendIf").append(ifThenElseNum++).append(":\n");
+        code.append("\t\tendIf").append(ifThenElseNum).append(":\n");
 
         return "";
     }
@@ -413,8 +432,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
 
     private String getImmediateIndexIntoReg(String index) {
+        int tempVar = getAndAddTempVar();
+
         code.append("\t\tt").append(tempVar).append(".i32 :=.i32 ").append(index).append(";\n");
-        return "t" + tempVar++ + ".i32";
+        return "t" + tempVar + ".i32";
     }
 
     private static String getCurrentMethodName(JmmNode jmmNode) {
