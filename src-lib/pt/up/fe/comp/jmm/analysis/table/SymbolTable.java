@@ -87,15 +87,35 @@ public interface SymbolTable {
 
         for (var method : methods) {
             builder.append(" - signature: ").append(method);
-            builder.append("; returnType: ").append(getReturnType(method));
+            builder.append("; returnType: ").append(getReturnType(method).print());
 
             // var returnType = getReturnType(method);
             var params = getParameters(method);
-            // builder.append(" - " + returnType.print() + " " + method + "(");
-            var paramsString = params.stream().map(param -> param != null ? param.print() : "<null param>")
-                    .collect(Collectors.joining(", "));
-            // builder.append(paramsString + ")\n");
-            builder.append("; params: ").append(paramsString);
+            builder.append("; params: ");
+
+            if (params.isEmpty()) {
+                builder.append(" <no params>");
+            } else {
+                var paramsString = params.stream().map(param -> param != null ? param.print() : "<null param>")
+                        .collect(Collectors.joining(", "));
+                builder.append(paramsString);
+            }
+
+            /**
+             * Print of local variables with contribution from group comp2022-2c
+             */
+            var localVariables = getLocalVariables(method);
+            builder.append("; local vars: ");
+
+            if (localVariables.isEmpty()) {
+                builder.append("<no vars>");
+            } else {
+                var localVarsString = localVariables.stream()
+                        .map(localVar -> localVar != null ? localVar.print() : "<null var>")
+                        .collect(Collectors.joining(", "));
+                builder.append(localVarsString);
+            }
+
             builder.append("\n");
         }
 
