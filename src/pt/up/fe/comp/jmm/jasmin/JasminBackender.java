@@ -169,11 +169,12 @@ public class JasminBackender implements JasminBackend {
         stringBuilder.append(this.getLoadToStack(instruction.getOperand(), varTable))
                      .append("\t").append(this.getOperation(instruction.getOperation()));
 
-        Boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOT;
+        Boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOTB;
         if (isBooleanOperation) {
             stringBuilder.append(this.getBooleanOperationResultToStack());
         }
 
+        stringBuilder.append("\n");
         return stringBuilder.toString();
     }
 
@@ -223,7 +224,6 @@ public class JasminBackender implements JasminBackend {
         }
 
         stringBuilder.append(this.getInstruction(condition, varTable));
-        // TODO check if this is valid for "if" without "else"
         stringBuilder.append("\tifne ").append(instruction.getLabel()).append("\n");
 
         return stringBuilder.toString();
@@ -231,21 +231,16 @@ public class JasminBackender implements JasminBackend {
 
     private String getOperation(Operation operation) {
         return switch (operation.getOpType()) {
-            case EQ -> "if_icmpeq";
-            case GTH -> "if_icmpgt";
-            case GTE -> "if_icmpge";
             case LTH -> "if_icmplt";
-            case LTE -> "if_icmple";
-            case NEQ -> "if_icmpne";
-
-            case NOT -> "ifeq";
+            case ANDB -> "iand";
+            case NOTB -> "ifeq";
 
             case ADD -> "iadd";
             case SUB -> "isub";
             case MUL -> "imul";
             case DIV -> "idiv";
 
-            default -> "; ERROR: operation not implemented\n";
+            default -> "; ERROR: operation not implemented: " + operation.getOpType() + "\n";
         };
     }
 
