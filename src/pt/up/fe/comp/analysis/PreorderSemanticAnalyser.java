@@ -76,7 +76,8 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
             case "BinOp" -> this.evaluateExpressionType(node, symbolTable);
             case "ArrayAccess", "IntLiteral" -> new Type("integer", false);
             case "Bool" -> new Type("bool", false);
-            case "ExpressionDot" -> new Type("ignore", false);
+            case "ExpressionDot" -> new Type("ignore", false); //TODO not always, change this
+            case "ExpressionNew" -> new Type(node.get("name"), false);
             default -> new Type("invalid", false);
         };
     }

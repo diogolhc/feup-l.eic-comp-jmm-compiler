@@ -1,6 +1,7 @@
 import io;
 import MathUtils;
 import Testing.something.smart;
+import Smart;
 
 class Simple {
 
@@ -14,6 +15,8 @@ class Simple {
             int[] L;
             int c;
             bool cp;
+            Smart sm;
+            sm = new Smart();
             c = a * b;
             c = a + MathUtils.random(0-100, 100);
             c = smart;
