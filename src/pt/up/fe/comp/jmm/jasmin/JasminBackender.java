@@ -143,7 +143,10 @@ public class JasminBackender implements JasminBackend {
 
         }
 
-        stringBuilder.append("\treturn\n"); // TODO should this be added here? this is just so that there is always a return
+        if (method.getReturnType().getTypeOfElement() == ElementType.VOID) {
+            stringBuilder.append("\treturn\n");
+        }
+
         return stringBuilder.toString();
     }
 
