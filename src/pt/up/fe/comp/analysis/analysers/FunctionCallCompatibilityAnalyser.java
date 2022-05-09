@@ -27,7 +27,7 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
 
         Method method = symbolTable.findMethod(node.getJmmParent().getJmmChild(1).get("name"));
 
-        if(method == null) return 0; //handled in another analyser
+        if (method == null) return 0; //handled in another analyser
 
         List<Symbol> method_args = method.getParameters();
         JmmNode call_args = node.getJmmParent().getJmmChild(2);
@@ -41,9 +41,9 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
                             " call doesn't match the number of parameter required by the method."));
         }
 
-        for (int i = 0; i < method_args.size(); i++){
+        for (int i = 0; i < method_args.size(); i++) {
             Type cur_arg_type = this.getJmmNodeType(call_args.getJmmChild(i).getJmmChild(0), symbolTable);
-            if (!method_args.get(i).getType().equals(cur_arg_type)){
+            if (!method_args.get(i).getType().equals(cur_arg_type)) {
                 addReport(new Report(
                         ReportType.ERROR, Stage.SEMANTIC,
                         Integer.parseInt(node.get("line")),

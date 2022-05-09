@@ -38,6 +38,10 @@ class Simple {
 
             sm.smt();
 
+            while() {
+
+            }
+
             return c;
         }
 }

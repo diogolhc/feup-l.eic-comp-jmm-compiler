@@ -22,14 +22,16 @@ public class MethodReturnAnalyser extends PreorderSemanticAnalyser {
 
     public Integer visitReturn(JmmNode node, SymbolTableImpl symbolTable){
 
-        Optional<JmmNode> opt_method_node = node.getAncestor("ClassDeclaration");
+        //TODO check if it works for main
+
+        Optional<JmmNode> opt_method_node = node.getAncestor("MethodDeclaration");
         if(opt_method_node.isEmpty()) return -1; // TODO throw error?
 
-        Method method = symbolTable.findMethod(opt_method_node.get().getJmmChild(0).getJmmChild(0).get("name"));
+        Method method = symbolTable.findMethod(opt_method_node.get().getJmmChild(0).get("name"));
         if(method == null) return -1; //TODO throw error?
 
         if(!this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(
-                new Type(opt_method_node.get().getJmmChild(0).getJmmChild(0).get("returnType"), false))){
+                new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false))){
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(node.get("line")),

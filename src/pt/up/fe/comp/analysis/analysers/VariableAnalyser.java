@@ -23,6 +23,8 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
     }
 
     private Integer visitId(JmmNode variable, SymbolTableImpl symbolTable){
+        // TODO check if initialized
+
         // TODO might be out of any method? (this is probably syntax)
         // TODO should we check if ExpressionDot is from own class?
 
@@ -48,33 +50,22 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
         }
         symbols.addAll(symbolTable.getFields());
 
-        boolean found = false;
-
-        for (var symbol : symbols){
+        for (Symbol symbol : symbols){
             if (Objects.equals(symbol.getName(), variable.get("name"))){
-                found = true;
-                break;
+                return 0;
             }
         }
 
         // Searching on imports
-        if (!found){
-            for (String imp : symbolTable.getImports()){
-                List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
-                if (Objects.equals(variable.get("name"), split_imports.get(split_imports.size() - 1))){
-                    found = true;
-                    break;
-                }
+        for (String imp : symbolTable.getImports()){
+            List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
+            if (Objects.equals(variable.get("name"), split_imports.get(split_imports.size() - 1))){
+                return 0;
             }
         }
-
-        if (!found) {
-            addReport(new Report(
-                    ReportType.ERROR, Stage.SEMANTIC,
-                    Integer.parseInt(variable.get("line")),
-                    Integer.parseInt(variable.get("col")),
-                    "Identifier " + variable.get("name") + " was not recognized."));
-        }
+        addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
+                Integer.parseInt(variable.get("col")), "Identifier " + variable.get("name") +
+                " was not recognized."));
 
         return 0;
     }

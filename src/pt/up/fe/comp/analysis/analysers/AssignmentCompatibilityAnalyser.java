@@ -23,7 +23,15 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
         // TODO don't allow imports as assignee?
 
         Type assignee_type = this.getIdType(assignment.getJmmChild(0), symbolTable);
-        Type assignment_type = this.getJmmNodeType(assignment.getJmmChild(1).getJmmChild(0), symbolTable);
+
+        JmmNode assignment_val;
+        if (Objects.equals(assignment.getJmmChild(1).getJmmChild(0).getKind(), "ExpressionNew")){
+            assignment_val = assignment.getJmmChild(1).getJmmChild(0).getJmmChild(0);
+        } else {
+            assignment_val = assignment.getJmmChild(1).getJmmChild(0);
+        }
+
+        Type assignment_type = this.getJmmNodeType(assignment_val, symbolTable);
 
         if (! (Objects.equals(assignee_type, assignment_type) ||
                 assignment_type.equals(new Type("ignore", false)))){
