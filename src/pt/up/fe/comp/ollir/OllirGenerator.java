@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class OllirGenerator extends AJmmVisitor<String, String> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
+    private int indentationLevel;
     private int tempVarNum;
     private int ifThenElseNum;
     private int whileNum;
@@ -23,6 +24,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     public OllirGenerator(SymbolTable symbolTable) {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
+        this.indentationLevel = 0;
         this.tempVarNum = 1;
         this.ifThenElseNum = 1;
         this.whileNum = 1;
@@ -50,15 +52,27 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.WHILE, this::whileVisit);
     }
 
-    public int getAndAddTempVar() {
+    private void incrementIndentation() {
+        this.indentationLevel++;
+    }
+
+    private void decrementIndentation() {
+        this.indentationLevel--;
+    }
+
+    private String getIndentation() {
+        return "\t".repeat(indentationLevel);
+    }
+
+    private int getAndAddTempVar() {
         return this.tempVarNum++;
     }
 
-    public int getAndAddIfThenElseNum() {
+    private int getAndAddIfThenElseNum() {
         return this.ifThenElseNum++;
     }
 
-    public int getAndAddWhileNum() {
+    private int getAndAddWhileNum() {
         return this.whileNum++;
     }
 
@@ -86,7 +100,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     }
 
     private String classDeclVisit(JmmNode classDecl, String dummy) {
-        code.append("public ").append(symbolTable.getClassName());
+        code.append(getIndentation()).append("public ").append(symbolTable.getClassName());
         var superClass = symbolTable.getSuper();
 
         if (superClass != null) {
@@ -95,17 +109,21 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         code.append(" {\n");
 
+        this.incrementIndentation();
+
         // fields
         for (var field : symbolTable.getFields()) {
-            code.append("\t.field ").append(field.getName()).append(OllirUtils.getCode(field.getType())).append(";\n");
+            code.append(getIndentation()).append(".field ").append(field.getName()).append(OllirUtils.getCode(field.getType())).append(";\n");
         }
 
         code.append("\n");
 
         // default constructor
-        code.append("\t.construct ").append(symbolTable.getClassName()).append("().V {\n")
-            .append("\t\tinvokespecial(this, \"<init>\").V;\n")
-            .append("\t}\n");
+        code.append(getIndentation()).append(".construct ").append(symbolTable.getClassName()).append("().V {\n");
+        this.incrementIndentation();
+        code.append(getIndentation()).append("invokespecial(this, \"<init>\").V;\n");
+        this.decrementIndentation();
+        code.append(getIndentation()).append("}\n");
 
         // methods
         for (var child : classDecl.getChildren()) {
@@ -113,7 +131,9 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             visit(child);
         }
 
-        code.append("}\n");
+        this.decrementIndentation();
+
+        code.append(getIndentation()).append("}\n");
 
         return "";
     }
@@ -126,7 +146,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         if (isMain) {
             methodName = "main";
-            code.append("\t.method public static ").append(methodName).append("(");
+            code.append(getIndentation()).append(".method public static ").append(methodName).append("(");
 
             statements = methodDecl.getJmmChild(0).getChildren();
 
@@ -135,7 +155,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             JmmNode methodHeader = methodDecl.getJmmChild(0);
             methodName = methodHeader.get("name");
 
-            code.append("\t.method public ").append(methodName).append("(");
+            code.append(getIndentation()).append(".method public ").append(methodName).append("(");
 
             statements = methodDecl.getJmmChild(1).getChildren();
         }
@@ -151,20 +171,24 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         code.append(" {\n");
 
+        this.incrementIndentation();
+
         for (var child : statements) {
             visit(child);
         }
 
         // return
         if (isMain) {
-            code.append("\t\tret.V;\n");
+            code.append(getIndentation()).append("ret.V;\n");
         } else {
             String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0));
-            code.append("\t\tret").append(OllirUtils.getCode(symbolTable.getReturnType(methodName))).append(" ")
+            code.append(getIndentation()).append("ret").append(OllirUtils.getCode(symbolTable.getReturnType(methodName))).append(" ")
                     .append(returnReg).append(";\n");
         }
 
-        code.append("\t}\n");
+        this.decrementIndentation();
+
+        code.append("}\n");
 
         return "";
     }
@@ -217,7 +241,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             args.add(visit(arg.getJmmChild(0)));
         }
 
-        code.append("\t\t");
+        code.append(getIndentation());
 
         int tempVar = getAndAddTempVar();
 
@@ -250,7 +274,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int tempVar = getAndAddTempVar();
 
-        code.append("\t\tt").append(tempVar).append(returnType).append(" :=")
+        code.append(getIndentation()).append("t").append(tempVar).append(returnType).append(" :=")
                 .append(returnType).append(" ").append(lhs).append(" ")
             .append(OllirUtils.getOperator(binOp.get("op")))
                 .append(" ").append(rhs).append(";\n");
@@ -271,7 +295,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int tempVar = getAndAddTempVar();
 
-        code.append("\t\tt").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
+        code.append(getIndentation()).append("t").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
 
         return "t" + tempVar + ".bool";
     }
@@ -295,9 +319,9 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
 
         if (((SymbolTableImpl) symbolTable).isField(methodName, assignee)) {
-            code.append("\t\tputfield(this, ").append(assignee).append(", ").append(child).append(").V;\n");
+            code.append(getIndentation()).append("putfield(this, ").append(assignee).append(", ").append(child).append(").V;\n");
         } else {
-            code.append("\t\t").append(assignee).append(" :=").append(type).append(" ").append(child).append(";\n");
+            code.append(getIndentation()).append(assignee).append(" :=").append(type).append(" ").append(child).append(";\n");
         }
 
         return "";
@@ -313,7 +337,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             if (((SymbolTableImpl) symbolTable).isField(methodName, idName)) {
                 int tempVar = getAndAddTempVar();
 
-                code.append("\t\tt").append(tempVar).append(stringType).append(" :=").append(stringType).append(" getfield(this, ")
+                code.append(getIndentation()).append("t").append(tempVar).append(stringType).append(" :=").append(stringType).append(" getfield(this, ")
                     .append(idName).append(stringType).append(")").append(stringType).append(";\n");
 
                 return "t" + tempVar + stringType;
@@ -341,7 +365,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int tempVar = getAndAddTempVar();
 
-        code.append("\t\tt").append(tempVar).append(".").append(type).append(" :=.").append(type).append(" ")
+        code.append(getIndentation()).append("t").append(tempVar).append(".").append(type).append(" :=.").append(type).append(" ")
             .append("new(");
 
         if (isArrayNew) {
@@ -353,7 +377,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         code.append(").").append(type).append(";\n");
 
         if (!isArrayNew) {
-            code.append("\t\tinvokespecial(t").append(tempVar).append(".").append(type).append(", \"<init>\").V;\n");
+            code.append(getIndentation()).append("invokespecial(t").append(tempVar).append(".").append(type).append(", \"<init>\").V;\n");
         }
 
         return "t" + tempVar + "." + type;
@@ -382,7 +406,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int tempVar = getAndAddTempVar();
 
-        code.append("\t\tt").append(tempVar).append(".i32 :=.i32 arraylength(").append(child).append(").i32;\n");
+        code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 arraylength(").append(child).append(").i32;\n");
         return "t" + tempVar + ".i32";
     }
 
@@ -401,7 +425,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int tempVar = getAndAddTempVar();
 
-        code.append("\t\tt").append(tempVar).append(".i32 :=.i32 ").append(id)
+        code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ").append(id)
             .append("[").append(indexReg).append("].i32;\n");
 
         return "t" + tempVar + ".i32";
@@ -416,19 +440,24 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         String conditionReg = visit(condition);
 
-        code.append("\t\tif (").append(conditionReg).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
+        code.append(getIndentation()).append("if (").append(conditionReg).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
 
+        this.incrementIndentation();
         for (JmmNode node : ifFalseScope.getChildren()) {
             visit(node);
         }
-        code.append("\t\tgoto endIf").append(ifThenElseNum).append(";\n");
+        code.append(getIndentation()).append("goto endIf").append(ifThenElseNum).append(";\n");
+        this.decrementIndentation();
 
-        code.append("\t\tifTrue").append(ifThenElseNum).append(":\n");
+        code.append(getIndentation()).append("ifTrue").append(ifThenElseNum).append(":\n");
 
+        this.incrementIndentation();
         for (JmmNode node : ifTrueScope.getChildren()) {
             visit(node);
         }
-        code.append("\t\tendIf").append(ifThenElseNum).append(":\n");
+        this.decrementIndentation();
+
+        code.append(getIndentation()).append("endIf").append(ifThenElseNum).append(":\n");
 
         return "";
     }
@@ -439,34 +468,34 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int whileNum = getAndAddWhileNum();
 
-        code.append("\t\twhile").append(whileNum).append(":\n");
+        code.append(getIndentation()).append("while").append(whileNum).append(":\n");
 
         String conditionReg = visit(condition);
 
-        code.append("\t\tif (").append(conditionReg).append(") goto whileBody").append(whileNum).append(";\n");
-        code.append("\t\tgoto endWhile").append(whileNum).append(";\n");
+        code.append(getIndentation()).append("if (").append(conditionReg).append(") goto whileBody").append(whileNum).append(";\n");
+        this.incrementIndentation();
+        code.append(getIndentation()).append("goto endWhile").append(whileNum).append(";\n");
+        this.decrementIndentation();
 
-        code.append("\t\twhileBody").append(whileNum).append(":\n");
+        code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
 
+        this.incrementIndentation();
         for (JmmNode node : whileScope.getChildren()) {
             visit(node);
         }
 
-        code.append("\t\tgoto while").append(whileNum).append(";\n");
+        code.append(getIndentation()).append("goto while").append(whileNum).append(";\n");
+        this.decrementIndentation();
 
-        code.append("\t\tendWhile").append(whileNum).append(":\n");
+        code.append(getIndentation()).append("endWhile").append(whileNum).append(":\n");
 
         return "";
     }
 
-
-
-
-
     private String getImmediateIndexIntoReg(String index) {
         int tempVar = getAndAddTempVar();
 
-        code.append("\t\tt").append(tempVar).append(".i32 :=.i32 ").append(index).append(";\n");
+        code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ").append(index).append(";\n");
         return "t" + tempVar + ".i32";
     }
 
