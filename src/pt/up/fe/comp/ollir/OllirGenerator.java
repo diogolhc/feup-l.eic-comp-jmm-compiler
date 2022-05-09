@@ -179,9 +179,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         }
 
         // return
-        if (isMain) {
-            code.append(getIndentation()).append("ret.V;\n");
-        } else {
+        if (!isMain) {
             String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0));
             code.append(getIndentation()).append("ret").append(OllirUtils.getCode(symbolTable.getReturnType(methodName))).append(" ")
                     .append(returnReg).append(";\n");
