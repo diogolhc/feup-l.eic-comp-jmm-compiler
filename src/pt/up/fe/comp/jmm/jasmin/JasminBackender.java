@@ -27,6 +27,8 @@ public class JasminBackender implements JasminBackend {
             String jasminCode = buildJasminCode();
             List<Report> reports = new ArrayList<>();
 
+            System.out.println("JASMIN CODE : \n" + jasminCode);
+
             return new JasminResult(ollirResult, jasminCode, reports);
 
         } catch (OllirErrorException e) {

@@ -22,6 +22,7 @@ public class OllirUtils {
             case "integer" -> ".i32";
             case "boolean" -> ".bool";
             case "int" -> ".array.i32";
+            case "String" -> ".array.String";
             default -> "." + jmmType;
         };
     }

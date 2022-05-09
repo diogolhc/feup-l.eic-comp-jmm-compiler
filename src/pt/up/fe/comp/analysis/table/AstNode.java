@@ -22,4 +22,5 @@ public final class AstNode {
     public static final String ARRAY_ACCESS = "ArrayAccess";
     public static final String IF_STATEMENT = "IfStatement";
     public static final String WHILE = "While";
+    public static final String SCOPE = "Scope";
 }
