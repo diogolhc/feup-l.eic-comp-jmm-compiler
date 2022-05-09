@@ -50,6 +50,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.ARRAY_ACCESS, this::arrayAccessVisit);
         addVisit(AstNode.IF_STATEMENT, this::ifStatementVisit);
         addVisit(AstNode.WHILE, this::whileVisit);
+        addVisit(AstNode.SCOPE, this::scopeVisit);
     }
 
     private void incrementIndentation() {
@@ -178,9 +179,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         }
 
         // return
-        if (isMain) {
-            code.append(getIndentation()).append("ret.V;\n");
-        } else {
+        if (!isMain) {
             String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0));
             code.append(getIndentation()).append("ret").append(OllirUtils.getCode(symbolTable.getReturnType(methodName))).append(" ")
                     .append(returnReg).append(";\n");
@@ -198,11 +197,16 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         if (expressionDot.getJmmChild(0).getKind().equals(AstNode.THIS)) {
             firstArg = "this";
         } else {
-            if (expressionDot.getJmmChild(0).getKind().equals(AstNode.EXPRESSION_DOT)) {
+            String firstChildKind = expressionDot.getJmmChild(0).getKind();
+            boolean isToVisit = firstChildKind.equals(AstNode.EXPRESSION_DOT) || firstChildKind.equals(AstNode.EXPRESSION_NEW);
+
+            if (isToVisit) {
                 firstArg = visit(expressionDot.getJmmChild(0));
             } else {
                 firstArg = expressionDot.getJmmChild(0).get("name");
-
+                try {
+                    firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType().getName());
+                } catch (VarNotInScopeException ignored) {}
             }
         }
 
@@ -216,11 +220,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             if (firstArg.equals("this")) {
                 type = symbolTable.getClassName();
             } else {
-                String[] firstArgsSplit = firstArg.split("\\.");
-                if (firstArgsSplit.length == 1) {
-                    type = firstArgsSplit[0];
+                if (((SymbolTableImpl) symbolTable).isExternalClass(getCurrentMethodName(expressionDot), firstArg)) {
+                    type = firstArg;
                 } else {
-                    type = firstArgsSplit[1];
+                    type = OllirUtils.getOllirIdWithoutParamNum(firstArg);
                 }
             }
 
@@ -461,18 +464,16 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         code.append(getIndentation()).append("if (").append(conditionReg).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
 
         this.incrementIndentation();
-        for (JmmNode node : ifFalseScope.getChildren()) {
-            visit(node);
-        }
+        visit(ifFalseScope);
+
         code.append(getIndentation()).append("goto endIf").append(ifThenElseNum).append(";\n");
         this.decrementIndentation();
 
         code.append(getIndentation()).append("ifTrue").append(ifThenElseNum).append(":\n");
 
         this.incrementIndentation();
-        for (JmmNode node : ifTrueScope.getChildren()) {
-            visit(node);
-        }
+        visit(ifTrueScope);
+
         this.decrementIndentation();
 
         code.append(getIndentation()).append("endIf").append(ifThenElseNum).append(":\n");
@@ -498,9 +499,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
 
         this.incrementIndentation();
-        for (JmmNode node : whileScope.getChildren()) {
-            visit(node);
-        }
+        visit(whileScope);
 
         code.append(getIndentation()).append("goto while").append(whileNum).append(";\n");
         this.decrementIndentation();
@@ -509,6 +508,15 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         return "";
     }
+
+    private String scopeVisit(JmmNode scope, String dummy) {
+        for (JmmNode child : scope.getChildren()) {
+            visit(child);
+        }
+
+        return "";
+    }
+
 
     private String getImmediateIndexIntoReg(String index) {
         int tempVar = getAndAddTempVar();

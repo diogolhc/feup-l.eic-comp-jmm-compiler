@@ -22,6 +22,7 @@ public class OllirUtils {
             case "integer" -> ".i32";
             case "boolean" -> ".bool";
             case "int" -> ".array.i32";
+            case "String" -> ".array.String";
             default -> "." + jmmType;
         };
     }
@@ -94,9 +95,15 @@ public class OllirUtils {
     }
 
     public static String getOllirIdWithoutTypeAndParamNum(String ollirId) {
-        String[] splitted = ollirId.split("\\.");
+        String[] ollirIdSplit = ollirId.split("\\.");
         int n = ollirId.charAt(0) == '$' ? 1 : 0;
-        return splitted[n];
+        return ollirIdSplit[n];
+    }
+
+    public static String getOllirIdWithoutParamNum(String ollirId) {
+        String[] ollirIdSplit = ollirId.split("\\.");
+        int n = ollirId.charAt(0) == '$' ? 2 : 1;
+        return String.join(".", Arrays.copyOfRange(ollirIdSplit, n, ollirIdSplit.length));
     }
 
     public static boolean isImmediateValueIndex(String index) {
@@ -105,5 +112,4 @@ public class OllirUtils {
         }
         return isIntegerString(index.substring(0,1));
     }
-
 }

@@ -187,10 +187,15 @@ void ExpressionAddSub() #void : {} {
 }
 
 void ExpressionMulDiv() #void : {} {
-    Factor() (
-        (<TIMES> Factor()) ({ jjtThis.put("op", "multiplication"); }) #BinOp(2)
-        |   (<DIVIDE> Factor()) ({ jjtThis.put("op", "division"); }) #BinOp(2)
+    ExpressionNot() (
+        (<TIMES> ExpressionNot()) ({ jjtThis.put("op", "multiplication"); }) #BinOp(2)
+        |   (<DIVIDE> ExpressionNot()) ({ jjtThis.put("op", "division"); }) #BinOp(2)
     )*
+}
+
+void ExpressionNot() #void : {} {
+    Factor()
+    | <NOT> ExpressionNot() #Not
 }
 
 void Factor() #void: {} {
@@ -209,7 +214,6 @@ void ArrayAccess() #void : {} {
 void ExpressionSingles() #void: {} {
     ExpressionTerminal()
     |   <NEW> ExpressionNew()
-    |   <NOT> ExpressionTerminal() #Not
 }
 
 void ExpressionTerminal() #void : {} {
