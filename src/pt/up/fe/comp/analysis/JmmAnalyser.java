@@ -21,6 +21,8 @@ public class JmmAnalyser implements JmmAnalysis {
 
         reports.addAll(symbolTableFiller.getReports());
 
+        System.out.println("ANNOTATED AST : \n" + parserResult.getRootNode().toTree());
+
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
 }

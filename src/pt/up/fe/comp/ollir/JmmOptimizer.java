@@ -12,7 +12,6 @@ public class JmmOptimizer implements JmmOptimization {
         var ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable());
         ollirGenerator.visit(semanticsResult.getRootNode());
 
-        System.out.println("ANNOTATED AST : \n" + semanticsResult.getRootNode().toTree());
 
         var ollirCode = ollirGenerator.getCode();
 
