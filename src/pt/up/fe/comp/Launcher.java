@@ -1,16 +1,17 @@
 package pt.up.fe.comp;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import pt.up.fe.comp.analysis.JmmAnalyser;
+import pt.up.fe.comp.jmm.jasmin.JasminBackender;
 import pt.up.fe.comp.jmm.parser.JmmParserResult;
 import pt.up.fe.comp.ollir.JmmOptimizer;
 import pt.up.fe.specs.util.SpecsIo;
 import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Launcher {
 
@@ -60,10 +61,29 @@ public class Launcher {
         var optimizer = new JmmOptimizer();
 
         // Optimization stage
-        var optimizationResult = optimizer.optimize(semanticsResult);
+        var optimizationResult1 = optimizer.optimize(semanticsResult);
 
-        // Check if there are parsing errors
-        TestUtils.noErrors(optimizationResult);
+        // Check if there are optimization errors
+        TestUtils.noErrors(optimizationResult1);
+
+        var ollirResult = optimizer.toOllir(optimizationResult1);
+
+        // Check if there are ollir errors
+        TestUtils.noErrors(ollirResult);
+
+        var optimizationResult2 = optimizer.optimize(ollirResult);
+
+        // Check if there are optimization errors
+        TestUtils.noErrors(optimizationResult2);
+
+
+        // Instantiate JasminBackender
+        var jasminBackend = new JasminBackender();
+
+        var backendResult = jasminBackend.toJasmin(optimizationResult2);
+
+        // Check if there are jasmin errors
+        TestUtils.noErrors(backendResult);
 
         // ... add remaining stages
     }
