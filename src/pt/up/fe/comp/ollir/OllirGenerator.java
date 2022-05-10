@@ -180,8 +180,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         // return
         if (!isMain) {
-            String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0));
-            code.append(getIndentation()).append("ret").append(OllirUtils.getCode(symbolTable.getReturnType(methodName))).append(" ")
+            String returnString = OllirUtils.getCode(symbolTable.getReturnType(methodName));
+            String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0), returnString);
+            
+            code.append(getIndentation()).append("ret").append(returnString).append(" ")
                     .append(returnReg).append(";\n");
         }
 

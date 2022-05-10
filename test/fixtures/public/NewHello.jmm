@@ -24,9 +24,7 @@ class HelloWorld extends BoardBase {
             }
         }
 */
-        // TODO 2-4 parser '-'
-        i = new H().g();
-        return j;
+        return new H().g();
     }
 
     public static void main(String[] args) {
