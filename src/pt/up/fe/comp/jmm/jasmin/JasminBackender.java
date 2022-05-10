@@ -269,13 +269,14 @@ public class JasminBackender implements JasminBackend {
             stringBuilder.append(this.getLoadToStack(instruction.getOperand(), varTable));
         }
 
+        stringBuilder.append("\t");
         if (instruction.getOperand() != null) {
             ElementType elementType = instruction.getOperand().getType().getTypeOfElement();
 
             if (elementType == ElementType.INT32 || elementType == ElementType.BOOLEAN) {
-                stringBuilder.append("\ti");
+                stringBuilder.append("i");
             } else {
-                stringBuilder.append("\ta");
+                stringBuilder.append("a");
             }
         }
 
@@ -409,7 +410,7 @@ public class JasminBackender implements JasminBackend {
                     }
 
                     stringBuilder.append("\tnew ").append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName()))
-                            .append("\n\tdup\n");
+                            .append("\n\tdup\n"); // TODO confirm if this dup is necessary and if pop is also necessary after a call (void or not)
                 } else if (elementType == ElementType.ARRAYREF) {
                     // TODO Check Point 3
                     stringBuilder.append("; CP3\n");
