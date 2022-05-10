@@ -25,7 +25,7 @@ public class JmmAnalyser implements JmmAnalysis {
 
         // TODO check length
         List<PreorderSemanticAnalyser> analysers = Arrays.asList(
-                new VariableAnalyser(), new OperandCompatibilityAnalyser(), new ArrayAccessAnalyser(),
+                new ArrayAccessAnalyser(), new VariableAnalyser(), new OperandCompatibilityAnalyser(),
                 new AssignmentCompatibilityAnalyser(), new ConditionAnalyser(), new FunctionCallCompatibilityAnalyser(),
                 new MethodExistanceAnalyser(), new MethodLiteralCallAnalyser(), new MethodReturnAnalyser());
 

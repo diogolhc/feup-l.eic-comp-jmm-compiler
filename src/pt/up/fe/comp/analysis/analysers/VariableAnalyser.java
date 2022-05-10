@@ -23,7 +23,7 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
     }
 
     private Integer visitId(JmmNode variable, SymbolTableImpl symbolTable){
-        // TODO check if initialized
+        // TODO check if initialized (fields can not be initialized)
 
         // TODO might be out of any method? (this is probably syntax)
         // TODO should we check if ExpressionDot is from own class?

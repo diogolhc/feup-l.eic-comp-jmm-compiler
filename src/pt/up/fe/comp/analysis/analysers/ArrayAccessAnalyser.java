@@ -40,9 +40,8 @@ public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
                     Integer.parseInt(array_access.get("col")),
                     "Array must be of type int"));
         }
-        // TODO getJmmNodeType should be able to handle IntLiteral by itself
-        if (!(Objects.equals(access_node.getKind(), "IntLiteral") ||
-                Objects.equals(this.getJmmNodeType(access_node, symbolTable).getName(), "integer"))){
+
+        if (!Objects.equals(this.getJmmNodeType(access_node, symbolTable), new Type("integer",false))){
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(array_access.get("line")),

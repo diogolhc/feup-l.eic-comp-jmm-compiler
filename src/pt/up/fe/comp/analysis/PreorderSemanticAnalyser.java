@@ -70,6 +70,21 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         return new Type("invalid", false);
     }
 
+    private Type getExpressionNewType(JmmNode node, SymbolTableImpl symbolTable){
+
+        System.out.println("HELLO " + node.getChildren());
+
+        if (node.getChildren().size() > 0){
+            if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("integer", false))) {
+                return new Type("int", true);
+            } else {
+                return new Type("invalid", false);
+            }
+
+        }
+        return new Type(node.get("name"), false);
+    }
+
     protected Type getJmmNodeType(JmmNode node, SymbolTableImpl symbolTable){
         return switch (node.getKind()) {
             case "Id" -> this.getIdType(node, symbolTable);
@@ -78,7 +93,8 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
             case "BooleanLiteral" -> new Type("boolean", false);
             case "Bool" -> new Type("boolean", false);
             case "ExpressionDot" -> new Type("ignore", false); //TODO not always, change this
-            case "ExpressionNew" -> new Type(node.get("name"), false);
+            case "ExpressionNew" -> this.getExpressionNewType(node, symbolTable);
+            case "Length" -> new Type("integer", false);
             default -> new Type("invalid", false);
         };
     }
