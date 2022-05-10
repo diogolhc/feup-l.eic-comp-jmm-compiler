@@ -34,6 +34,8 @@ public class JmmAnalyser implements JmmAnalysis {
             reports.addAll(analyser.getReports());
         }
 
+        System.out.println("ANNOTATED AST : \n" + parserResult.getRootNode().toTree());
+
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }
 }

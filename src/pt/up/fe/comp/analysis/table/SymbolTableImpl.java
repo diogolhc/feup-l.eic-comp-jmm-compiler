@@ -152,6 +152,23 @@ public class SymbolTableImpl implements SymbolTable {
         throw new VarNotInScopeException(variableName, methodSignature);
     }
 
+    public boolean isField(String methodSignature, String variableName) {
+        Method method = methods.get(methodSignature);
+
+        Symbol asLocalVariable = method.findLocalVariable(variableName);
+        if (asLocalVariable != null) {
+            return false;
+        }
+
+        Symbol asParameter = method.findParameter(variableName);
+        if (asParameter != null) {
+            return false;
+        }
+
+        Symbol asField = findField(variableName);
+        return asField != null;
+    }
+
     private Symbol findField(String name) {
         for (Symbol symbol : getFields()) {
             if (symbol.getName().equals(name)) {
@@ -210,4 +227,50 @@ public class SymbolTableImpl implements SymbolTable {
 
         methods.put(methodSignature, method);
     }
+
+    public String getOllirLikeReference(String methodSignature, String variableName) {
+        // This method assumes all class methods are not static
+
+        Method method = methods.get(methodSignature);
+
+        List<Symbol> parameters = method.getParameters();
+        int index = -1;
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i).getName().equals(variableName)) {
+                index = i+1;
+                break;
+            }
+        }
+
+        return index == -1 ? "" : "$" + index + ".";
+    }
+
+    public boolean isExternalClass(String methodSignature, String variableName) {
+        Method method = methods.get(methodSignature);
+
+        Symbol asLocalVariable = method.findLocalVariable(variableName);
+        if (asLocalVariable != null) {
+            return false;
+        }
+
+        Symbol asParameter = method.findParameter(variableName);
+        if (asParameter != null) {
+            return false;
+        }
+
+        Symbol asField = findField(variableName);
+        if (asField != null) {
+            return false;
+        }
+
+        for (String importName : this.getImports()) {
+            if (importName.endsWith(variableName)) {
+                return true;
+            }
+        }
+
+        // NOTE: this false is not semantically equal to the previous ones
+        return false;
+    }
+
 }

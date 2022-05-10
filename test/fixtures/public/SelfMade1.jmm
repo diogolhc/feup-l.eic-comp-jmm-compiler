@@ -1,0 +1,27 @@
+import io;
+
+class SelfMade {
+    public int call(int num, boolean bo){
+        int i;
+        int div;
+
+        i = 0;
+        while (bo && 0 < num) {
+            div = num / 2;
+            div = 2 * div;
+
+            if (!(div < num) && !(num < div))
+                i = i + 1;
+            else
+                i = i;
+
+            num = num - 1;
+        }
+
+        return i;
+    }
+
+    public static void main(String[] args){
+        io.println(new SelfMade().call(10, true));
+    }
+}

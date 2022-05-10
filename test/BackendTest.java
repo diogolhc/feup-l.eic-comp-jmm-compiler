@@ -1,3 +1,9 @@
+import org.junit.Test;
+import pt.up.fe.comp.TestUtils;
+import pt.up.fe.specs.util.SpecsIo;
+import pt.up.fe.specs.util.SpecsStrings;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Copyright 2021 SPeCS.
@@ -11,14 +17,6 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License. under the License.
  */
-
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
-import pt.up.fe.comp.TestUtils;
-import pt.up.fe.specs.util.SpecsIo;
-import pt.up.fe.specs.util.SpecsStrings;
 
 public class BackendTest {
 
@@ -37,4 +35,5 @@ public class BackendTest {
         var output = TestUtils.runJasmin(jasminCode);
         assertEquals("Hello World!\nHello World Again!\n", SpecsStrings.normalizeFileContents(output));
     }
+
 }
