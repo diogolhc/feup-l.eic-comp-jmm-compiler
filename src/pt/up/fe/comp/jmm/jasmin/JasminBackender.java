@@ -33,7 +33,7 @@ public class JasminBackender implements JasminBackend {
 
         } catch (OllirErrorException e) {
             return new JasminResult(classUnit.getClassName(), null,
-                    Arrays.asList(Report.newError(Stage.GENERATION, -1, -1,
+                    Collections.singletonList(Report.newError(Stage.GENERATION, -1, -1,
                             "Jasmin generation exception.", e)));
         }
 
@@ -91,7 +91,7 @@ public class JasminBackender implements JasminBackend {
 
         // <access-spec>
         if (method.getMethodAccessModifier() != AccessModifiers.DEFAULT) {
-            stringBuilder.append(method.getMethodAccessModifier().name().toLowerCase() + " ");
+            stringBuilder.append(method.getMethodAccessModifier().name().toLowerCase()).append(" ");
         }
 
         if (method.isStaticMethod()) stringBuilder.append("static ");
@@ -112,16 +112,13 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getMethodStatements(Method method) {
-        StringBuilder stringBuilder = new StringBuilder();
 
         // "you can ignore stack and local limits for now, use limit_stack 99 and limit_locals 99)"
         // TODO after Check Point 2 deal with it
-        stringBuilder.append("\t.limit stack 99\n");
-        stringBuilder.append("\t.limit locals 99\n");
 
-        stringBuilder.append(this.getMethodInstructions(method));
-
-        return stringBuilder.toString();
+        return "\t.limit stack 99\n" +
+               "\t.limit locals 99\n" +
+               this.getMethodInstructions(method);
     }
 
     private String getMethodInstructions(Method method) {
@@ -162,7 +159,6 @@ public class JasminBackender implements JasminBackend {
             case UNARYOPER -> this.getUnaryOperationInstruction((UnaryOpInstruction) instruction, varTable);
             case BINARYOPER -> this.getBinaryOperationInstruction((BinaryOpInstruction) instruction, varTable);
             case NOPER -> this.getLoadToStack(((SingleOpInstruction) instruction).getSingleOperand(), varTable);
-            default -> "; ERROR: getInstruction() " + instruction.getInstType() + "\n";
         };
     }
 
@@ -172,7 +168,7 @@ public class JasminBackender implements JasminBackend {
         stringBuilder.append(this.getLoadToStack(instruction.getOperand(), varTable))
                      .append("\t").append(this.getOperation(instruction.getOperation()));
 
-        Boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOTB;
+        boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOTB;
         if (isBooleanOperation) {
             stringBuilder.append(this.getBooleanOperationResultToStack());
         }
@@ -194,7 +190,7 @@ public class JasminBackender implements JasminBackend {
                      .append("\t").append(this.getOperation(instruction.getOperation()));
 
         OperationType opType = instruction.getOperation().getOpType();
-        Boolean isBooleanOperation =
+        boolean isBooleanOperation =
                    opType == OperationType.EQ
                 || opType == OperationType.GTH
                 || opType == OperationType.GTE
@@ -328,12 +324,11 @@ public class JasminBackender implements JasminBackend {
         } else if (element instanceof Operand) {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
-                case INT32: case BOOLEAN: stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable)); break;
-                case ARRAYREF: stringBuilder.append("; CP3"); break; // TODO Check Point 3
-                case OBJECTREF: case STRING: stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)); break;
-                case THIS: stringBuilder.append("\taload_0"); break;
-                default:
-                    stringBuilder.append("; ERROR: getLoadToStack() operand " + operand.getType().getTypeOfElement() + "\n");
+                case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
+                case ARRAYREF -> stringBuilder.append("; CP3"); // TODO Check Point 3
+                case OBJECTREF, STRING -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
+                case THIS -> stringBuilder.append("\taload_0");
+                default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
             }
         } else {
             stringBuilder.append("; ERROR: getLoadToStack() invalid element instance\n");
@@ -347,29 +342,27 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
 
         switch (instruction.getInvocationType()) {
-            case invokevirtual:
+            case invokevirtual -> {
                 stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
-
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getLoadToStack(element, varTable));
                 }
 
                 stringBuilder.append("\tinvokevirtual ")
-                             .append(this.getClassFullName(((ClassType) instruction.getFirstArg().getType()).getName()))
-                             .append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", ""))
-                             .append("(");
+                        .append(this.getClassFullName(((ClassType) instruction.getFirstArg().getType()).getName()))
+                        .append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", ""))
+                        .append("(");
 
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getFieldDescriptor(element.getType()));
                 }
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
-
-                break;
-            case invokespecial:
+            }
+            case invokespecial -> {
                 stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
-
                 stringBuilder.append("\tinvokespecial ");
+
                 if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) {
                     stringBuilder.append(this.superClass);
                 } else {
@@ -383,15 +376,14 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
-
-                break;
-            case invokestatic:
+            }
+            case invokestatic -> {
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getLoadToStack(element, varTable));
                 }
 
                 stringBuilder.append("\tinvokestatic ")
-                        .append(this.getClassFullName(((Operand)instruction.getFirstArg()).getName()))
+                        .append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName()))
                         .append("/").append(((LiteralElement) instruction.getSecondArg()).getLiteral().replace("\"", ""))
                         .append("(");
 
@@ -400,10 +392,10 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
-
-                break;
-            case NEW:
+            }
+            case NEW -> {
                 ElementType elementType = instruction.getReturnType().getTypeOfElement();
+
                 if (elementType == ElementType.OBJECTREF) {
                     for (Element element : instruction.getListOfOperands()) {
                         stringBuilder.append(this.getLoadToStack(element, varTable));
@@ -417,16 +409,13 @@ public class JasminBackender implements JasminBackend {
                 } else {
                     stringBuilder.append("; ERROR: NEW invocation type not implemented\n");
                 }
-                break;
-            case arraylength:
+            }
+            case arraylength -> {
                 stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
                 stringBuilder.append("\tarraylength\n");
-                break;
-            case ldc:
-                stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
-                break;
-            default:
-                stringBuilder.append("; ERROR: call instruction not implemented\n");
+            }
+            case ldc -> stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
+            default -> stringBuilder.append("; ERROR: call instruction not implemented\n");
         }
 
         return stringBuilder.toString();
@@ -471,7 +460,7 @@ public class JasminBackender implements JasminBackend {
 
         if (elementType == ElementType.ARRAYREF) {
             stringBuilder.append("[");
-            elementType = ((ArrayType) type).getTypeOfElements();
+            elementType = ((ArrayType) type).getArrayType();
         }
 
         switch (elementType) {
