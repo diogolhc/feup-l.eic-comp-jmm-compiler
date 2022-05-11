@@ -4,7 +4,6 @@ import pt.up.fe.comp.analysis.table.AstNode;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.analysis.table.VarNotInScopeException;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
-import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
@@ -196,50 +195,41 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     }
 
     private String expressionDotVisit(JmmNode expressionDot, String inferedType) {
+        String firstChildKind = expressionDot.getJmmChild(0).getKind();
         String firstArg;
-        if (expressionDot.getJmmChild(0).getKind().equals(AstNode.THIS)) {
-            firstArg = "this";
-        } else {
-            String firstChildKind = expressionDot.getJmmChild(0).getKind();
-            boolean isToVisit = firstChildKind.equals(AstNode.EXPRESSION_DOT) || firstChildKind.equals(AstNode.EXPRESSION_NEW);
 
-            if (isToVisit) {
-                firstArg = visit(expressionDot.getJmmChild(0));
-            } else {
-                firstArg = expressionDot.getJmmChild(0).get("name");
-                try {
-                    firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType().getName());
-                } catch (VarNotInScopeException ignored) {}
-            }
+        if (firstChildKind.equals(AstNode.THIS)) {
+            firstArg = "this";
+        } else if (firstChildKind.equals(AstNode.EXPRESSION_DOT) || firstChildKind.equals(AstNode.EXPRESSION_NEW)) {
+            firstArg = visit(expressionDot.getJmmChild(0));
+        } else {
+            firstArg = expressionDot.getJmmChild(0).get("name");
+            try {
+                firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType().getName());
+            } catch (VarNotInScopeException ignored) {}
         }
 
         String invokeType = OllirUtils.getInvokeType(firstArg, symbolTable);
-
         String method = expressionDot.getJmmChild(1).get("name");
 
-        String returnString;
+        String returnType = inferedType;
         if (inferedType == null) {
             String type;
             if (firstArg.equals("this")) {
                 type = symbolTable.getClassName();
+            } else if (((SymbolTableImpl) symbolTable).isExternalClass(getCurrentMethodName(expressionDot), firstArg)) {
+                type = firstArg;
             } else {
-                if (((SymbolTableImpl) symbolTable).isExternalClass(getCurrentMethodName(expressionDot), firstArg)) {
-                    type = firstArg;
-                } else {
-                    type = OllirUtils.getOllirIdWithoutParamNum(firstArg);
-                }
+                type = OllirUtils.getOllirIdWithoutParamNum(firstArg);
             }
 
             if (type.equals(symbolTable.getClassName())) {
-                Type returnType = symbolTable.getReturnType(method);
-                returnString = OllirUtils.getOllirType(returnType.getName());
+                returnType = OllirUtils.getOllirType(symbolTable.getReturnType(method).getName());
             } else {
                 // This is the case where an unknown method is not the last method call on a chain of calls
                 // and due to that, it's not possible to know its return type
-                returnString = ".V";
+                returnType = ".V";
             }
-        } else {
-            returnString = inferedType;
         }
 
         List<String> args = new ArrayList<>();
@@ -251,8 +241,8 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         int tempVar = getAndAddTempVar();
 
-        if (!returnString.equals(".V")) {
-            code.append("t").append(tempVar).append(returnString).append(" :=").append(returnString).append(" ");
+        if (!returnType.equals(".V")) {
+            code.append("t").append(tempVar).append(returnType).append(" :=").append(returnType).append(" ");
         }
 
         code.append(invokeType).append("(").append(firstArg).append(", \"").append(method).append("\"");
@@ -263,10 +253,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         }
 
         code.append(")")
-            .append(returnString)
+            .append(returnType)
             .append(";\n");
 
-        return "t" + tempVar + returnString;
+        return "t" + tempVar + returnType;
     }
 
     private String binOpVisit(JmmNode binOp, String dummy) {
