@@ -1,6 +1,6 @@
 import io;
 
-class SelfMade {
+class SelfMade1 {
     public int call(int num, boolean bo){
         int i;
         int div;
@@ -22,6 +22,6 @@ class SelfMade {
     }
 
     public static void main(String[] args){
-        io.println(new SelfMade().call(10, true));
+        io.println(new SelfMade1().call(10, true));
     }
 }

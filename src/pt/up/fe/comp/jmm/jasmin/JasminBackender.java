@@ -448,6 +448,10 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getVariableNumber(String name, HashMap<String, Descriptor> varTable) {
+        if (name.equals("this")) {
+            return "_0";
+        }
+
         int virtualReg = varTable.get(name).getVirtualReg();
 
         StringBuilder stringBuilder = new StringBuilder();

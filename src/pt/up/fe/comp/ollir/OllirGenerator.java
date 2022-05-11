@@ -51,6 +51,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         addVisit(AstNode.IF_STATEMENT, this::ifStatementVisit);
         addVisit(AstNode.WHILE, this::whileVisit);
         addVisit(AstNode.SCOPE, this::scopeVisit);
+        addVisit(AstNode.THIS, this::thisVisit);
     }
 
     private void incrementIndentation() {
@@ -517,6 +518,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         }
 
         return "";
+    }
+
+    private String thisVisit(JmmNode thisNode, String dummy) {
+        return "this." + symbolTable.getClassName();
     }
 
 

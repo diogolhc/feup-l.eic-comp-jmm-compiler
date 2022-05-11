@@ -34,6 +34,14 @@ public class BackEndTest {
     }
 
     @Test
+    public void testSelfMade2() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/SelfMade2.jmm"));
+        jasminResult.compile();
+        assertEquals("2\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
     public void testBinomialCoefficient() {
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/BinomialCoefficient.jmm"));
         jasminResult.compile();

@@ -1,0 +1,19 @@
+import io;
+
+class SelfMade2 {
+    public int get() {
+        return 1;
+    }
+
+    public SelfMade2 get1() {
+        return new SelfMade2();
+    }
+
+    public SelfMade2 get2() {
+        return this;
+    }
+
+    public static void main(String[] args) {
+        io.println(new SelfMade2().get1().get() + new SelfMade2().get2().get());
+    }
+}
