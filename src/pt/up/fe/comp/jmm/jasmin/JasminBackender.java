@@ -7,6 +7,8 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 
+import static org.specs.comp.ollir.InstructionType.RETURN;
+
 
 public class JasminBackender implements JasminBackend {
     ClassUnit classUnit = null;
@@ -124,7 +126,8 @@ public class JasminBackender implements JasminBackend {
     private String getMethodInstructions(Method method) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (Instruction instruction : method.getInstructions()) {
+        List<Instruction> methodInstructions = method.getInstructions();
+        for (Instruction instruction : methodInstructions) {
             // LABEL:
             for (Map.Entry<String, Instruction> label : method.getLabels().entrySet()) {
                 if (label.getValue().equals(instruction)) {
@@ -140,7 +143,10 @@ public class JasminBackender implements JasminBackend {
 
         }
 
-        if (method.getReturnType().getTypeOfElement() == ElementType.VOID) {
+        boolean hasReturnInstruction = methodInstructions.size() > 0
+                && methodInstructions.get(methodInstructions.size() - 1).getInstType() == RETURN;
+
+        if (!hasReturnInstruction && method.getReturnType().getTypeOfElement() == ElementType.VOID) {
             stringBuilder.append("\treturn\n");
         }
 

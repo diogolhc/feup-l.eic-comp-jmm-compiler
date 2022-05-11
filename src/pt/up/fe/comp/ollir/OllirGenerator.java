@@ -179,13 +179,16 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         }
 
         // return
-        if (!isMain) {
-            String returnString = OllirUtils.getCode(symbolTable.getReturnType(methodName));
-            String returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0), returnString);
-            
-            code.append(getIndentation()).append("ret").append(returnString).append(" ")
-                    .append(returnReg).append(";\n");
+        String returnString, returnReg;
+        if (isMain) {
+            returnString = ".V";
+            returnReg = "";
+        } else {
+            returnString = OllirUtils.getCode(symbolTable.getReturnType(methodName)) + " ";
+            returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0), returnString);
         }
+        code.append(getIndentation()).append("ret").append(returnString)
+                .append(returnReg).append(";\n");
 
         this.decrementIndentation();
 
