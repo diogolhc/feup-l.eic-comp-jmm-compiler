@@ -18,7 +18,7 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
         addVisit(AstNode.ASSIGNMENT, this::visitAssignment);
     }
 
-    public Integer visitAssignment(JmmNode assignment, SymbolTableImpl symbolTable){
+    public Integer visitAssignment(JmmNode assignment, SymbolTableImpl symbolTable) {
 
         // TODO don't allow imports as assignee?
 

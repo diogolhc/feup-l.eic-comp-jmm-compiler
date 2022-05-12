@@ -1,6 +1,5 @@
 package pt.up.fe.comp.analysis.analysers;
 
-import pt.up.fe.comp.analysis.JmmAnalyser;
 import pt.up.fe.comp.analysis.PreorderSemanticAnalyser;
 import pt.up.fe.comp.analysis.table.AstNode;
 import pt.up.fe.comp.analysis.table.Method;
@@ -16,18 +15,17 @@ import java.util.List;
 
 public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
-    public FunctionCallCompatibilityAnalyser(){
+    public FunctionCallCompatibilityAnalyser() {
         super();
         addVisit(AstNode.THIS, this::visitThis);
     }
 
 
-
-    public Integer visitThis(JmmNode node, SymbolTableImpl symbolTable){
+    public Integer visitThis(JmmNode node, SymbolTableImpl symbolTable) {
 
         Method method = symbolTable.findMethod(node.getJmmParent().getJmmChild(1).get("name"));
 
-        if (method == null) return 0; //handled in another analyser
+        if (method == null) return 0; // Handled in another analyser
 
         List<Symbol> method_args = method.getParameters();
         JmmNode call_args = node.getJmmParent().getJmmChild(2);
@@ -49,9 +47,9 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
                         Integer.parseInt(node.get("line")),
                         Integer.parseInt(node.get("col")),
                         "Method " + node.getJmmParent().getJmmChild(1).get("name") + " call argument " +
-                                i + " of type " + cur_arg_type.getName() + (cur_arg_type.isArray() ? "[]" : "" ) +
+                                i + " of type " + cur_arg_type.getName() + (cur_arg_type.isArray() ? "[]" : "") +
                                 " doesn't match method parameter " + method_args.get(i).getType().getName() +
-                                (method_args.get(i).getType().isArray() ? "[]" : "" )));
+                                (method_args.get(i).getType().isArray() ? "[]" : "")));
                 return 0;
             }
         }

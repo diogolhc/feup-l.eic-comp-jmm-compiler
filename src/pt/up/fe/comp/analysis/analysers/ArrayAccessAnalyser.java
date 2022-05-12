@@ -10,7 +10,6 @@ import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.Objects;
-import java.util.Optional;
 
 public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
 

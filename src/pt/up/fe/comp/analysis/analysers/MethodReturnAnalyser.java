@@ -10,25 +10,24 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
-import javax.swing.*;
 import java.util.Optional;
 
 public class MethodReturnAnalyser extends PreorderSemanticAnalyser {
 
-    public MethodReturnAnalyser(){
+    public MethodReturnAnalyser() {
         super();
         addVisit(AstNode.RETURN, this::visitReturn);
     }
 
-    public Integer visitReturn(JmmNode node, SymbolTableImpl symbolTable){
+    public Integer visitReturn(JmmNode node, SymbolTableImpl symbolTable) {
 
         //TODO check if it works for main
 
-        Optional<JmmNode> opt_method_node = node.getAncestor("MethodDeclaration");
-        if(opt_method_node.isEmpty()) return -1; // TODO throw error?
+        Optional<JmmNode> opt_method_node = node.getAncestor(AstNode.METHOD_DECL);
+        if (opt_method_node.isEmpty()) return -1; // TODO throw error?
 
         Method method = symbolTable.findMethod(opt_method_node.get().getJmmChild(0).get("name"));
-        if(method == null) return -1; //TODO throw error?
+        if (method == null) return -1; //TODO throw error?
 
         if(!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(
                 new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false)) ||
