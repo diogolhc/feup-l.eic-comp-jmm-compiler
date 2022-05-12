@@ -26,7 +26,7 @@ public class JmmAnalyser implements JmmAnalysis {
                 new ArrayAccessAnalyser(), new VariableAnalyser(), new OperandCompatibilityAnalyser(),
                 new AssignmentCompatibilityAnalyser(), new ConditionAnalyser(), new MethodCallCompatibilityAnalyser(),
                 new MethodExistanceAnalyser(), new MethodLiteralCallAnalyser(), new MethodReturnAnalyser(),
-                new LengthAnalyser());
+                new LengthAnalyser(), new DeclarationAnalyser());
 
         for (var analyser : analysers){
             analyser.visit(parserResult.getRootNode(), symbolTable);

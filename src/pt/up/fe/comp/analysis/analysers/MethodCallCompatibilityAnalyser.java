@@ -51,7 +51,7 @@ public class MethodCallCompatibilityAnalyser extends PreorderSemanticAnalyser {
                             ReportType.ERROR, Stage.SEMANTIC,
                             Integer.parseInt(node.get("line")),
                             Integer.parseInt(node.get("col")),
-                            "Method " + node.getJmmParent().getJmmChild(1).get("name") + " call argument " +
+                            "Method " + node.getJmmChild(1).get("name") + " call argument " +
                                     i + " of type " + cur_arg_type.getName() + (cur_arg_type.isArray() ? "[]" : "") +
                                     " doesn't match method parameter " + method_args.get(i).getType().getName() +
                                     (method_args.get(i).getType().isArray() ? "[]" : "")));

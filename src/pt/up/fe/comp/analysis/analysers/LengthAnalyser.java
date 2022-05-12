@@ -20,7 +20,7 @@ public class LengthAnalyser extends PreorderSemanticAnalyser {
     private Integer visitLength(JmmNode node, SymbolTableImpl symbolTable) {
 
         if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("integer", false)) ||
-                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("bool", false)) ||
+                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("boolean", false)) ||
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("int", true))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,

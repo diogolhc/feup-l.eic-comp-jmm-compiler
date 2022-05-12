@@ -23,7 +23,7 @@ public class MethodLiteralCallAnalyser extends PreorderSemanticAnalyser {
         if (Objects.equals(node.getJmmParent().getKind(), AstNode.EXPRESSION_DOT)) return 0;
 
         if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("integer", false)) ||
-                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("bool", false)) ||
+                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("boolean", false)) ||
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("int", true))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,

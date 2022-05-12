@@ -29,8 +29,15 @@ public class MethodReturnAnalyser extends PreorderSemanticAnalyser {
         Method method = symbolTable.findMethod(opt_method_node.get().getJmmChild(0).get("name"));
         if (method == null) return -1; //TODO throw error?
 
-        if(!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(
-                new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false)) ||
+        Type return_type;
+
+        if (this.isImport(opt_method_node.get().getJmmChild(0).get("returnType"), symbolTable)){
+            return_type = new Type("import", false);
+        } else {
+            return_type = new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false);
+        }
+
+        if(!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(return_type) ||
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("ignore", false)))){
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
