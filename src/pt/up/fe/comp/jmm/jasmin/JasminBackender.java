@@ -438,17 +438,7 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getStore(Operand dest, HashMap<String, Descriptor> varTable) {
-<<<<<<< HEAD
-        /*return switch (dest.getType().getTypeOfElement()) {
-            // TODO may booleans be treated as INT32 here?
-            case INT32, BOOLEAN -> "istore" + getVariableNumber(dest.getName(), varTable) + '\n';
-            // TODO CheckPoint3
-            case ARRAYREF -> "TODO CheckPoint3";
-            // TODO can STRING and THIS be treated as OBJECTREF?
-            case OBJECTREF, THIS, STRING -> "astore" + getVariableNumber(dest.getName(), varTable) + '\n';
-            default -> "getStore() error";
-        };*/ return null;
-=======
+
         return switch (dest.getType().getTypeOfElement()) {
             // BOOLEAN is represented as int in JVM
             case INT32, BOOLEAN -> "\tistore" + getVariableNumber(dest.getName(), varTable) + "\n";
@@ -456,7 +446,6 @@ public class JasminBackender implements JasminBackend {
             case OBJECTREF, THIS, STRING -> "\tastore" + getVariableNumber(dest.getName(), varTable) + "\n";
             default -> "; ERROR: getStore()\n";
         };
->>>>>>> master
     }
 
     private String getVariableNumber(String name, HashMap<String, Descriptor> varTable) {

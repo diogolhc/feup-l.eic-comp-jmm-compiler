@@ -1,5 +1,7 @@
 package pt.up.fe.comp.analysis;
 
+import com.javacc.parser.tree.Literal;
+import pt.up.fe.comp.Return;
 import pt.up.fe.comp.analysis.table.AstNode;
 import pt.up.fe.comp.analysis.table.Method;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
@@ -33,6 +35,49 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         reports.add(report);
     }
 
+    // TODO should probably be on the symbol table
+    public boolean isImport(String id, SymbolTableImpl symbolTable){
+        for (String imp : symbolTable.getImports()){
+            List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
+            if (Objects.equals(id, split_imports.get(split_imports.size() - 1))){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean compatibleType(Type type1, Type type2, SymbolTableImpl symbolTable){
+        // literals
+        List<Type> literals = Arrays.asList(
+                new Type("integer", false),
+                new Type("boolean", false),
+                new Type("int", true));
+
+        Type super_type = new Type(symbolTable.getSuper(), false);
+        Type class_type = new Type(symbolTable.getClassName(), false);
+        Type import_type = new Type("import", false);
+
+        //(literals.contains(type1) || literals.contains(type2)) &&
+        if (type1.equals(type2)) {
+            return true;
+        } else if (type1.equals(new Type("ignore", false)) ||
+                type2.equals(new Type("ignore", false))) {
+            return true;
+        } else if (type1.equals(super_type)) {
+            if (    type2.equals(class_type)    ||
+                    type2.equals(import_type)   ) { //import might extend super
+                return true;
+            }
+        } else if (type1.equals(class_type)) {
+            if ( type2.equals(import_type)) return true;
+        } else if (type1.equals(import_type)) {
+            if ( symbolTable.getSuper() != null && (type2.equals(class_type) || type2.equals(super_type))){ //if has extend
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected Type getIdType(JmmNode node, SymbolTableImpl symbolTable){
 
         Method parent_method = null;
@@ -53,48 +98,40 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         }
         symbols.addAll(symbolTable.getFields());
 
+        Type ret = new Type("invalid", false);
+
         for (var symbol : symbols){
             if(Objects.equals(symbol.getName(), node.get("name"))){
-                return symbol.getType();
+                ret = symbol.getType();
             }
         }
 
-        for (String imp : symbolTable.getImports()){
-            List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
-            if (Objects.equals(node.get("name"), split_imports.get(split_imports.size() - 1))){
-                //TODO should we ignore?
-                return new Type("ignore", false);
-            }
-        }
+        if (this.isImport(node.get("name"), symbolTable)) ret = new Type("import", false);
+        if (node.get("name").equals(symbolTable.getClassName())) ret = new Type(symbolTable.getClassName(), false);
+        if (node.get("name").equals(symbolTable.getSuper())) ret = new Type(symbolTable.getSuper(), false);
 
-        return new Type("invalid", false);
+        return ret;
     }
 
     private Type getExpressionNewType(JmmNode node, SymbolTableImpl symbolTable){
-
-        System.out.println("HELLO " + node.getChildren());
-
         if (node.getChildren().size() > 0){
             if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("integer", false))) {
                 return new Type("int", true);
             } else {
                 return new Type("invalid", false);
             }
-
         }
-        return new Type(node.get("name"), false);
+        return this.getIdType(node, symbolTable);
     }
 
     protected Type getJmmNodeType(JmmNode node, SymbolTableImpl symbolTable){
         return switch (node.getKind()) {
-            case "Id" -> this.getIdType(node, symbolTable);
+            case "Id" -> this.getIdType(node, symbolTable); //TODO check extends and imports
             case "BinOp" -> this.evaluateExpressionType(node, symbolTable);
-            case "ArrayAccess", "IntLiteral" -> new Type("integer", false);
-            case "BooleanLiteral" -> new Type("boolean", false);
-            case "Bool" -> new Type("boolean", false);
+            case "ArrayAccess", "IntLiteral", "Length" -> new Type("integer", false);
+            case "BooleanLiteral", "Bool" -> new Type("boolean", false);
             case "ExpressionDot" -> new Type("ignore", false); //TODO not always, change this
             case "ExpressionNew" -> this.getExpressionNewType(node, symbolTable);
-            case "Length" -> new Type("integer", false);
             default -> new Type("invalid", false);
         };
     }
@@ -109,7 +146,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
 
     private String resultTypeFromOp(String op){
         return switch (op) {
-            case "and", "lessThan" -> "bool";
+            case "and", "lessThan" -> "boolean";
             case "division", "multiplication", "addition", "subtraction" -> "integer";
             default -> "invalid";
         };

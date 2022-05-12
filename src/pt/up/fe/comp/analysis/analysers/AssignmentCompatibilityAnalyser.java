@@ -22,9 +22,13 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
         // TODO don't allow imports as assignee?
 
+        // must be getId
         Type assignee_type = this.getIdType(assignment.getJmmChild(0), symbolTable);
 
         Type assignment_type = this.getJmmNodeType(assignment.getJmmChild(1).getJmmChild(0), symbolTable);
+
+        System.out.println("DEBUG1 " + assignment.getJmmChild(0) + " " + assignment.getJmmChild(1).getJmmChild(0));
+        System.out.println("DEBUG2 " + assignee_type + " " + assignment_type);
 
         if (Objects.equals(assignment.getJmmChild(1).getJmmChild(0).getKind(), "ExpressionNew") &&
                 assignment_type.equals(new Type("invalid", false))){
@@ -34,16 +38,13 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
                     Integer.parseInt(assignment.get("col")),
                     "Array size must be of type integer."));
         }
-        else if (! (Objects.equals(assignee_type, assignment_type) ||
-                assignment_type.equals(new Type("ignore", false)))){
+        else if (!this.compatibleType(assignee_type, assignment_type, symbolTable)){
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(assignment.get("line")),
                     Integer.parseInt(assignment.get("col")),
-                    "Assignee ( " + assignee_type.getName() + (assignee_type.isArray() ? "[]" : "" )
-                            + " ) must be of the same type as assignment (" + assignment_type.getName() +
-                            (assignment_type.isArray() ? "[]" : "" ) + ")."));
-        }
+                    "Assignee type must be compatible with assignment type." + assignee_type + assignment_type));
+        } //TODO remove this is for debug
 
         return 0;
     }
