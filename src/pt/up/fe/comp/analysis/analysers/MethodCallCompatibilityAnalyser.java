@@ -13,9 +13,9 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.List;
 
-public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser {
+public class MethodCallCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
-    public FunctionCallCompatibilityAnalyser() {
+    public MethodCallCompatibilityAnalyser() {
         super();
         addVisit(AstNode.THIS, this::visitThis);
     }
@@ -41,7 +41,7 @@ public class FunctionCallCompatibilityAnalyser extends PreorderSemanticAnalyser 
 
         for (int i = 0; i < method_args.size(); i++) {
             Type cur_arg_type = this.getJmmNodeType(call_args.getJmmChild(i).getJmmChild(0), symbolTable);
-            if (!method_args.get(i).getType().equals(cur_arg_type)) {
+            if (!this.compatibleType(method_args.get(i).getType(), cur_arg_type, symbolTable)) {
                 addReport(new Report(
                         ReportType.ERROR, Stage.SEMANTIC,
                         Integer.parseInt(node.get("line")),

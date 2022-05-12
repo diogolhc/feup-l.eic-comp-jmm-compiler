@@ -27,9 +27,6 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
         Type assignment_type = this.getJmmNodeType(assignment.getJmmChild(1).getJmmChild(0), symbolTable);
 
-        System.out.println("DEBUG1 " + assignment.getJmmChild(0) + " " + assignment.getJmmChild(1).getJmmChild(0));
-        System.out.println("DEBUG2 " + assignee_type + " " + assignment_type);
-
         if (Objects.equals(assignment.getJmmChild(1).getJmmChild(0).getKind(), "ExpressionNew") &&
                 assignment_type.equals(new Type("invalid", false))){
             addReport(new Report(

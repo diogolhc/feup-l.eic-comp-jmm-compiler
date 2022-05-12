@@ -18,7 +18,7 @@ public class ConditionAnalyser extends PreorderSemanticAnalyser {
 
     public Integer visitCondition(JmmNode condition, SymbolTableImpl symbolTable){
         if (!this.compatibleType(this.getJmmNodeType(condition.getJmmChild(0), symbolTable),
-                new Type("boolean", false), symbolTable)){
+                new Type("bool", false), symbolTable)){
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(condition.get("line")),

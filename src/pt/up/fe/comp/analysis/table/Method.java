@@ -17,7 +17,7 @@ public class Method {
         this.returnType = returnType;
     }
 
-    protected Type getReturnType() {
+    public Type getReturnType() {
         return returnType;
     }
 

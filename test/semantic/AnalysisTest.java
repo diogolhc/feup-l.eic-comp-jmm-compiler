@@ -7,6 +7,14 @@ import pt.up.fe.specs.util.SpecsIo;
 public class AnalysisTest {
 
     @Test
+    public void my_tests() {
+        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/" +
+                "LotsOfExpressions.jmm"));
+        System.out.println("SymbolTable: " + results.getSymbolTable().print());
+        TestUtils.noErrors(results);
+    }
+
+    @Test
     public void manual_sem() {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "IntInIfCondition.jmm"));

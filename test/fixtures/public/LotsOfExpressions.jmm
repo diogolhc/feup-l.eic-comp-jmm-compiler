@@ -1,47 +1,16 @@
-import io;
-import MathUtils;
-import Testing.something.smart;
-import Smart;
-import Sup;
+class Simple extends Simpler{
 
-class Simple {
-
-    public int give_num(int n, bool d){
-        return n;
+    public Simple giveDummy(){
+        Simple a;
+        return a;
     }
 
+
     public int testing(int a, int b){
-            int[] lineLenA;
-            int[] lineLenB;
-            int[] L;
-            int c;
-            bool cp;
-            Smart sm;
-            sm = new Smart();
-            c = a * b;
-            c = a + MathUtils.random(0-100, 100);
-            c = smart;
-            b = MathUtils.hello().bye();
-            c = a + L[c + 1 * 2];
-
-            cp = c < 2;
-
-            if((c + 2) < a ){
-                c  = a-1;
-            }else{
-                c = b-1;
-            }
-
-            c = this.give_num(2, false);
-
-            smart.c().b();
-
-            sm.smt();
-
-            while() {
-
-            }
-
-            return c;
-        }
+        String s;
+        Simple k;
+        Simpler l;
+        l = k.giveDummy().giveDummy();
+        return 0;
+    }
 }
