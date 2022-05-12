@@ -65,13 +65,11 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
             return true;
         } else if (type1.equals(super_type)) {
             if (    type2.equals(class_type)    ||
-                    type2.equals(import_type)   ) { //import might extend super
+                    this.isImport(type2.getName(), symbolTable)  ) { //import might extend super
                 return true;
             }
-        } else if (type1.equals(class_type)) {
-            if ( type2.equals(import_type)) return true;
-        } else if (type1.equals(import_type)) {
-            if ( symbolTable.getSuper() != null && (type2.equals(class_type) || type2.equals(super_type))){ //if has extend
+        } else if (this.isImport(type1.getName(), symbolTable)) {
+            if (this.isImport(type2.getName(), symbolTable)) {
                 return true;
             }
         }
@@ -106,10 +104,8 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
             }
         }
 
-        if (this.isImport(node.get("name"), symbolTable)) ret = new Type("import", false);
         if (node.get("name").equals(symbolTable.getClassName())) ret = new Type(symbolTable.getClassName(), false);
         if (node.get("name").equals(symbolTable.getSuper())) ret = new Type(symbolTable.getSuper(), false);
-        if (this.isImport(ret.getName(), symbolTable)) ret = new Type("import", false);
 
         return ret;
     }
@@ -122,7 +118,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
                 return new Type("invalid", false);
             }
         }
-        return this.getIdType(node, symbolTable);
+        return new Type (node.get("name"), false);
     }
 
     private Type getExpressionDotType(JmmNode node, SymbolTableImpl symbolTable){

@@ -31,16 +31,12 @@ public class MethodReturnAnalyser extends PreorderSemanticAnalyser {
 
         Type return_type;
 
-        if (this.isImport(opt_method_node.get().getJmmChild(0).get("returnType"), symbolTable)){
-            return_type = new Type("import", false);
+        if (opt_method_node.get().getJmmChild(0).get("returnType").equals("array")){
+            return_type = new Type("int", true);
         } else {
-            if (opt_method_node.get().getJmmChild(0).get("returnType").equals("array")){
-                return_type = new Type("int", true);
-            } else {
-                return_type = new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false);
-            }
+            return_type = new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false);
         }
-        
+
         if(!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(return_type) ||
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("ignore", false)))){
             addReport(new Report(

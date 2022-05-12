@@ -18,9 +18,6 @@ public class DeclarationAnalyser extends PreorderSemanticAnalyser {
     private Integer visitDeclaration(JmmNode node, SymbolTableImpl symbolTable) {
 
         String var_type = node.get("varType");
-
-        System.out.println("YOOOO " + var_type);
-
         if (var_type == null) return 0;
 
         if(!(   this.isImport(var_type, symbolTable) ||
