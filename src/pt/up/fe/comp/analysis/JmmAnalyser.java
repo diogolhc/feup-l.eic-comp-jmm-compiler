@@ -22,11 +22,11 @@ public class JmmAnalyser implements JmmAnalysis {
 
         List<Report> reports = new ArrayList<>(symbolTableFiller.getReports());
 
-        // TODO check length
         List<PreorderSemanticAnalyser> analysers = Arrays.asList(
                 new ArrayAccessAnalyser(), new VariableAnalyser(), new OperandCompatibilityAnalyser(),
                 new AssignmentCompatibilityAnalyser(), new ConditionAnalyser(), new MethodCallCompatibilityAnalyser(),
-                new MethodExistanceAnalyser(), new MethodLiteralCallAnalyser(), new MethodReturnAnalyser());
+                new MethodExistanceAnalyser(), new MethodLiteralCallAnalyser(), new MethodReturnAnalyser(),
+                new LengthAnalyser());
 
         for (var analyser : analysers){
             analyser.visit(parserResult.getRootNode(), symbolTable);

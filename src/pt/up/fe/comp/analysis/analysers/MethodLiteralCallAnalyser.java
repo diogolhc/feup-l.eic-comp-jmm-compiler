@@ -20,8 +20,6 @@ public class MethodLiteralCallAnalyser extends PreorderSemanticAnalyser {
 
     public Integer visitExpressionDot(JmmNode node, SymbolTableImpl symbolTable) {
 
-        System.out.println("VED " + node.getJmmChild(0) + " " + this.getJmmNodeType(node.getJmmChild(0), symbolTable));
-
         if (Objects.equals(node.getJmmParent().getKind(), AstNode.EXPRESSION_DOT)) return 0;
 
         if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("integer", false)) ||

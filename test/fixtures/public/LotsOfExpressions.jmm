@@ -1,16 +1,15 @@
 class Simple extends Simpler{
 
-    public Simple giveDummy(){
+    public Simple giveDummy(bool b){
         Simple a;
         return a;
     }
-
 
     public int testing(int a, int b){
         String s;
         Simple k;
         Simpler l;
-        l = k.giveDummy().giveDummy();
+        l = k.giveDummy(true).getRandom().giveDummy(true);
         return 0;
     }
 }

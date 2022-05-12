@@ -22,9 +22,6 @@ public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
 
         Method method = symbolTable.findMethod(node.getJmmParent().getJmmChild(1).get("name"));
 
-        // TODO assume super has
-        // TODO also check for class fields
-
         // If method isn't implemented in the class and doesn't have a super class
         if (method == null && symbolTable.getSuper() == null) {
             addReport(new Report(
@@ -40,9 +37,7 @@ public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
 
     public Integer visitExpressionDot(JmmNode node, SymbolTableImpl symbolTable){
 
-        // TODO assume super has
-        // TODO assume import has method
-
+        //TODO missing checks
 
         if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).getName().equals(symbolTable.getClassName())){
 
