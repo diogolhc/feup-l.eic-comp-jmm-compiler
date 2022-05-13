@@ -19,14 +19,12 @@ public class LengthAnalyser extends PreorderSemanticAnalyser {
 
     private Integer visitLength(JmmNode node, SymbolTableImpl symbolTable) {
 
-        if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("integer", false)) ||
-                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("boolean", false)) ||
-                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("int", true))) {
+        if (!this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("int", true))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(node.get("line")),
                     Integer.parseInt(node.get("col")),
-                    "Literals can't call length"));
+                    "Length only works for arrays"));
         }
 
         return 0;
