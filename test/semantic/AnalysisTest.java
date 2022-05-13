@@ -23,7 +23,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "ArrayAccessOnInt.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -31,7 +31,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "ArrayIndexNotInt.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -39,7 +39,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "ArrayInWhileCondition.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "ArrayPlusInt.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -55,7 +55,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "AssignIntToBool.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "BoolTimesInt.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "CallToUndeclaredMethod.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "ClassNotImported.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "IncompatibleArguments.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "IncompatibleReturn.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "IntInIfCondition.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -135,15 +135,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "IntPlusObject.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
-    }
-
-    @Test
-    public void ManualTesting() {
-        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
-                "ManualTesting.jmm"));
-        System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -151,7 +143,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "ObjectAssignmentFail.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -183,7 +175,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/cp2/" +
                 "VarNotDeclared.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     // FIXTURES PUBLIC FAIL
@@ -193,7 +185,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/arr_index_not_int.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -201,7 +193,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/arr_size_not_int.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -209,7 +201,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/badArguments.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -217,7 +209,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/binop_incomp.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -225,7 +217,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/funcNotFound.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -233,7 +225,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/simple_length.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -241,7 +233,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/var_exp_incomp.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -249,7 +241,7 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/var_lit_incomp.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
     @Test
@@ -257,23 +249,23 @@ public class AnalysisTest {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/var_undef.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
-    @Test
+    /*@Test
     public void varNotInit() {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/varNotInit.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
-    }
+        TestUtils.mustFail(results);
+    }*/
 
     @Test
     public void extra() {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/fail/" +
                 "semantic/extra/miss_type.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
-        TestUtils.noErrors(results);
+        TestUtils.mustFail(results);
     }
 
 }
