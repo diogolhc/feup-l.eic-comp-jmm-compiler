@@ -1,0 +1,35 @@
+import io;
+
+class SelfMade4 {
+    int a;
+    int[] b;
+    boolean c;
+    int d;
+
+    public int get() {
+        return 2*15 / 15;
+    }
+
+    public int getD(int a) {
+        a = 10;
+        d = 2;
+        while (!(a < 10)) {
+            d = 1;
+            a = 0;
+        }
+
+        return d;
+    }
+
+    public SelfMade4 get1() {
+        return new SelfMade4();
+    }
+
+    public SelfMade4 get2() {
+        return this;
+    }
+
+    public static void main(String[] args) {
+        io.println(new SelfMade4().get1().get() + new SelfMade4().get2().getD(35/12));
+    }
+}

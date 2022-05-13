@@ -65,9 +65,9 @@ public class FileSkeletonTest {
 
     @Test
     public void testMethodsAndVars() {
-        String test1 = SpecsIo.getResource("fixtures/public/Test1.jmm");
-        String test2 = SpecsIo.getResource("fixtures/public/Test2.jmm");
-        String test3 = SpecsIo.getResource("fixtures/public/Test3.jmm");
+        String test1 = SpecsIo.getResource("fixtures/public/selfMade/Test1.jmm");
+        String test2 = SpecsIo.getResource("fixtures/public/selfMade/Test2.jmm");
+        String test3 = SpecsIo.getResource("fixtures/public/selfMade/Test3.jmm");
 
         JmmParserResult parserResult = TestUtils.parse(test1, "Program");
         parserResult.dumpReports();

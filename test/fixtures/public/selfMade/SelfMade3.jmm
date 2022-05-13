@@ -1,0 +1,35 @@
+import io;
+
+class SelfMade3 {
+    int a;
+    int[] b;
+    boolean c;
+    int d;
+
+    public int get() {
+        return 2*15 / 15;
+    }
+
+    public int getD(int a) {
+
+        c = true;
+
+        if (!c)
+            d = 3;
+        else
+            d = 5-1+6;
+        return d;
+    }
+
+    public SelfMade3 get1() {
+        return new SelfMade3();
+    }
+
+    public SelfMade3 get2() {
+        return this;
+    }
+
+    public static void main(String[] args) {
+        io.println(new SelfMade3().get1().get() + new SelfMade3().get2().getD(35/12));
+    }
+}

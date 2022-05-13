@@ -27,7 +27,7 @@ public class BackEndTest {
 
     @Test
     public void testSelfMade() {
-        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/SelfMade1.jmm"));
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade1.jmm"));
         jasminResult.compile();
         assertEquals("5\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
@@ -35,9 +35,25 @@ public class BackEndTest {
 
     @Test
     public void testSelfMade2() {
-        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/SelfMade2.jmm"));
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade2.jmm"));
         jasminResult.compile();
         assertEquals("2\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testSelfMade3() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade3.jmm"));
+        jasminResult.compile();
+        assertEquals("12\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testSelfMade4() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade4.jmm"));
+        jasminResult.compile();
+        assertEquals("3\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
     }
 
