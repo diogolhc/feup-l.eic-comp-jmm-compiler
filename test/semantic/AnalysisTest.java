@@ -10,8 +10,7 @@ public class AnalysisTest {
 
     @Test
     public void my_tests() {
-        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/" +
-                "LotsOfExpressions.jmm"));
+        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/SelfMade2.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
         TestUtils.noErrors(results);
     }

@@ -136,11 +136,12 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
     protected Type getJmmNodeType(JmmNode node, SymbolTableImpl symbolTable){
         return switch (node.getKind()) {
             case "Id" -> this.getIdType(node, symbolTable);
-            case "BinOp" -> this.evaluateExpressionType(node, symbolTable);
+            case "BinOp", "Not" -> this.evaluateExpressionType(node, symbolTable);
             case "ArrayAccess", "IntLiteral", "Length" -> new Type("integer", false);
             case "BooleanLiteral", "Bool" -> new Type("boolean", false);
             case "ExpressionDot" -> this.getExpressionDotType(node, symbolTable);
             case "ExpressionNew" -> this.getExpressionNewType(node, symbolTable);
+            case "This" -> new Type(symbolTable.getClassName(), false);
             default -> new Type("invalid", false);
         };
     }
@@ -178,37 +179,51 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
 
     protected Type evaluateExpressionType(JmmNode expression, SymbolTableImpl symbolTable) {
 
-        String operation = expression.get("op");
+        Type ret = null;
 
-        JmmNode leftChild = expression.getJmmChild(0);
-        JmmNode rightChild = expression.getJmmChild(1);
+        if (expression.getKind().equals("Not")){
 
-        Type leftChildType = this.getJmmNodeType(leftChild, symbolTable);
-        Type rightChildType = this.getJmmNodeType(rightChild, symbolTable);
+            ret = this.getJmmNodeType(expression.getJmmChild(0), symbolTable);
 
-        if (Objects.equals(leftChildType.getName(), "invalid") ||
-                Objects.equals(rightChildType.getName(), "invalid")){
-            return new Type("invalid", false); // Return invalid
+            if (!ret.equals(new Type("boolean", false))){
+                addReport(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt(expression.get("line")),
+                        Integer.parseInt(expression.get("col")),
+                        "Expected boolean for not operator"));
+            }
+
+        } else {
+            String operation = expression.get("op");
+
+            JmmNode leftChild = expression.getJmmChild(0);
+            JmmNode rightChild = expression.getJmmChild(1);
+
+            Type leftChildType = this.getJmmNodeType(leftChild, symbolTable);
+            Type rightChildType = this.getJmmNodeType(rightChild, symbolTable);
+
+            if (Objects.equals(leftChildType.getName(), "invalid") ||
+                    Objects.equals(rightChildType.getName(), "invalid")){
+                return new Type("invalid", false); // Return invalid
+            }
+
+            ret = this.typeOfOperation(operation, leftChildType, rightChildType);
+
+            if (Objects.equals(ret.getName(), "invalid")){
+
+                String error_message = "Invalid types for operation. ";
+                error_message += "Expected " + expectedTypeForOp(operation) + " types for operation " + operation + ". ";
+                error_message += "Found " + getJmmNodeType(leftChild, symbolTable).getName() + " and "
+                        + getJmmNodeType(rightChild, symbolTable).getName() + ".";
+
+                addReport(new Report(
+                        ReportType.ERROR, Stage.SEMANTIC,
+                        Integer.parseInt(expression.get("line")),
+                        Integer.parseInt(expression.get("col")),
+                        error_message));
+            }
         }
 
-        Type ret = this.typeOfOperation(operation, leftChildType, rightChildType);
-
-        if (Objects.equals(ret.getName(), "invalid")){
-
-            // TODO error message sometimes gives ignore as type
-            // TODO array type coming out as int (check the isArray param)
-            // TODO this error should not be thrown here
-            String error_message = "Invalid types for operation. ";
-            error_message += "Expected " + expectedTypeForOp(operation) + " types for operation " + operation + ". ";
-            error_message += "Found " + getJmmNodeType(leftChild, symbolTable).getName() + " and "
-                    + getJmmNodeType(rightChild, symbolTable).getName() + ".";
-
-            addReport(new Report(
-                    ReportType.ERROR, Stage.SEMANTIC,
-                    Integer.parseInt(expression.get("line")),
-                    Integer.parseInt(expression.get("col")),
-                    error_message));
-        }
         return ret;
     }
 

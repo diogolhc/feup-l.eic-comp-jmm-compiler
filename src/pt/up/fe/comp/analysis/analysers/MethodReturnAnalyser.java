@@ -37,6 +37,9 @@ public class MethodReturnAnalyser extends PreorderSemanticAnalyser {
             return_type = new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false);
         }
 
+        System.out.println("RETURN TYPE " + return_type);
+        System.out.println("asdasdas " + this.getJmmNodeType(node.getJmmChild(0), symbolTable));
+
         if(!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(return_type) ||
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("ignore", false)))){
             addReport(new Report(
