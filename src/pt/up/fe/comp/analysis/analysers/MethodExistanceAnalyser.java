@@ -20,6 +20,8 @@ public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
 
     public Integer visitThis(JmmNode node, SymbolTableImpl symbolTable) {
 
+        if (node.getJmmParent().getChildren().size() == 0) return 0;
+
         Method method = symbolTable.findMethod(node.getJmmParent().getJmmChild(1).get("name"));
 
         // If method isn't implemented in the class and doesn't have a super class
