@@ -9,6 +9,11 @@ import pt.up.fe.specs.util.SpecsLogs;
 import pt.up.fe.specs.util.SpecsSystem;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +90,27 @@ public class Launcher {
         // Check if there are jasmin errors
         TestUtils.noErrors(backendResult);
 
-        // ... add remaining stages
+        Path resultsDirectory = Paths.get("generated-files/");
+
+        try {
+            if (!Files.exists(resultsDirectory)) {
+                Files.createDirectory(resultsDirectory);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Path path = Paths.get("generated-files/" + backendResult.getClassName() + "/");
+
+        try {
+            FileWriter fileWriter = new FileWriter(path + ".j");
+            fileWriter.write(backendResult.getJasminCode());
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        backendResult.compile(path.toFile());
     }
 
 }
