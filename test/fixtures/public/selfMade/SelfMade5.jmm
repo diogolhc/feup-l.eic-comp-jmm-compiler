@@ -1,0 +1,29 @@
+import io;
+
+class SelfMade5 {
+
+    int a;
+    int [] b;
+
+    public SelfMade5 getInstance() {
+        return this;
+    }
+
+    public int[] getB() {
+        b = new int [35+5*3 - 1/1];   // 49 LENGTH
+        return b;
+    }
+
+    public int getLength() {
+        return b.length;
+    }
+
+    public static void main(String[] args) {
+        SelfMade5 ola;
+        ola.getB();
+        ola = new SelfMade5();
+
+
+        io.println(new SelfMade5().getInstance().getInstance().getInstance().getB().length + ola.getLength()); // RESULT 98
+    }
+}
