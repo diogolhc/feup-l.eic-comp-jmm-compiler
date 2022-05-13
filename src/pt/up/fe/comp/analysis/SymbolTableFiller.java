@@ -116,12 +116,12 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
         for (var variable : vars) {
             if (!method.addLocalVariable(new Symbol(
                     new Type(variable.get("varType").equals("array") ? "int" : variable.get("varType"),
-                        variable.get("varType").equals("array"))
+                            variable.get("varType").equals("array"))
                     , variable.get("name")))) {
 
                 reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
                         Integer.parseInt(variable.get("col")),
-                        "Found duplicated local variable '" + variable.get("name") + "'" , null));
+                        "Found duplicated local variable '" + variable.get("name") + "'", null));
                 return -1;
             }
         }
@@ -169,7 +169,7 @@ public class SymbolTableFiller extends PreorderJmmVisitor<SymbolTableImpl, Integ
 
                 reports.add(Report.newError(Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
                         Integer.parseInt(variable.get("col")),
-                        "Found duplicated local variable '" + variable.get("name") + "'" , null));
+                        "Found duplicated local variable '" + variable.get("name") + "'", null));
                 return -1;
             }
         }

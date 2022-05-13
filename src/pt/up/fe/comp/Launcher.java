@@ -25,7 +25,7 @@ public class Launcher {
 
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
-        // read the input code
+        // Read the input code
         if (args.length != 1) {
             throw new RuntimeException("Expected a single argument, a path to an existing input file.");
         }

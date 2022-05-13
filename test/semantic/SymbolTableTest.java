@@ -1,4 +1,5 @@
 package semantic;
+
 import org.junit.Test;
 import org.junit.Assert;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;

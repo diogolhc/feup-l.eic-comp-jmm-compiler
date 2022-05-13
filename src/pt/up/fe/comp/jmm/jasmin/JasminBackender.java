@@ -25,7 +25,6 @@ public class JasminBackender implements JasminBackend {
             this.classUnit.buildCFGs();
             this.classUnit.buildVarTables();
 
-
             String jasminCode = buildJasminCode();
             List<Report> reports = new ArrayList<>();
 
@@ -56,7 +55,7 @@ public class JasminBackender implements JasminBackend {
         // .super  <class-name>
         stringBuilder.append(".super ").append(getClassFullName(this.superClass)).append("\n");
 
-        // fields
+        // Fields
         for (Field field : this.classUnit.getFields()) {
             // .field <access-spec> <field-name> <descriptor>
             StringBuilder accessSpec = new StringBuilder();
@@ -71,11 +70,11 @@ public class JasminBackender implements JasminBackend {
                 accessSpec.append("final ");
             }
 
-            stringBuilder.append(".field ").append(accessSpec.toString()).append(field.getFieldName())
+            stringBuilder.append(".field ").append(accessSpec).append(field.getFieldName())
                     .append(" ").append(this.getFieldDescriptor(field.getFieldType())).append("\n");
         }
 
-        // methods
+        // Methods
         for (Method method : this.classUnit.getMethods()) {
             // .method <access-spec> <method-spec>
             //     <statements>
@@ -119,8 +118,8 @@ public class JasminBackender implements JasminBackend {
         // TODO after Check Point 2 deal with it
 
         return "\t.limit stack 99\n" +
-               "\t.limit locals 99\n" +
-               this.getMethodInstructions(method);
+                "\t.limit locals 99\n" +
+                this.getMethodInstructions(method);
     }
 
     private String getMethodInstructions(Method method) {
@@ -172,7 +171,7 @@ public class JasminBackender implements JasminBackend {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append(this.getLoadToStack(instruction.getOperand(), varTable))
-                     .append("\t").append(this.getOperation(instruction.getOperation()));
+                .append("\t").append(this.getOperation(instruction.getOperation()));
 
         boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOTB;
         if (isBooleanOperation) {
@@ -192,17 +191,17 @@ public class JasminBackender implements JasminBackend {
         // TODO add "iinc" case
 
         stringBuilder.append(this.getLoadToStack(leftElement, varTable))
-                     .append(this.getLoadToStack(rightElement, varTable))
-                     .append("\t").append(this.getOperation(instruction.getOperation()));
+                .append(this.getLoadToStack(rightElement, varTable))
+                .append("\t").append(this.getOperation(instruction.getOperation()));
 
         OperationType opType = instruction.getOperation().getOpType();
         boolean isBooleanOperation =
-                   opType == OperationType.EQ
-                || opType == OperationType.GTH
-                || opType == OperationType.GTE
-                || opType == OperationType.LTH
-                || opType == OperationType.LTE
-                || opType == OperationType.NEQ;
+                opType == OperationType.EQ
+                        || opType == OperationType.GTH
+                        || opType == OperationType.GTE
+                        || opType == OperationType.LTH
+                        || opType == OperationType.LTE
+                        || opType == OperationType.NEQ;
 
         if (isBooleanOperation) {
             stringBuilder.append(this.getBooleanOperationResultToStack());
@@ -408,7 +407,7 @@ public class JasminBackender implements JasminBackend {
                     }
 
                     stringBuilder.append("\tnew ").append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName()))
-                            .append("\n\tdup\n"); // TODO confirm if this dup is necessary and if pop is also necessary after a call (void or not)
+                            .append("\n\tdup\n");
                 } else if (elementType == ElementType.ARRAYREF) {
                     // TODO Check Point 3
                     stringBuilder.append("; CP3\n");
@@ -501,11 +500,11 @@ public class JasminBackender implements JasminBackend {
 
     private String getBooleanOperationResultToStack() {
         return " TRUE" + this.conditionalNumber + "\n"
-             + "\ticonst_0\n"
-             + "\tgoto NEXT" + this.conditionalNumber + "\n"
-             + "TRUE" + this.conditionalNumber + ":\n"
-             + "\ticonst_1\n"
-             + "NEXT" + this.conditionalNumber++ + ":";
+                + "\ticonst_0\n"
+                + "\tgoto NEXT" + this.conditionalNumber + "\n"
+                + "TRUE" + this.conditionalNumber + ":\n"
+                + "\ticonst_1\n"
+                + "NEXT" + this.conditionalNumber++ + ":";
     }
 
 }

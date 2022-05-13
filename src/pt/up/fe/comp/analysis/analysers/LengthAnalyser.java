@@ -9,10 +9,8 @@ import pt.up.fe.comp.jmm.report.Report;
 import pt.up.fe.comp.jmm.report.ReportType;
 import pt.up.fe.comp.jmm.report.Stage;
 
-import java.util.Objects;
-
 public class LengthAnalyser extends PreorderSemanticAnalyser {
-    public LengthAnalyser(){
+    public LengthAnalyser() {
         super();
         addVisit(AstNode.LENGTH, this::visitLength);
     }

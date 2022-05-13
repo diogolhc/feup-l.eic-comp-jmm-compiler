@@ -10,7 +10,7 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 public class DeclarationAnalyser extends PreorderSemanticAnalyser {
 
-    public DeclarationAnalyser(){
+    public DeclarationAnalyser() {
         super();
         addVisit(AstNode.VAR_DECL, this::visitDeclaration);
     }
@@ -20,14 +20,14 @@ public class DeclarationAnalyser extends PreorderSemanticAnalyser {
         String var_type = node.get("varType");
         if (var_type == null) return 0;
 
-        if(!(   this.isImport(var_type, symbolTable) || this.isLiteral(var_type, symbolTable) ||
+        if (!(this.isImport(var_type, symbolTable) || this.isLiteral(var_type, symbolTable) ||
                 (symbolTable.getSuper() != null && symbolTable.getSuper().equals(var_type)) ||
-                symbolTable.getClassName().equals(var_type))){
+                symbolTable.getClassName().equals(var_type))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(node.get("line")),
                     Integer.parseInt(node.get("col")),
-                    "Declaration must be of known type." + var_type)); //TODO debug
+                    "Declaration must be of known type."));
         }
 
         return 0;

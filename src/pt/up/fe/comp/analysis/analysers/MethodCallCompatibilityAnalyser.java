@@ -24,7 +24,7 @@ public class MethodCallCompatibilityAnalyser extends PreorderSemanticAnalyser {
 
         if (!(node.getJmmChild(0).getKind().equals(AstNode.THIS) || //not this nor call to this class
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable)
-                        .equals(new Type(symbolTable.getClassName(), false)))){
+                        .equals(new Type(symbolTable.getClassName(), false)))) {
             return 0;
         }
 

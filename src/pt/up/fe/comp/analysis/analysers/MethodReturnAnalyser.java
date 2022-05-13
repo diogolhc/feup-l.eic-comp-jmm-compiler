@@ -21,24 +21,22 @@ public class MethodReturnAnalyser extends PreorderSemanticAnalyser {
 
     public Integer visitReturn(JmmNode node, SymbolTableImpl symbolTable) {
 
-        //TODO check if it works for main
-
         Optional<JmmNode> opt_method_node = node.getAncestor(AstNode.METHOD_DECL);
-        if (opt_method_node.isEmpty()) return -1; // TODO throw error?
+        if (opt_method_node.isEmpty()) return -1;
 
         Method method = symbolTable.findMethod(opt_method_node.get().getJmmChild(0).get("name"));
-        if (method == null) return -1; //TODO throw error?
+        if (method == null) return -1;
 
         Type return_type;
 
-        if (opt_method_node.get().getJmmChild(0).get("returnType").equals("array")){
+        if (opt_method_node.get().getJmmChild(0).get("returnType").equals("array")) {
             return_type = new Type("int", true);
         } else {
             return_type = new Type(opt_method_node.get().getJmmChild(0).get("returnType"), false);
         }
 
-        if(!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(return_type) ||
-                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("ignore", false)))){
+        if (!(this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(return_type) ||
+                this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type("ignore", false)))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(node.get("line")),

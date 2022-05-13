@@ -108,8 +108,8 @@ public class OllirUtils {
 
     public static boolean isImmediateValueIndex(String index) {
         if (index.charAt(0) == '-') {
-            return isIntegerString(index.substring(0,2));
+            return isIntegerString(index.substring(0, 2));
         }
-        return isIntegerString(index.substring(0,1));
+        return isIntegerString(index.substring(0, 1));
     }
 }

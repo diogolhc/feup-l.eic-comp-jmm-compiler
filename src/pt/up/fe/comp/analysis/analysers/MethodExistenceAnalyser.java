@@ -11,8 +11,8 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.Objects;
 
-public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
-    public MethodExistanceAnalyser(){
+public class MethodExistenceAnalyser extends PreorderSemanticAnalyser {
+    public MethodExistenceAnalyser() {
         super();
         addVisit(AstNode.THIS, this::visitThis);
         addVisit(AstNode.EXPRESSION_DOT, this::visitExpressionDot);
@@ -37,15 +37,13 @@ public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
         return 0;
     }
 
-    public Integer visitExpressionDot(JmmNode node, SymbolTableImpl symbolTable){
+    public Integer visitExpressionDot(JmmNode node, SymbolTableImpl symbolTable) {
 
-        //TODO missing checks
-
-        if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).getName().equals(symbolTable.getClassName())){
+        if (this.getJmmNodeType(node.getJmmChild(0), symbolTable).getName().equals(symbolTable.getClassName())) {
 
             JmmNode analyse_node;
 
-            if(Objects.equals(node.getJmmChild(1).getKind(), AstNode.EXPRESSION_NEW)){
+            if (Objects.equals(node.getJmmChild(1).getKind(), AstNode.EXPRESSION_NEW)) {
                 analyse_node = node.getJmmChild(1).getJmmChild(0);
             } else {
                 analyse_node = node.getJmmChild(1);
@@ -53,8 +51,8 @@ public class MethodExistanceAnalyser extends PreorderSemanticAnalyser {
 
             Method method = symbolTable.findMethod(analyse_node.get("name"));
 
-            // if method isn't implemented in the class and doesn't have a super class
-            if(method == null && symbolTable.getSuper() == null) {
+            // If method isn't implemented in the class and doesn't have a super class
+            if (method == null && symbolTable.getSuper() == null) {
                 addReport(new Report(
                         ReportType.ERROR, Stage.SEMANTIC,
                         Integer.parseInt(node.get("line")),

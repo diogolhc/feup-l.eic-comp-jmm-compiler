@@ -10,9 +10,9 @@ public class SymbolTableImpl implements SymbolTable {
     private String className;
     private String superclassName;
 
-    private Map<Type, List<Symbol>> fields;
-    private List<String> imports;
-    private Map<String, Method> methods;
+    private final Map<Type, List<Symbol>> fields;
+    private final List<String> imports;
+    private final Map<String, Method> methods;
 
     public SymbolTableImpl() {
         this.imports = new ArrayList<>();
@@ -25,7 +25,7 @@ public class SymbolTableImpl implements SymbolTable {
     public SymbolTableImpl(String className, String superclassName, List<String> imports,
                            List<Symbol> fields, Map<String, List<Symbol>> parameters,
                            Map<String, List<Symbol>> localVariables, Map<String, Type> methodTypes)
-                           throws VarAlreadyDefinedException {
+            throws VarAlreadyDefinedException {
         this.className = className;
         this.superclassName = superclassName;
         this.imports = imports;
@@ -110,25 +110,6 @@ public class SymbolTableImpl implements SymbolTable {
     public List<Symbol> getLocalVariables(String methodSignature) {
         Method method = methods.get(methodSignature);
         return method == null ? null : method.getLocalVariables();
-    }
-
-    private static String toMethodSignature(String methodName, List<String> parameterTypes) {
-        var builder = new StringBuilder();
-        builder.append(methodName);
-        builder.append("(");
-        for (int i = 0; i < parameterTypes.size(); i++) {
-            if (i != 0) {
-                builder.append(" ");
-            }
-            builder.append(parameterTypes.get(i));
-
-            if (i != parameterTypes.size()-1) {
-                builder.append(",");
-            }
-        }
-        builder.append(")");
-
-        return builder.toString();
     }
 
     public Symbol findVariable(String methodSignature, String variableName) throws VarNotInScopeException {
@@ -237,7 +218,7 @@ public class SymbolTableImpl implements SymbolTable {
         int index = -1;
         for (int i = 0; i < parameters.size(); i++) {
             if (parameters.get(i).getName().equals(variableName)) {
-                index = i+1;
+                index = i + 1;
                 break;
             }
         }

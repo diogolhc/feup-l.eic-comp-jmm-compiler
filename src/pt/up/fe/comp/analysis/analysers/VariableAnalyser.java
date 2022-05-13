@@ -2,9 +2,7 @@ package pt.up.fe.comp.analysis.analysers;
 
 import pt.up.fe.comp.analysis.PreorderSemanticAnalyser;
 import pt.up.fe.comp.analysis.table.AstNode;
-import pt.up.fe.comp.analysis.table.Method;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
-import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.report.Report;
@@ -20,10 +18,9 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
         addVisit(AstNode.ID, this::visitId);
     }
 
-    private Integer visitId(JmmNode variable, SymbolTableImpl symbolTable){
-        // TODO might be out of any method? (this is probably syntax)
+    private Integer visitId(JmmNode variable, SymbolTableImpl symbolTable) {
 
-        // ignore chained ExpressionDot
+        // Ignore chained ExpressionDot
         if ((Objects.equals(variable.getJmmParent().getKind(), AstNode.EXPRESSION_DOT) &&
                 variable.getJmmParent().getJmmChild(1) == variable)) {
             return 0;

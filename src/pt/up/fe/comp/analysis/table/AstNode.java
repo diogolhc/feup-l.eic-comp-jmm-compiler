@@ -15,7 +15,7 @@ public final class AstNode {
     public static final String ASSIGNMENT = "Assignment";
     public static final String CONDITION = "Condition";
     public static final String THIS = "This";
-    public static final String EXPRESSION_DOT= "ExpressionDot";
+    public static final String EXPRESSION_DOT = "ExpressionDot";
     public static final String RETURN = "Return";
     public static final String INT_LITERAL = "IntLiteral";
     public static final String BOOL = "Bool";
