@@ -35,7 +35,6 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         reports.add(report);
     }
 
-    // TODO should probably be on the symbol table
     public boolean isImport(String id, SymbolTableImpl symbolTable){
         for (String imp : symbolTable.getImports()){
             List<String> split_imports = Arrays.asList(imp.trim().split("\\."));
@@ -46,12 +45,12 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         return false;
     }
 
+    public boolean isLiteral(String id, SymbolTableImpl symbolTable){
+        return (id.equals("integer") || id.equals("boolean") || id.equals("array"));
+    }
+
     protected boolean compatibleType(Type type1, Type type2, SymbolTableImpl symbolTable){
         // literals
-        List<Type> literals = Arrays.asList(
-                new Type("integer", false),
-                new Type("boon", false),
-                new Type("int", true));
 
         Type super_type = new Type(symbolTable.getSuper(), false);
         Type class_type = new Type(symbolTable.getClassName(), false);

@@ -22,7 +22,6 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
 
     private Integer visitId(JmmNode variable, SymbolTableImpl symbolTable){
         // TODO might be out of any method? (this is probably syntax)
-        // TODO should we check if ExpressionDot is from own class?
 
         // ignore chained ExpressionDot
         if ((Objects.equals(variable.getJmmParent().getKind(), AstNode.EXPRESSION_DOT) &&
@@ -30,7 +29,8 @@ public class VariableAnalyser extends PreorderSemanticAnalyser {
             return 0;
         }
 
-        if (this.getIdType(variable, symbolTable).equals(new Type("invalid", false))) {
+        if (this.getIdType(variable, symbolTable).equals(new Type("invalid", false)) &&
+                !this.isImport(variable.get("name"), symbolTable)) {
             addReport(new Report(ReportType.ERROR, Stage.SEMANTIC, Integer.parseInt(variable.get("line")),
                     Integer.parseInt(variable.get("col")), "Identifier " + variable.get("name") +
                     " was not recognized."));
