@@ -433,6 +433,7 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getStore(Operand dest, HashMap<String, Descriptor> varTable) {
+
         return switch (dest.getType().getTypeOfElement()) {
             // BOOLEAN is represented as int in JVM
             case INT32, BOOLEAN -> "\tistore" + getVariableNumber(dest.getName(), varTable) + "\n";

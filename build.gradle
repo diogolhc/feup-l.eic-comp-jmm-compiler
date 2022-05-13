@@ -56,3 +56,5 @@ mainClassName = 'pt.up.fe.comp.Launcher'
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
+sourceCompatibility = JavaVersion.VERSION_14
+targetCompatibility = JavaVersion.VERSION_14

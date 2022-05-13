@@ -17,15 +17,15 @@ public class Method {
         this.returnType = returnType;
     }
 
-    protected Type getReturnType() {
+    public Type getReturnType() {
         return returnType;
     }
 
-    protected List<Symbol> getParameters() {
+    public List<Symbol> getParameters() {
         return this.parameters;
     }
 
-    protected List<Symbol> getLocalVariables() {
+    public List<Symbol> getLocalVariables() {
         return this.localVariables;
     }
 

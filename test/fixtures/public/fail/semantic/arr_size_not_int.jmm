@@ -3,7 +3,7 @@
 */
 
 class T {
-    public static void main(String[] a) { 
+    public static void main(String[] s) {
         int[] a;
         a = new int[true];
     }

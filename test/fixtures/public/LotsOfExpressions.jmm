@@ -1,0 +1,10 @@
+class Simple extends Simpler{
+
+    public int[] getMatrix(int[] yo){
+        return yo;
+    }
+
+    public int testing(int a, int b){
+        return 0;
+    }
+}

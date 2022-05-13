@@ -2,6 +2,8 @@
     Call to method of the class being compiled that does not exist.
 */
 
+import io;
+
 class T {
     public static void main(String[] a) { 
         io.println(10);

@@ -4,6 +4,11 @@
 /.settings/
 /generated/
 /run/
+.idea/
+/gradle/
+/gradlew
+/gradlew.bat
+
 
 # Class files
 **/*.class
