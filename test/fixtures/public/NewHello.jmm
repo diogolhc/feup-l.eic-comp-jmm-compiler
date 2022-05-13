@@ -28,7 +28,9 @@ class HelloWorld extends BoardBase {
     }
 
     public static void main(String[] args) {
-
+        int[] i;
+        i = new int[10];
+        i[2] = 3;
     }
 
 }
