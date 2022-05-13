@@ -5,6 +5,10 @@ class Simple extends Simpler{
     }
 
     public int testing(int a, int b){
+        int[] c;
+        c = new int[5];
+        c[1] = 0;
+        c.length;
         return 0;
     }
 }
