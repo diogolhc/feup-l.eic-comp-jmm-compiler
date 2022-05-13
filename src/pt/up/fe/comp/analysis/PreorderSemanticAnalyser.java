@@ -100,6 +100,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
         for (var symbol : symbols){
             if(Objects.equals(symbol.getName(), node.get("name"))){
                 ret = symbol.getType();
+                break;
             }
         }
 
