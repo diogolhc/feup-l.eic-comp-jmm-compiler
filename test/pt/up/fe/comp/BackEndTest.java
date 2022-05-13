@@ -73,4 +73,12 @@ public class BackEndTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testVarConflict() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/VarConflict.jmm"));
+        jasminResult.compile();
+        assertEquals("6\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }

@@ -62,8 +62,17 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "\t".repeat(indentationLevel);
     }
 
-    private int getAndAddTempVar() {
-        return this.tempVarNum++;
+    private int getAndAddTempVar(JmmNode currentNode) {
+        String currentMethodName = getCurrentMethodName(currentNode);
+
+        while (true) {
+            this.tempVarNum++;
+            try {
+                ((SymbolTableImpl) symbolTable).findVariable(currentMethodName, "t" + tempVarNum);
+            } catch (VarNotInScopeException e) {
+                return this.tempVarNum;
+            }
+        }
     }
 
     private int getAndAddIfThenElseNum() {
@@ -206,8 +215,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             firstArg = expressionDot.getJmmChild(0).get("name");
             try {
                 firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType().getName());
-            } catch (VarNotInScopeException ignored) {
-            }
+            } catch (VarNotInScopeException ignored) {}
         }
 
         String invokeType = OllirUtils.getInvokeType(firstArg, symbolTable);
@@ -240,7 +248,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
         code.append(getIndentation());
 
-        int tempVar = getAndAddTempVar();
+        int tempVar = getAndAddTempVar(expressionDot);
 
         if (!returnType.equals(".V")) {
             code.append("t").append(tempVar).append(returnType).append(" :=").append(returnType).append(" ");
@@ -269,7 +277,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String lhs = visit(binOp.getJmmChild(0), assignmentType);
         String rhs = visit(binOp.getJmmChild(1), assignmentType);
 
-        int tempVar = getAndAddTempVar();
+        int tempVar = getAndAddTempVar(binOp);
 
         code.append(getIndentation()).append("t").append(tempVar).append(returnType).append(" :=")
                 .append(returnType).append(" ").append(lhs).append(" ")
@@ -290,7 +298,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     private String notVisit(JmmNode not, String dummy) {
         String child = visit(not.getJmmChild(0));
 
-        int tempVar = getAndAddTempVar();
+        int tempVar = getAndAddTempVar(not);
 
         code.append(getIndentation()).append("t").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
 
@@ -311,8 +319,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         } else {
             try {
                 type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assigneeName).getType().getName());
-            } catch (VarNotInScopeException ignored) {
-            }
+            } catch (VarNotInScopeException ignored) {}
         }
 
         String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
@@ -334,7 +341,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             String methodName = getCurrentMethodName(id);
 
             if (((SymbolTableImpl) symbolTable).isField(methodName, idName)) {
-                int tempVar = getAndAddTempVar();
+                int tempVar = getAndAddTempVar(id);
 
                 code.append(getIndentation()).append("t").append(tempVar).append(stringType).append(" :=").append(stringType).append(" getfield(this, ")
                         .append(idName).append(stringType).append(")").append(stringType).append(";\n");
@@ -345,8 +352,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
                 return ollirLikeReference + idName + stringType;
             }
 
-        } catch (VarNotInScopeException ignored) {
-        }
+        } catch (VarNotInScopeException ignored) {}
 
         return "";
     }
@@ -363,7 +369,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             type = expressionNew.get("name");
         }
 
-        int tempVar = getAndAddTempVar();
+        int tempVar = getAndAddTempVar(expressionNew);
 
         code.append(getIndentation()).append("t").append(tempVar).append(".").append(type).append(" :=.").append(type).append(" ")
                 .append("new(");
@@ -388,8 +394,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String stringType = null;
         try {
             stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(assignee), idName).getType().getName());
-        } catch (VarNotInScopeException ignored) {
-        }
+        } catch (VarNotInScopeException ignored) {}
 
         String methodName = getCurrentMethodName(assignee);
 
@@ -402,7 +407,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
 
             boolean isField = ((SymbolTableImpl) symbolTable).isField(methodName, idName);
             if (isField) {
-                int tempVar = getAndAddTempVar();
+                int tempVar = getAndAddTempVar(assignee);
 
                 code.append(getIndentation()).append("t").append(tempVar).append(".array.i32 :=.array.i32 ")
                         .append("getfield(this, ").append(idName).append(".array.i32).array.i32;\n");
@@ -410,7 +415,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
                 return "t" + tempVar + ".array.i32";
             } else {
                 if (OllirUtils.isImmediateValueIndex(index)) {
-                    index = getImmediateIndexIntoReg(index);
+                    index = getImmediateIndexIntoReg(index, assignee);
                 }
 
                 return OllirUtils.getArrayIdWithoutType(idLikeVisit) + "[" + index + "].i32";
@@ -423,7 +428,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     private String lengthVisit(JmmNode lengthNode, String dummy) {
         String child = visit(lengthNode.getJmmChild(0));
 
-        int tempVar = getAndAddTempVar();
+        int tempVar = getAndAddTempVar(lengthNode);
 
         code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 arraylength(").append(child).append(").i32;\n");
         return "t" + tempVar + ".i32";
@@ -438,10 +443,10 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String indexReg = index;
 
         if (OllirUtils.isImmediateValueIndex(index)) {
-            indexReg = getImmediateIndexIntoReg(index);
+            indexReg = getImmediateIndexIntoReg(index, arrayAccess);
         }
 
-        int tempVar = getAndAddTempVar();
+        int tempVar = getAndAddTempVar(arrayAccess);
 
         code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ").append(id)
                 .append("[").append(indexReg).append("].i32;\n");
@@ -519,8 +524,8 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
     }
 
 
-    private String getImmediateIndexIntoReg(String index) {
-        int tempVar = getAndAddTempVar();
+    private String getImmediateIndexIntoReg(String index, JmmNode currentNode) {
+        int tempVar = getAndAddTempVar(currentNode);
 
         code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ").append(index).append(";\n");
         return "t" + tempVar + ".i32";
