@@ -92,8 +92,6 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
 
         Type ret = new Type("invalid", false);
 
-        System.out.println("YOOOOO " + node); // TODO delete this
-
         for (var symbol : symbols) {
             if (Objects.equals(symbol.getName(), node.get("name"))) {
                 ret = symbol.getType();
