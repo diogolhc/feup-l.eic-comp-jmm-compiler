@@ -24,7 +24,7 @@ public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
 
         JmmNode access_node = array_access.getJmmChild(1);
 
-        Type ancestor_type = this.getIdType(ancestor_id, symbolTable);
+        Type ancestor_type = this.getJmmNodeType(ancestor_id, symbolTable);
         if (!ancestor_type.isArray()) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,

@@ -1,14 +1,19 @@
 class Simple extends Simpler{
     int i;
 
-    public int[] getMatrix(int[] yo){
+    public int[] getMatrix(){
+        int[] yo;
+        yo = new int[10];
         return yo;
     }
 
+    public Simple getClone(){
+        return this;
+    }
+
     public int testing(int a, int b){
-        int[] i;
-        i = new int[10];
-        i[2] = 3;
+        int s;
+        s = (new Simple()).getClone().getMatrix()[1];
         return 0;
     }
 }
