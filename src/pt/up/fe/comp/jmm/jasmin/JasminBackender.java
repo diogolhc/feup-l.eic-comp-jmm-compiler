@@ -406,8 +406,7 @@ public class JasminBackender implements JasminBackend {
                         stringBuilder.append(this.getLoadToStack(element, varTable));
                     }
 
-                    stringBuilder.append("\tnew ").append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName()))
-                            .append("\n\tdup\n");
+                    stringBuilder.append("\tnew ").append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName())).append("\n");
                 } else if (elementType == ElementType.ARRAYREF) {
                     // TODO Check Point 3
                     stringBuilder.append("; CP3\n");
