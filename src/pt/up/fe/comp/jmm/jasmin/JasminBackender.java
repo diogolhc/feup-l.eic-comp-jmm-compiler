@@ -113,12 +113,16 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getMethodStatements(Method method) {
+        Set<Integer> virtualRegs = new TreeSet<>();
+        virtualRegs.add(0);
+        for (Descriptor descriptor : method.getVarTable().values()) {
+            virtualRegs.add(descriptor.getVirtualReg());
+        }
 
-        // "you can ignore stack and local limits for now, use limit_stack 99 and limit_locals 99)"
-        // TODO after Check Point 2 deal with it
+        // TODO limit stack
 
         return "\t.limit stack 99\n" +
-                "\t.limit locals 99\n" +
+                "\t.limit locals " + virtualRegs.size() + "\n" +
                 this.getMethodInstructions(method);
     }
 
