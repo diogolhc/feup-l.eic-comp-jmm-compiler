@@ -324,13 +324,13 @@ public class JasminBackender implements JasminBackend {
 
         } else if (element instanceof ArrayOperand) {
             // TODO Check Point 3
-            stringBuilder.append("; CP3");
+            stringBuilder.append("; CP3 LOAD ARRAYOPERAND");
 
         } else if (element instanceof Operand) {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
                 case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
-                case ARRAYREF -> stringBuilder.append("; CP3"); // TODO Check Point 3
+                case ARRAYREF -> stringBuilder.append("; CP3 LOAD ARRAYREF"); // TODO Check Point 3
                 case OBJECTREF, STRING -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
                 case THIS -> stringBuilder.append("\taload_0");
                 default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
@@ -408,8 +408,17 @@ public class JasminBackender implements JasminBackend {
 
                     stringBuilder.append("\tnew ").append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName())).append("\n");
                 } else if (elementType == ElementType.ARRAYREF) {
-                    // TODO Check Point 3
-                    stringBuilder.append("; CP3\n");
+                    for (Element element : instruction.getListOfOperands()) {
+                        stringBuilder.append(this.getLoadToStack(element, varTable));
+                    }
+
+                    stringBuilder.append("\tnewarray ");
+                    if (instruction.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32) {
+                        stringBuilder.append("int\n");
+                    } else {
+                        stringBuilder.append("; only int arrays are implemented\n");
+                    }
+
                 } else {
                     stringBuilder.append("; ERROR: NEW invocation type not implemented\n");
                 }
@@ -435,7 +444,7 @@ public class JasminBackender implements JasminBackend {
         return switch (dest.getType().getTypeOfElement()) {
             // BOOLEAN is represented as int in JVM
             case INT32, BOOLEAN -> "\tistore" + getVariableNumber(dest.getName(), varTable) + "\n";
-            case ARRAYREF -> "; CP3\n"; // TODO Check Point 3
+            case ARRAYREF -> "; CP3 STORE ARRAYREF\n"; // TODO Check Point 3
             case OBJECTREF, THIS, STRING -> "\tastore" + getVariableNumber(dest.getName(), varTable) + "\n";
             default -> "; ERROR: getStore()\n";
         };

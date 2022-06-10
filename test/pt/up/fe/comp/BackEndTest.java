@@ -81,4 +81,12 @@ public class BackEndTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testArray() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Array.jmm"));
+        jasminResult.compile();
+        assertEquals("1\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }
