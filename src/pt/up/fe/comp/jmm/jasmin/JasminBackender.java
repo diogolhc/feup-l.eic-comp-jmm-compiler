@@ -500,14 +500,14 @@ public class JasminBackender implements JasminBackend {
             // "iinc" instruction selection
             if (instruction.getRhs().getInstType() == BINARYOPER) {
                 BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
-                System.out.println("hereererere 1");
+
                 if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
                     boolean leftIsLiteral = binaryOpInstruction.getLeftOperand().isLiteral();
                     boolean rightIsLiteral = binaryOpInstruction.getRightOperand().isLiteral();
 
                     LiteralElement literal = null;
                     Operand operand = null;
-                    System.out.println("hereererere 2");
+
                     if (leftIsLiteral && !rightIsLiteral) {
                         literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
                         operand = (Operand) binaryOpInstruction.getRightOperand();
