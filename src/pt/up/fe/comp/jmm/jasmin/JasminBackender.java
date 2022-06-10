@@ -7,6 +7,7 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 
+import static org.specs.comp.ollir.InstructionType.BINARYOPER;
 import static org.specs.comp.ollir.InstructionType.RETURN;
 
 
@@ -197,8 +198,6 @@ public class JasminBackender implements JasminBackend {
 
         Element leftElement = instruction.getLeftOperand();
         Element rightElement = instruction.getRightOperand();
-
-        // TODO add "iinc" case
 
         stringBuilder.append(this.getLoadToStack(leftElement, varTable))
                 .append(this.getLoadToStack(rightElement, varTable))
@@ -496,10 +495,43 @@ public class JasminBackender implements JasminBackend {
             this.changeStackLimits(+1);
             stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n"); // load array (ref)
             stringBuilder.append(this.getLoadToStack(arrayOperand.getIndexOperands().get(0), varTable)); // load index
+
+        } else {
+            // "iinc" instruction selection
+            if (instruction.getRhs().getInstType() == BINARYOPER) {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+                System.out.println("hereererere 1");
+                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
+                    boolean leftIsLiteral = binaryOpInstruction.getLeftOperand().isLiteral();
+                    boolean rightIsLiteral = binaryOpInstruction.getRightOperand().isLiteral();
+
+                    LiteralElement literal = null;
+                    Operand operand = null;
+                    System.out.println("hereererere 2");
+                    if (leftIsLiteral && !rightIsLiteral) {
+                        literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
+                        operand = (Operand) binaryOpInstruction.getRightOperand();
+                    } else if (!leftIsLiteral && rightIsLiteral) {
+                        literal = (LiteralElement) binaryOpInstruction.getRightOperand();
+                        operand = (Operand) binaryOpInstruction.getLeftOperand();
+                    }
+
+                    if (literal != null && operand != null) {
+                        if (operand.getName().equals(dest.getName())) {
+                            int literalValue = Integer.parseInt((literal).getLiteral());
+
+                            if (literalValue >= -128 && literalValue <= 127) {
+                                return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            }
+                        }
+                    }
+
+                }
+            }
         }
 
         stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable));
-        stringBuilder.append(this.getStore(dest, varTable)); // store in array[index]
+        stringBuilder.append(this.getStore(dest, varTable)); // store in array[index] if (dest instanceof ArrayOperand)
 
         return stringBuilder.toString();
     }
