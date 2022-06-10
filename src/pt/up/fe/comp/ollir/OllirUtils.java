@@ -51,7 +51,7 @@ public class OllirUtils {
             case "multiplication" -> "*.i32";
             case "division" -> "/.i32";
             case "and" -> "&&.bool";
-            case "lessThan" -> "<.i32";
+            case "lessThan" -> "<.bool";
             default -> "// ERROR: invalid javaCCOperator\n";
         };
     }

@@ -504,9 +504,14 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
 
         int ifThenElseNum = getAndAddIfThenElseNum();
 
-        String conditionReg = visit(condition);
+        boolean isNotToAssignToTemp = condition.getKind().equals(AstNode.BIN_OP)
+                || condition.getKind().equals(AstNode.BOOL)
+                || condition.getKind().equals(AstNode.NOT)
+                || condition.getKind().equals(AstNode.ID);
 
-        code.append(getIndentation()).append("if (").append(conditionReg).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
+        String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+
+        code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
 
         this.incrementIndentation();
         visit(ifFalseScope);
@@ -534,9 +539,14 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
 
         code.append(getIndentation()).append("while").append(whileNum).append(":\n");
 
-        String conditionReg = visit(condition);
+        boolean isNotToAssignToTemp = condition.getKind().equals(AstNode.BIN_OP)
+                || condition.getKind().equals(AstNode.BOOL)
+                || condition.getKind().equals(AstNode.NOT)
+                || condition.getKind().equals(AstNode.ID);
 
-        code.append(getIndentation()).append("if (").append(conditionReg).append(") goto whileBody").append(whileNum).append(";\n");
+        String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+
+        code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
         this.incrementIndentation();
         code.append(getIndentation()).append("goto endWhile").append(whileNum).append(";\n");
         this.decrementIndentation();
