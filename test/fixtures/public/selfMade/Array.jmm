@@ -9,7 +9,8 @@ class Array {
         arr = new int[10];
 
         arr[0] = 1;
-        i = arr[0];
+        arr[1] = arr[0];
+        i = arr[1];
 
         return i;
     }

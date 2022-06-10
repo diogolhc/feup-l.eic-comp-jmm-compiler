@@ -321,17 +321,18 @@ public class JasminBackender implements JasminBackend {
                 stringBuilder.append("\tldc ").append(literal);
             }
 
-
         } else if (element instanceof ArrayOperand) {
-            // TODO Check Point 3
-            stringBuilder.append("; CP3 LOAD ARRAYOPERAND");
+            ArrayOperand operand = (ArrayOperand) element;
+
+            stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)).append("\n"); // load array (ref)
+            stringBuilder.append(getLoadToStack(operand.getIndexOperands().get(0), varTable)); // load index
+            stringBuilder.append("\tiaload"); // load array[index]
 
         } else if (element instanceof Operand) {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
                 case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
-                case ARRAYREF -> stringBuilder.append("; CP3 LOAD ARRAYREF"); // TODO Check Point 3
-                case OBJECTREF, STRING -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
+                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
                 case THIS -> stringBuilder.append("\taload_0");
                 default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
             }
@@ -435,19 +436,38 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getAssignInstruction(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return this.getInstruction(instruction.getRhs(), varTable) +
-                this.getStore((Operand) instruction.getDest(), varTable);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Operand dest = (Operand) instruction.getDest();
+        if (dest instanceof ArrayOperand) {
+            ArrayOperand arrayOperand = (ArrayOperand) dest;
+            stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n"); // load array (ref)
+            stringBuilder.append(this.getLoadToStack(arrayOperand.getIndexOperands().get(0), varTable)); // load index
+        }
+
+        stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable));
+        stringBuilder.append(this.getStore(dest, varTable)); // store in array[index]
+
+        return stringBuilder.toString();
     }
 
     private String getStore(Operand dest, HashMap<String, Descriptor> varTable) {
+        StringBuilder stringBuilder = new StringBuilder();
 
-        return switch (dest.getType().getTypeOfElement()) {
+        switch (dest.getType().getTypeOfElement()) {
             // BOOLEAN is represented as int in JVM
-            case INT32, BOOLEAN -> "\tistore" + getVariableNumber(dest.getName(), varTable) + "\n";
-            case ARRAYREF -> "; CP3 STORE ARRAYREF\n"; // TODO Check Point 3
-            case OBJECTREF, THIS, STRING -> "\tastore" + getVariableNumber(dest.getName(), varTable) + "\n";
-            default -> "; ERROR: getStore()\n";
+            case INT32, BOOLEAN -> {
+                if (varTable.get(dest.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
+                    stringBuilder.append("\tiastore").append("\n");
+                } else {
+                    stringBuilder.append("\tistore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                }
+            }
+            case OBJECTREF, THIS, STRING, ARRAYREF -> stringBuilder.append("\tastore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+            default -> stringBuilder.append("; ERROR: getStore()\n");
         };
+
+        return stringBuilder.toString();
     }
 
     private String getVariableNumber(String name, HashMap<String, Descriptor> varTable) {
