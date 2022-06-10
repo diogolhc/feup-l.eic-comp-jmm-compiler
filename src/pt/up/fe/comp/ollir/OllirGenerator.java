@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class OllirGenerator extends AJmmVisitor<String, String> {
+public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     private final StringBuilder code;
     private final SymbolTable symbolTable;
     private int indentationLevel;
@@ -87,12 +87,12 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return code.toString();
     }
 
-    private String startVisit(JmmNode start, String dummy) {
+    private String startVisit(JmmNode start, OllirInference dummy) {
         visit(start.getChildren().get(0));
         return "";
     }
 
-    private String programVisit(JmmNode program, String dummy) {
+    private String programVisit(JmmNode program, OllirInference dummy) {
         for (var importString : symbolTable.getImports()) {
             code.append("import ").append(importString).append(";\n");
         }
@@ -106,7 +106,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String classDeclVisit(JmmNode classDecl, String dummy) {
+    private String classDeclVisit(JmmNode classDecl, OllirInference dummy) {
         code.append(getIndentation()).append("public ").append(symbolTable.getClassName());
         var superClass = symbolTable.getSuper();
 
@@ -145,7 +145,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String methodDeclVisit(JmmNode methodDecl, String dummy) {
+    private String methodDeclVisit(JmmNode methodDecl, OllirInference dummy) {
         var methodName = "";
         List<JmmNode> statements;
 
@@ -191,7 +191,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             returnReg = "";
         } else {
             returnString = OllirUtils.getCode(symbolTable.getReturnType(methodName)) + " ";
-            returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0), returnString);
+            returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0), new OllirInference(returnString, true));
         }
         code.append(getIndentation()).append("ret").append(returnString)
                 .append(returnReg).append(";\n");
@@ -203,7 +203,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String expressionDotVisit(JmmNode expressionDot, String inferedType) {
+    private String expressionDotVisit(JmmNode expressionDot, OllirInference ollirInference) {
         String firstChildKind = expressionDot.getJmmChild(0).getKind();
         String firstArg;
 
@@ -221,8 +221,8 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         String invokeType = OllirUtils.getInvokeType(firstArg, symbolTable);
         String method = expressionDot.getJmmChild(1).get("name");
 
-        String returnType = inferedType;
-        if (inferedType == null) {
+        String returnType;
+        if (ollirInference == null || ollirInference.getInferredType() == null) {
             String type;
             if (firstArg.equals("this")) {
                 type = symbolTable.getClassName();
@@ -239,73 +239,91 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
                 // and due to that, it's not possible to know its return type
                 returnType = ".V";
             }
+
+        } else {
+            returnType = ollirInference.getInferredType();
         }
 
         List<String> args = new ArrayList<>();
         for (JmmNode arg : expressionDot.getJmmChild(2).getChildren()) {
-            args.add(visit(arg.getJmmChild(0)));
+            args.add(visit(arg.getJmmChild(0), new OllirInference(true)));
         }
 
-        code.append(getIndentation());
-
-        int tempVar = getAndAddTempVar(expressionDot);
-
-        if (!returnType.equals(".V")) {
-            code.append("t").append(tempVar).append(returnType).append(" :=").append(returnType).append(" ");
-        }
-
-        code.append(invokeType).append("(").append(firstArg).append(", \"").append(method).append("\"");
-
+        StringBuilder operationString = new StringBuilder(invokeType + "(" + firstArg + ", \"" + method + "\"");
         // args
         for (String arg : args) {
-            code.append(", ").append(arg);
+            operationString.append(", ").append(arg);
+        }
+        operationString.append(")").append(returnType);
+
+        if (ollirInference == null || ollirInference.getIsToAssignToTemp()) {
+            code.append(getIndentation());
+
+            int tempVar = getAndAddTempVar(expressionDot);
+
+            if (!returnType.equals(".V")) {
+                code.append("t").append(tempVar).append(returnType).append(" :=").append(returnType).append(" ");
+            }
+            code.append(operationString);
+            code.append(";\n");
+
+            return "t" + tempVar + returnType;
+        } else {
+            return operationString.toString();
         }
 
-        code.append(")")
-                .append(returnType)
-                .append(";\n");
-
-        return "t" + tempVar + returnType;
     }
 
-    private String binOpVisit(JmmNode binOp, String dummy) {
-
+    private String binOpVisit(JmmNode binOp, OllirInference ollirInference) {
         String returnType = OllirUtils.getReturnType(binOp.get("op"));
 
         String assignmentType = OllirUtils.getOperandType(binOp.get("op"));
 
-        String lhs = visit(binOp.getJmmChild(0), assignmentType);
-        String rhs = visit(binOp.getJmmChild(1), assignmentType);
+        String lhs = visit(binOp.getJmmChild(0), new OllirInference(assignmentType, true));
+        String rhs = visit(binOp.getJmmChild(1), new OllirInference(assignmentType, true));
 
-        int tempVar = getAndAddTempVar(binOp);
+        String operationString = lhs + " " + OllirUtils.getOperator(binOp.get("op")) + " " + rhs;
 
-        code.append(getIndentation()).append("t").append(tempVar).append(returnType).append(" :=")
-                .append(returnType).append(" ").append(lhs).append(" ")
-                .append(OllirUtils.getOperator(binOp.get("op")))
-                .append(" ").append(rhs).append(";\n");
+        if (ollirInference == null || ollirInference.getIsToAssignToTemp()) {
+            int tempVar = getAndAddTempVar(binOp);
 
-        return "t" + tempVar + returnType;
+            code.append(getIndentation()).append("t").append(tempVar).append(returnType).append(" :=")
+                    .append(returnType).append(" ")
+                    .append(operationString)
+                    .append(";\n");
+
+            return "t" + tempVar + returnType;
+        } else {
+            return operationString;
+        }
     }
 
-    private String intLiteralVisit(JmmNode intLiteral, String dummy) {
+    private String intLiteralVisit(JmmNode intLiteral, OllirInference dummy) {
         return intLiteral.get("value") + ".i32";
     }
 
-    private String boolVisit(JmmNode bool, String dummy) {
+    private String boolVisit(JmmNode bool, OllirInference dummy) {
         return OllirUtils.getBoolValue(bool.get("value")) + ".bool";
     }
 
-    private String notVisit(JmmNode not, String dummy) {
+    private String notVisit(JmmNode not, OllirInference ollirInference) {
         String child = visit(not.getJmmChild(0));
 
-        int tempVar = getAndAddTempVar(not);
+        String operationString = "!.bool " + child;
 
-        code.append(getIndentation()).append("t").append(tempVar).append(".bool").append(" :=.bool !.bool ").append(child).append(";\n");
+        if (ollirInference == null || ollirInference.getIsToAssignToTemp()) {
+            int tempVar = getAndAddTempVar(not);
 
-        return "t" + tempVar + ".bool";
+            code.append(getIndentation()).append("t").append(tempVar).append(".bool").append(" :=.bool ").append(operationString).append(";\n");
+
+            return "t" + tempVar + ".bool";
+        } else {
+            return operationString;
+        }
+
     }
 
-    private String assignmentVisit(JmmNode assignment, String dummy) {
+    private String assignmentVisit(JmmNode assignment, OllirInference dummy) {
         String assignee = visit(assignment.getJmmChild(0));
         String assigneeName = OllirUtils.getOllirIdWithoutTypeAndParamNum(assignee);
 
@@ -322,18 +340,20 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             } catch (VarNotInScopeException ignored) {}
         }
 
-        String child = visit(assignment.getJmmChild(1).getJmmChild(0), type);
-
         if (((SymbolTableImpl) symbolTable).isField(methodName, assigneeName)) {
+            String child = visit(assignment.getJmmChild(1).getJmmChild(0), new OllirInference(type, true));
+
             code.append(getIndentation()).append("putfield(this, ").append(assignee).append(", ").append(child).append(").V;\n");
         } else {
+            String child = visit(assignment.getJmmChild(1).getJmmChild(0), new OllirInference(type, false));
+
             code.append(getIndentation()).append(assignee).append(" :=").append(type).append(" ").append(child).append(";\n");
         }
 
         return "";
     }
 
-    private String idVisit(JmmNode id, String dummy) {
+    private String idVisit(JmmNode id, OllirInference ollirInference) {
         try {
             String idName = id.get("name");
             String stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(id), idName).getType().getName());
@@ -341,12 +361,20 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             String methodName = getCurrentMethodName(id);
 
             if (((SymbolTableImpl) symbolTable).isField(methodName, idName)) {
-                int tempVar = getAndAddTempVar(id);
 
-                code.append(getIndentation()).append("t").append(tempVar).append(stringType).append(" :=").append(stringType).append(" getfield(this, ")
-                        .append(idName).append(stringType).append(")").append(stringType).append(";\n");
+                String operationString = "getfield(this, " + idName + stringType + ")" + stringType;
 
-                return "t" + tempVar + stringType;
+                if (ollirInference == null || ollirInference.getIsToAssignToTemp()) {
+                    int tempVar = getAndAddTempVar(id);
+
+                    code.append(getIndentation()).append("t").append(tempVar).append(stringType).append(" :=").append(stringType).append(" ")
+                        .append(operationString).append(";\n");
+
+                    return "t" + tempVar + stringType;
+                } else {
+                    return operationString;
+                }
+
             } else {
                 String ollirLikeReference = ((SymbolTableImpl) symbolTable).getOllirLikeReference(methodName, idName);
                 return ollirLikeReference + idName + stringType;
@@ -357,7 +385,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String expressionNewVisit(JmmNode expressionNew, String dummy) {
+    private String expressionNewVisit(JmmNode expressionNew, OllirInference dummy) {
         boolean isArrayNew = expressionNew.getNumChildren() > 0;
 
         String type;
@@ -389,7 +417,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "t" + tempVar + "." + type;
     }
 
-    private String assigneeVisit(JmmNode assignee, String dummy) {
+    private String assigneeVisit(JmmNode assignee, OllirInference dummy) {
         String idName = assignee.get("name");
         String stringType = null;
         try {
@@ -425,16 +453,23 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         }
     }
 
-    private String lengthVisit(JmmNode lengthNode, String dummy) {
+    private String lengthVisit(JmmNode lengthNode, OllirInference ollirInference) {
         String child = visit(lengthNode.getJmmChild(0));
 
-        int tempVar = getAndAddTempVar(lengthNode);
+        String operationString = "arraylength(" + child + ").i32";
 
-        code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 arraylength(").append(child).append(").i32;\n");
-        return "t" + tempVar + ".i32";
+        if (ollirInference == null || ollirInference.getIsToAssignToTemp()) {
+            int tempVar = getAndAddTempVar(lengthNode);
+
+            code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ").append(operationString).append(";\n");
+
+            return "t" + tempVar + ".i32";
+        } else {
+            return operationString;
+        }
     }
 
-    private String arrayAccessVisit(JmmNode arrayAccess, String dummy) {
+    private String arrayAccessVisit(JmmNode arrayAccess, OllirInference ollirInference) {
         String child = visit(arrayAccess.getJmmChild(0));
 
         String id = OllirUtils.getArrayIdWithoutType(child);
@@ -446,15 +481,23 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
             indexReg = getImmediateIndexIntoReg(index, arrayAccess);
         }
 
-        int tempVar = getAndAddTempVar(arrayAccess);
+        String operationString = id + "[" + indexReg + "].i32";
 
-        code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ").append(id)
-                .append("[").append(indexReg).append("].i32;\n");
+        if (ollirInference == null || ollirInference.getIsToAssignToTemp()) {
+            int tempVar = getAndAddTempVar(arrayAccess);
 
-        return "t" + tempVar + ".i32";
+            code.append(getIndentation()).append("t").append(tempVar).append(".i32 :=.i32 ")
+                .append(operationString)
+                .append(";\n");
+
+            return "t" + tempVar + ".i32";
+        } else {
+            return operationString;
+        }
+
     }
 
-    private String ifStatementVisit(JmmNode ifStatement, String dummy) {
+    private String ifStatementVisit(JmmNode ifStatement, OllirInference dummy) {
         JmmNode condition = ifStatement.getJmmChild(0).getJmmChild(0).getJmmChild(0);
         JmmNode ifTrueScope = ifStatement.getJmmChild(0).getJmmChild(1);
         JmmNode ifFalseScope = ifStatement.getJmmChild(1).getJmmChild(0);
@@ -483,7 +526,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String whileVisit(JmmNode whileNode, String dummy) {
+    private String whileVisit(JmmNode whileNode, OllirInference dummy) {
         JmmNode condition = whileNode.getJmmChild(0).getJmmChild(0);
         JmmNode whileScope = whileNode.getJmmChild(1);
 
@@ -511,7 +554,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String scopeVisit(JmmNode scope, String dummy) {
+    private String scopeVisit(JmmNode scope, OllirInference dummy) {
         for (JmmNode child : scope.getChildren()) {
             visit(child);
         }
@@ -519,7 +562,7 @@ public class OllirGenerator extends AJmmVisitor<String, String> {
         return "";
     }
 
-    private String thisVisit(JmmNode thisNode, String dummy) {
+    private String thisVisit(JmmNode thisNode, OllirInference dummy) {
         return "this." + symbolTable.getClassName();
     }
 
