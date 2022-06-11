@@ -40,12 +40,12 @@ public class ArrayAccessAnalyser extends PreorderSemanticAnalyser {
                     "Array must be of type int"));
         }
 
-        if (!Objects.equals(this.getJmmNodeType(access_node, symbolTable), new Type("integer", false))) {
+        if (!Objects.equals(this.getJmmNodeType(access_node, symbolTable), new Type("int", false))) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(array_access.get("line")),
                     Integer.parseInt(array_access.get("col")),
-                    "Array access index must be of type integer."));
+                    "Array access index must be of type int."));
         }
 
         return 0;

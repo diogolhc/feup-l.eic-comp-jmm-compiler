@@ -13,8 +13,6 @@ public class OllirUtils {
     }
 
     public static String getOllirType(Type jmmType) {
-        // TODO uncomment this switch and delete the other after the refactor of the ast/symbol table filler
-        /*
         switch (jmmType.getName()) {
             case "void" -> {
                 return ".V";
@@ -36,16 +34,6 @@ public class OllirUtils {
                 return "." + jmmType.getName();
             }
         }
-        */
-
-        return switch (jmmType.getName()) {
-            case "void" -> ".V";
-            case "integer" -> ".i32";
-            case "boolean" -> ".bool";
-            case "int" -> ".array.i32";
-            case "String" -> ".array.String";
-            default -> "." + jmmType.getName();
-        };
     }
 
     public static String getInvokeType(String invokee, SymbolTable symbolTable) {

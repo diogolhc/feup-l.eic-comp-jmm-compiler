@@ -23,7 +23,7 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
         // Must be getId
         Type assignee_type = this.getIdType(assignment.getJmmChild(0), symbolTable);
         if (assignee_type.equals(new Type("int", true)) && assignment.getJmmChild(0).getChildren().size() > 0) {
-            assignee_type = new Type("integer", false);
+            assignee_type = new Type("int", false);
         }
         Type assignment_type = this.getJmmNodeType(assignment.getJmmChild(1).getJmmChild(0), symbolTable);
 
@@ -33,7 +33,7 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(assignment.get("line")),
                     Integer.parseInt(assignment.get("col")),
-                    "Array size must be of type integer."));
+                    "Array size must be of type int."));
         } else if (!this.compatibleType(assignee_type, assignment_type, symbolTable)) {
             addReport(new Report(
                     ReportType.ERROR, Stage.SEMANTIC,

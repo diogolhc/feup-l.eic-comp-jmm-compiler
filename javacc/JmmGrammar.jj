@@ -146,7 +146,7 @@ void ReturnStatement() #void : {} {
 }
 
 String Type() #void : { Token token; } {
-    token = <INT> [Array() { return "array"; } ] { return "integer"; }
+    token = <INT> [Array() { return "array"; } ] { return "int"; }
     | token = <BOOLEAN> { return "boolean"; }
     | token = <IDENTIFIER> { return token.getImage(); }
 }
