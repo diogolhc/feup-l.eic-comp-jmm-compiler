@@ -71,6 +71,12 @@ class Ifs {
             j = j+20;
         }
 
+        if (0 < i) {
+            j = j+100;
+        } else {
+            j = j+200;
+        }
+
         return i/j;
     }
 

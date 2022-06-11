@@ -187,6 +187,8 @@ public class JasminBackender implements JasminBackend {
         boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOTB;
         if (isBooleanOperation) {
             stringBuilder.append(this.getBooleanOperationResultToStack());
+        } else {
+            stringBuilder.append("; Invalid UNARYOPER\n");
         }
 
         stringBuilder.append("\n");
@@ -238,9 +240,79 @@ public class JasminBackender implements JasminBackend {
             return "; ERROR: invalid CondBranchInstruction instance\n";
         }
 
-        stringBuilder.append(this.getInstruction(condition, varTable));
-        stringBuilder.append("\tifne ").append(instruction.getLabel()).append("\n");
-        this.changeStackLimits(-1);
+        String operation;
+        switch (condition.getInstType()) {
+            case BINARYOPER -> {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) condition;
+                switch (binaryOpInstruction.getOperation().getOpType()) {
+                    case LTH -> {
+                        Element leftElement = binaryOpInstruction.getLeftOperand();
+                        Element rightElement = binaryOpInstruction.getRightOperand();
+
+                        Integer parsedInt = null;
+                        Element otherElement = null;
+                        operation = "if_icmplt";
+
+                        // instruction selection for 0 < x
+                        if (leftElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) leftElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = rightElement;
+                            operation = "ifgt";
+
+                        // instruction selection for x < 0
+                        } else if (rightElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) rightElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = leftElement;
+                            operation = "iflt";
+                        }
+
+                        if (parsedInt != null && parsedInt == 0) {
+                            stringBuilder.append(this.getLoadToStack(otherElement, varTable));
+
+                        } else {
+                            stringBuilder.append(this.getLoadToStack(leftElement, varTable))
+                                    .append(this.getLoadToStack(rightElement, varTable));
+
+                            operation = "if_icmplt";
+                        }
+
+                    }
+                    case ANDB -> {
+                        stringBuilder.append(this.getInstruction(condition, varTable));
+                        operation = "ifne";
+                    }
+                    default -> {
+                        // not supposed to happen
+                        stringBuilder.append("; Invalid BINARYOPER\n");
+                        operation = "ifne";
+                    }
+                }
+            }
+            case UNARYOPER -> {
+                UnaryOpInstruction unaryOpInstruction = (UnaryOpInstruction) condition;
+                if (unaryOpInstruction.getOperation().getOpType() == OperationType.NOTB) {
+                    stringBuilder.append(this.getLoadToStack(unaryOpInstruction.getOperand(), varTable));
+                    operation = "ifeq";
+                } else {
+                    stringBuilder.append("; Invalid UNARYOPER\n");
+                    operation = "ifne";
+                }
+            }
+            default -> {
+                stringBuilder.append(this.getInstruction(condition, varTable));
+                operation = "ifne";
+            }
+        }
+
+        stringBuilder.append("\t").append(operation).append(" ").append(instruction.getLabel()).append("\n");
+
+        if (operation.equals("if_icmplt")) {
+            this.changeStackLimits(-2);
+        } else {
+            this.changeStackLimits(-1);
+        }
 
         return stringBuilder.toString();
     }

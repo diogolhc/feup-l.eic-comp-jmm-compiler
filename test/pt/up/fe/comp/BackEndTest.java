@@ -101,7 +101,7 @@ public class BackEndTest {
     public void testIfs() {
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Ifs.jmm"));
         jasminResult.compile();
-        assertEquals("10050100\r\n", jasminResult.run());
+        assertEquals("1812313\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
     }
 
