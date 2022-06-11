@@ -1,0 +1,80 @@
+import io;
+
+class Ifs {
+    public int call(int num) {
+        boolean b;
+        int i;
+        int j;
+        b = true;
+        i = 0;
+        j = 0;
+
+        if (i < num) {
+            i = i+1;
+        } else {
+            i = i+2;
+        }
+
+        if (true) {
+            i = i+10;
+        } else {
+            i = i+20;
+        }
+
+        if (false) {
+            i = i+100;
+        } else {
+            i = i+200;
+        }
+
+        if (!true) {
+            i = i+1000;
+        } else {
+            i = i+2000;
+        }
+
+        if (!false) {
+            i = i+100000;
+        } else {
+            i = i+200000;
+        }
+
+        if (b) {
+            i = i+1000000;
+        } else {
+            i = i+2000000;
+        }
+
+        if (!b) {
+            i = i+10000000;
+        } else {
+            i = i+20000000;
+        }
+
+        if (b && false) {
+            i = i+100000000;
+        } else {
+            i = i+200000000;
+        }
+
+        ////
+
+        if (!b && false) {
+            j = j+1;
+        } else {
+            j = j+2;
+        }
+
+        if (!(b && true)) {
+            j = j+10;
+        } else {
+            j = j+20;
+        }
+
+        return i/j;
+    }
+
+    public static void main(String[] args){
+        io.println(new Ifs().call(10));
+    }
+}
