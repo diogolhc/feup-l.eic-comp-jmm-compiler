@@ -121,11 +121,14 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
     }
 
     private Type getExpressionDotType(JmmNode node, SymbolTableImpl symbolTable) {
+
         Method method = symbolTable.findMethod(node.getJmmChild(1).get("name"));
         if (node.getJmmChild(0).getKind().equals(AstNode.THIS) ||
                 this.getJmmNodeType(node.getJmmChild(0), symbolTable).equals(new Type(symbolTable.getClassName(), false))) {
             if (method != null) {
                 return method.getReturnType();
+            } else if (symbolTable.getSuper() != null) {
+                return new Type("ignore", false);
             } else {
                 return new Type("invalid", false);
             }

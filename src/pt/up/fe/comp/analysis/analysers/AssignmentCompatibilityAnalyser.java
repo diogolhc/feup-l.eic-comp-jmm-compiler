@@ -39,7 +39,7 @@ public class AssignmentCompatibilityAnalyser extends PreorderSemanticAnalyser {
                     ReportType.ERROR, Stage.SEMANTIC,
                     Integer.parseInt(assignment.get("line")),
                     Integer.parseInt(assignment.get("col")),
-                    "Assignee type must be compatible with assignment type."));
+                    "Assignee type must be compatible with assignment type. " + assignee_type + assignment_type));
         }
 
         return 0;
