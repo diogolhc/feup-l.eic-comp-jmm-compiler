@@ -73,6 +73,7 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
     protected Type getIdType(JmmNode node, SymbolTableImpl symbolTable) {
 
         Method parent_method = null;
+        Boolean parent_method_is_main = false;
 
         var parent_method_node = node.getAncestor(AstNode.METHOD_DECL);
 
@@ -83,12 +84,15 @@ public abstract class PreorderSemanticAnalyser extends PreorderJmmVisitor<Symbol
             parent_method = symbolTable.findMethod(method_header.get("name"));
         } else if (node.getAncestor(AstNode.MAIN_DECL).isPresent()) {
             parent_method = symbolTable.findMethod("main");
+            parent_method_is_main = true;
         }
         if (parent_method != null) {
             symbols.addAll(parent_method.getLocalVariables());
             symbols.addAll(parent_method.getParameters());
         }
-        symbols.addAll(symbolTable.getFields());
+        if (!parent_method_is_main) {
+            symbols.addAll(symbolTable.getFields());
+        }
 
         Type ret = new Type("invalid", false);
 
