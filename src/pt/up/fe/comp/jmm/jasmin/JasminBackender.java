@@ -286,6 +286,7 @@ public class JasminBackender implements JasminBackend {
                     default -> {
                         // not supposed to happen
                         stringBuilder.append("; Invalid BINARYOPER\n");
+                        stringBuilder.append(this.getInstruction(condition, varTable));
                         operation = "ifne";
                     }
                 }
@@ -296,7 +297,9 @@ public class JasminBackender implements JasminBackend {
                     stringBuilder.append(this.getLoadToStack(unaryOpInstruction.getOperand(), varTable));
                     operation = "ifeq";
                 } else {
+                    // not supposed to happen
                     stringBuilder.append("; Invalid UNARYOPER\n");
+                    stringBuilder.append(this.getInstruction(condition, varTable));
                     operation = "ifne";
                 }
             }
