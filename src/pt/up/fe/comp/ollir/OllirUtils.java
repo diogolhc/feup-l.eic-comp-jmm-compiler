@@ -9,21 +9,42 @@ import java.util.List;
 
 public class OllirUtils {
     public static String getCode(Symbol symbol) {
-        return symbol.getName() + getCode(symbol.getType());
+        return symbol.getName() + getOllirType(symbol.getType());
     }
 
-    public static String getCode(Type type) {
-        return getOllirType(type.getName());
-    }
+    public static String getOllirType(Type jmmType) {
+        // TODO uncomment this switch and delete the other after the refactor of the ast/symbol table filler
+        /*
+        switch (jmmType.getName()) {
+            case "void" -> {
+                return ".V";
+            }
+            case "boolean" -> {
+                return ".bool";
+            }
+            case "int" -> {
+                if (jmmType.isArray()) {
+                    return ".array.i32";
+                } else {
+                    return ".i32";
+                }
+            }
+            case "String" -> {
+                return ".array.String";
+            }
+            default -> {
+                return "." + jmmType.getName();
+            }
+        }
+        */
 
-    public static String getOllirType(String jmmType) {
-        return switch (jmmType) {
+        return switch (jmmType.getName()) {
             case "void" -> ".V";
             case "integer" -> ".i32";
             case "boolean" -> ".bool";
             case "int" -> ".array.i32";
             case "String" -> ".array.String";
-            default -> "." + jmmType;
+            default -> "." + jmmType.getName();
         };
     }
 

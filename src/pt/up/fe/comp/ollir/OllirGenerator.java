@@ -120,7 +120,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
 
         // fields
         for (var field : symbolTable.getFields()) {
-            code.append(getIndentation()).append(".field ").append(field.getName()).append(OllirUtils.getCode(field.getType())).append(";\n");
+            code.append(getIndentation()).append(".field ").append(field.getName()).append(OllirUtils.getOllirType(field.getType())).append(";\n");
         }
 
         code.append("\n");
@@ -174,7 +174,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
                 collect(Collectors.joining(", "));
 
         code.append(paramCode).append(")");
-        code.append(OllirUtils.getCode(symbolTable.getReturnType(methodName)));
+        code.append(OllirUtils.getOllirType(symbolTable.getReturnType(methodName)));
 
         code.append(" {\n");
 
@@ -190,7 +190,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             returnString = ".V";
             returnReg = "";
         } else {
-            returnString = OllirUtils.getCode(symbolTable.getReturnType(methodName)) + " ";
+            returnString = OllirUtils.getOllirType(symbolTable.getReturnType(methodName)) + " ";
             returnReg = visit(methodDecl.getJmmChild(2).getJmmChild(0), new OllirInference(returnString, true));
         }
         code.append(getIndentation()).append("ret").append(returnString)
@@ -214,7 +214,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
         } else {
             firstArg = expressionDot.getJmmChild(0).get("name");
             try {
-                firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType().getName());
+                firstArg += OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(expressionDot), firstArg).getType());
             } catch (VarNotInScopeException ignored) {}
         }
 
@@ -233,7 +233,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             }
 
             if (type.equals(symbolTable.getClassName())) {
-                returnType = OllirUtils.getOllirType(symbolTable.getReturnType(method).getName());
+                returnType = OllirUtils.getOllirType(symbolTable.getReturnType(method));
             } else {
                 // This is the case where an unknown method is not the last method call on a chain of calls
                 // and due to that, it's not possible to know its return type
@@ -336,7 +336,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             type = ".i32";
         } else {
             try {
-                type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assigneeName).getType().getName());
+                type = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(methodName, assigneeName).getType());
             } catch (VarNotInScopeException ignored) {}
         }
 
@@ -356,7 +356,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     private String idVisit(JmmNode id, OllirInference ollirInference) {
         try {
             String idName = id.get("name");
-            String stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(id), idName).getType().getName());
+            String stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(id), idName).getType());
 
             String methodName = getCurrentMethodName(id);
 
@@ -421,7 +421,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
         String idName = assignee.get("name");
         String stringType = null;
         try {
-            stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(assignee), idName).getType().getName());
+            stringType = OllirUtils.getOllirType(((SymbolTableImpl) symbolTable).findVariable(getCurrentMethodName(assignee), idName).getType());
         } catch (VarNotInScopeException ignored) {}
 
         String methodName = getCurrentMethodName(assignee);
