@@ -1,0 +1,21 @@
+import io;
+
+class ShortCutAnd {
+
+    public static void main(String[] args) {
+        boolean a;
+        boolean b;
+        int res;
+
+        a = false && true;
+        b = true && false;
+
+        if (a && b) {
+            res = 1;
+        } else {
+            res = 0;
+        }
+
+        io.println(res);
+    }
+}

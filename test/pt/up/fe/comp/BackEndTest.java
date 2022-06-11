@@ -4,6 +4,9 @@ import org.junit.Test;
 import pt.up.fe.comp.jmm.jasmin.JasminResult;
 import pt.up.fe.specs.util.SpecsIo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 
 public class BackEndTest {
@@ -102,6 +105,28 @@ public class BackEndTest {
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Ifs.jmm"));
         jasminResult.compile();
         assertEquals("1812313\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testShortCutAnd() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/ShortCutAnd.jmm"), config);
+        jasminResult.compile();
+        assertEquals("0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testConstPropagationAndFolding() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/ConstPropagationAndFolding.jmm"), config);
+        jasminResult.compile();
+        assertEquals("-5\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
     }
 
