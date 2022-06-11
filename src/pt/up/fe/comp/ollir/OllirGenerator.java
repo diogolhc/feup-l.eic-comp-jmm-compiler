@@ -19,10 +19,12 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     private int tempVarNum;
     private int ifThenElseNum;
     private int whileNum;
+    private final boolean optimize;
 
-    public OllirGenerator(SymbolTable symbolTable) {
+    public OllirGenerator(SymbolTable symbolTable, boolean optimize) {
         this.code = new StringBuilder();
         this.symbolTable = symbolTable;
+        this.optimize = optimize;
         this.indentationLevel = 0;
         this.tempVarNum = 1;
         this.ifThenElseNum = 1;
@@ -537,29 +539,45 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
 
         int whileNum = getAndAddWhileNum();
 
-        code.append(getIndentation()).append("while").append(whileNum).append(":\n");
-
         boolean isNotToAssignToTemp = condition.getKind().equals(AstNode.BIN_OP)
                 || condition.getKind().equals(AstNode.BOOL)
                 || condition.getKind().equals(AstNode.NOT)
                 || condition.getKind().equals(AstNode.ID);
 
-        String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+        if (this.optimize) {
+            // TODO review after const propagation + folding
+            code.append(getIndentation()).append("goto whileCondition").append(whileNum).append(";\n");
 
-        code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
-        this.incrementIndentation();
-        code.append(getIndentation()).append("goto endWhile").append(whileNum).append(";\n");
-        this.decrementIndentation();
+            code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
 
-        code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
+            this.incrementIndentation();
+            visit(whileScope);
 
-        this.incrementIndentation();
-        visit(whileScope);
+            code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
+            String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+            code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
+            this.decrementIndentation();
 
-        code.append(getIndentation()).append("goto while").append(whileNum).append(";\n");
-        this.decrementIndentation();
+        } else {
+            code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
 
-        code.append(getIndentation()).append("endWhile").append(whileNum).append(":\n");
+            String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+
+            code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
+            this.incrementIndentation();
+            code.append(getIndentation()).append("goto endWhile").append(whileNum).append(";\n");
+            this.decrementIndentation();
+
+            code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
+
+            this.incrementIndentation();
+            visit(whileScope);
+
+            code.append(getIndentation()).append("goto whileCondition").append(whileNum).append(";\n");
+            this.decrementIndentation();
+
+            code.append(getIndentation()).append("endWhile").append(whileNum).append(":\n");
+        }
 
         return "";
     }

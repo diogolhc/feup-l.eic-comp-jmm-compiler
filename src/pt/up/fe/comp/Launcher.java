@@ -38,6 +38,8 @@ public class Launcher {
         // Create config
         Map<String, String> config = new HashMap<>();
         config.put("inputFile", args[0]);
+        // TODO parse these inputs:
+        // TODO make use of them
         config.put("optimize", "false");
         config.put("registerAllocation", "-1");
         config.put("debug", "false");

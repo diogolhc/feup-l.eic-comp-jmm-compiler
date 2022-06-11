@@ -9,9 +9,11 @@ import java.util.Collections;
 public class JmmOptimizer implements JmmOptimization {
     @Override
     public OllirResult toOllir(JmmSemanticsResult semanticsResult) {
-        var ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable());
-        ollirGenerator.visit(semanticsResult.getRootNode());
+        boolean optimize = semanticsResult.getConfig().get("optimize") != null
+                && semanticsResult.getConfig().get("optimize").equals("true");
 
+        var ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable(), optimize);
+        ollirGenerator.visit(semanticsResult.getRootNode());
 
         var ollirCode = ollirGenerator.getCode();
 
