@@ -7,6 +7,7 @@ class Array {
         int[] arr;
 
         arr = new int[10];
+        arr = arr;
 
         arr[0] = 1;
         arr[1] = arr[0];
