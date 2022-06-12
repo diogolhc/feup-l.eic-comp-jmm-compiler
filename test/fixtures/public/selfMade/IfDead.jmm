@@ -1,0 +1,23 @@
+import io;
+
+class IfDead {
+
+    public static void main(String[] args) {
+        int i;
+        i = 0;
+
+        if (i < i) {
+            i = i + 1;
+        } else {
+            i = i - 1;
+        }
+
+        if (!(0 < 0)) {
+            i = i * 2;
+        } else {
+            i = i * 3;
+        }
+
+        io.println(i); // -2
+    }
+}
