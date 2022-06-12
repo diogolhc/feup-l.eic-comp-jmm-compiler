@@ -117,7 +117,7 @@ public class Launcher {
                     throw new RuntimeException("Invalid integer in option -r. " + num + " not a integer.");
                 }
 
-                if (parsedNum == -1 || (parsedNum >= 1 && parsedNum <= 65535)) {
+                if (parsedNum >= -1 && parsedNum <= 65535) {
                     rNum = num;
                 } else {
                     throw new RuntimeException("Invalid option -r. Number needs to be between [-1, 65535].");
