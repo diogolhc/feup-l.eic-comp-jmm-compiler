@@ -1,0 +1,23 @@
+import io;
+
+class Array {
+
+    public int get1() {
+        int i;
+        int[] arr;
+
+        arr = new int[10];
+        arr = arr;
+
+        arr[0] = 1;
+        arr[1] = arr[0];
+        i = arr[1];
+
+        return i;
+    }
+
+    public static void main(String[] args) {
+        io.println(new Array().get1());
+    }
+
+}

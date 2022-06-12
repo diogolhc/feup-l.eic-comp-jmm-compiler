@@ -25,4 +25,5 @@ public final class AstNode {
     public static final String IF_STATEMENT = "IfStatement";
     public static final String WHILE = "While";
     public static final String SCOPE = "Scope";
+    public static final String METHOD_BODY_NO_FINAL_RETURN = "MethodBodyNoFinalReturn";
 }

@@ -9,10 +9,17 @@ public class AnalysisTest {
     // Manual testing
 
     @Test
-    public void my_tests() {
+    public void myTests() {
         var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/selfMade/LotsOfExpressions.jmm"));
         System.out.println("SymbolTable: " + results.getSymbolTable().print());
         TestUtils.noErrors(results);
+    }
+
+    @Test
+    public void testMainThis() {
+        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/selfMade/MainThis.jmm"));
+        System.out.println("SymbolTable: " + results.getSymbolTable().print());
+        TestUtils.mustFail(results);
     }
 
     // CP2 TESTS

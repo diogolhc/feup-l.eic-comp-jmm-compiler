@@ -7,12 +7,15 @@ import pt.up.fe.comp.jmm.report.Stage;
 
 import java.util.*;
 
+import static org.specs.comp.ollir.InstructionType.BINARYOPER;
 import static org.specs.comp.ollir.InstructionType.RETURN;
 
 
 public class JasminBackender implements JasminBackend {
     ClassUnit classUnit = null;
     int conditionalNumber = 0;
+    int methodStackLimit = 0;
+    int currentStack = 0;
     String superClass;
 
     @Override
@@ -113,13 +116,19 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getMethodStatements(Method method) {
+        Set<Integer> virtualRegs = new TreeSet<>();
+        virtualRegs.add(0);
+        for (Descriptor descriptor : method.getVarTable().values()) {
+            virtualRegs.add(descriptor.getVirtualReg());
+        }
 
-        // "you can ignore stack and local limits for now, use limit_stack 99 and limit_locals 99)"
-        // TODO after Check Point 2 deal with it
+        this.currentStack = 0;
+        this.methodStackLimit = 0;
+        String methodInstructions = this.getMethodInstructions(method);
 
-        return "\t.limit stack 99\n" +
-                "\t.limit locals 99\n" +
-                this.getMethodInstructions(method);
+        return "\t.limit stack " + this.methodStackLimit + "\n" +
+                "\t.limit locals " + virtualRegs.size() + "\n" +
+                methodInstructions;
     }
 
     private String getMethodInstructions(Method method) {
@@ -137,7 +146,9 @@ public class JasminBackender implements JasminBackend {
             stringBuilder.append(this.getInstruction(instruction, method.getVarTable()));
             if (instruction.getInstType() == InstructionType.CALL
                     && ((CallInstruction) instruction).getReturnType().getTypeOfElement() != ElementType.VOID) {
+
                 stringBuilder.append("\tpop\n");
+                this.changeStackLimits(-1);
             }
 
         }
@@ -176,6 +187,8 @@ public class JasminBackender implements JasminBackend {
         boolean isBooleanOperation = instruction.getOperation().getOpType() == OperationType.NOTB;
         if (isBooleanOperation) {
             stringBuilder.append(this.getBooleanOperationResultToStack());
+        } else {
+            stringBuilder.append("; Invalid UNARYOPER\n");
         }
 
         stringBuilder.append("\n");
@@ -187,8 +200,6 @@ public class JasminBackender implements JasminBackend {
 
         Element leftElement = instruction.getLeftOperand();
         Element rightElement = instruction.getRightOperand();
-
-        // TODO add "iinc" case
 
         stringBuilder.append(this.getLoadToStack(leftElement, varTable))
                 .append(this.getLoadToStack(rightElement, varTable))
@@ -208,6 +219,8 @@ public class JasminBackender implements JasminBackend {
         }
 
         stringBuilder.append("\n");
+
+        this.changeStackLimits(-1);
         return stringBuilder.toString();
     }
 
@@ -227,8 +240,82 @@ public class JasminBackender implements JasminBackend {
             return "; ERROR: invalid CondBranchInstruction instance\n";
         }
 
-        stringBuilder.append(this.getInstruction(condition, varTable));
-        stringBuilder.append("\tifne ").append(instruction.getLabel()).append("\n");
+        String operation;
+        switch (condition.getInstType()) {
+            case BINARYOPER -> {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) condition;
+                switch (binaryOpInstruction.getOperation().getOpType()) {
+                    case LTH -> {
+                        Element leftElement = binaryOpInstruction.getLeftOperand();
+                        Element rightElement = binaryOpInstruction.getRightOperand();
+
+                        Integer parsedInt = null;
+                        Element otherElement = null;
+                        operation = "if_icmplt";
+
+                        // instruction selection for 0 < x
+                        if (leftElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) leftElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = rightElement;
+                            operation = "ifgt";
+
+                        // instruction selection for x < 0
+                        } else if (rightElement instanceof LiteralElement) {
+                            String literal = ((LiteralElement) rightElement).getLiteral();
+                            parsedInt = Integer.parseInt(literal);
+                            otherElement = leftElement;
+                            operation = "iflt";
+                        }
+
+                        if (parsedInt != null && parsedInt == 0) {
+                            stringBuilder.append(this.getLoadToStack(otherElement, varTable));
+
+                        } else {
+                            stringBuilder.append(this.getLoadToStack(leftElement, varTable))
+                                    .append(this.getLoadToStack(rightElement, varTable));
+
+                            operation = "if_icmplt";
+                        }
+
+                    }
+                    case ANDB -> {
+                        stringBuilder.append(this.getInstruction(condition, varTable));
+                        operation = "ifne";
+                    }
+                    default -> {
+                        // not supposed to happen
+                        stringBuilder.append("; Invalid BINARYOPER\n");
+                        stringBuilder.append(this.getInstruction(condition, varTable));
+                        operation = "ifne";
+                    }
+                }
+            }
+            case UNARYOPER -> {
+                UnaryOpInstruction unaryOpInstruction = (UnaryOpInstruction) condition;
+                if (unaryOpInstruction.getOperation().getOpType() == OperationType.NOTB) {
+                    stringBuilder.append(this.getLoadToStack(unaryOpInstruction.getOperand(), varTable));
+                    operation = "ifeq";
+                } else {
+                    // not supposed to happen
+                    stringBuilder.append("; Invalid UNARYOPER\n");
+                    stringBuilder.append(this.getInstruction(condition, varTable));
+                    operation = "ifne";
+                }
+            }
+            default -> {
+                stringBuilder.append(this.getInstruction(condition, varTable));
+                operation = "ifne";
+            }
+        }
+
+        stringBuilder.append("\t").append(operation).append(" ").append(instruction.getLabel()).append("\n");
+
+        if (operation.equals("if_icmplt")) {
+            this.changeStackLimits(-2);
+        } else {
+            this.changeStackLimits(-1);
+        }
 
         return stringBuilder.toString();
     }
@@ -249,11 +336,14 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getPutFieldInstruction(PutFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return this.getLoadToStack(instruction.getFirstOperand(), varTable) +
+        String res = this.getLoadToStack(instruction.getFirstOperand(), varTable) +
                 this.getLoadToStack(instruction.getThirdOperand(), varTable) +
                 "\tputfield " + this.getClassFullName(((Operand) instruction.getFirstOperand()).getName()) +
                 "/" + ((Operand) instruction.getSecondOperand()).getName() +
                 " " + this.getFieldDescriptor(instruction.getSecondOperand().getType()) + "\n";
+
+        this.changeStackLimits(-2);
+        return res;
     }
 
     private String getGetFieldInstruction(GetFieldInstruction instruction, HashMap<String, Descriptor> varTable) {
@@ -321,20 +411,26 @@ public class JasminBackender implements JasminBackend {
                 stringBuilder.append("\tldc ").append(literal);
             }
 
+            this.changeStackLimits(+1);
 
         } else if (element instanceof ArrayOperand) {
-            // TODO Check Point 3
-            stringBuilder.append("; CP3");
+            ArrayOperand operand = (ArrayOperand) element;
 
+            stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)).append("\n"); // load array (ref)
+            stringBuilder.append(getLoadToStack(operand.getIndexOperands().get(0), varTable)); // load index
+            stringBuilder.append("\tiaload"); // load array[index]
+
+            this.changeStackLimits(+3);
         } else if (element instanceof Operand) {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
                 case INT32, BOOLEAN -> stringBuilder.append("\tiload").append(this.getVariableNumber(operand.getName(), varTable));
-                case ARRAYREF -> stringBuilder.append("; CP3"); // TODO Check Point 3
-                case OBJECTREF, STRING -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
+                case OBJECTREF, STRING, ARRAYREF -> stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable));
                 case THIS -> stringBuilder.append("\taload_0");
                 default -> stringBuilder.append("; ERROR: getLoadToStack() operand ").append(operand.getType().getTypeOfElement()).append("\n");
             }
+
+            this.changeStackLimits(+1);
         } else {
             stringBuilder.append("; ERROR: getLoadToStack() invalid element instance\n");
         }
@@ -346,11 +442,16 @@ public class JasminBackender implements JasminBackend {
     private String getCallInstruction(CallInstruction instruction, HashMap<String, Descriptor> varTable) {
         StringBuilder stringBuilder = new StringBuilder();
 
+        int numToPop = 0;
+
         switch (instruction.getInvocationType()) {
             case invokevirtual -> {
                 stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
+                numToPop = 1;
+
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getLoadToStack(element, varTable));
+                    numToPop++;
                 }
 
                 stringBuilder.append("\tinvokevirtual ")
@@ -363,9 +464,16 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
+
+                if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+                    numToPop--;
+                }
+
             }
             case invokespecial -> {
                 stringBuilder.append(this.getLoadToStack(instruction.getFirstArg(), varTable));
+                numToPop = 1;
+
                 stringBuilder.append("\tinvokespecial ");
 
                 if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) {
@@ -381,10 +489,18 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
+
+                if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+                    numToPop--;
+                }
+
             }
             case invokestatic -> {
+                numToPop = 0;
+
                 for (Element element : instruction.getListOfOperands()) {
                     stringBuilder.append(this.getLoadToStack(element, varTable));
+                    numToPop++;
                 }
 
                 stringBuilder.append("\tinvokestatic ")
@@ -397,19 +513,37 @@ public class JasminBackender implements JasminBackend {
                 }
 
                 stringBuilder.append(")").append(this.getFieldDescriptor(instruction.getReturnType())).append("\n");
+
+                if (instruction.getReturnType().getTypeOfElement() != ElementType.VOID) {
+                    numToPop--;
+                }
+
             }
             case NEW -> {
+                numToPop = -1; // -1 already counting with the return of the new
+
                 ElementType elementType = instruction.getReturnType().getTypeOfElement();
 
                 if (elementType == ElementType.OBJECTREF) {
                     for (Element element : instruction.getListOfOperands()) {
                         stringBuilder.append(this.getLoadToStack(element, varTable));
+                        numToPop++;
                     }
 
                     stringBuilder.append("\tnew ").append(this.getClassFullName(((Operand) instruction.getFirstArg()).getName())).append("\n");
                 } else if (elementType == ElementType.ARRAYREF) {
-                    // TODO Check Point 3
-                    stringBuilder.append("; CP3\n");
+                    for (Element element : instruction.getListOfOperands()) {
+                        stringBuilder.append(this.getLoadToStack(element, varTable));
+                        numToPop++;
+                    }
+
+                    stringBuilder.append("\tnewarray ");
+                    if (instruction.getListOfOperands().get(0).getType().getTypeOfElement() == ElementType.INT32) {
+                        stringBuilder.append("int\n");
+                    } else {
+                        stringBuilder.append("; only int arrays are implemented\n");
+                    }
+
                 } else {
                     stringBuilder.append("; ERROR: NEW invocation type not implemented\n");
                 }
@@ -422,23 +556,83 @@ public class JasminBackender implements JasminBackend {
             default -> stringBuilder.append("; ERROR: call instruction not implemented\n");
         }
 
+        this.changeStackLimits(-numToPop);
+
         return stringBuilder.toString();
     }
 
     private String getAssignInstruction(AssignInstruction instruction, HashMap<String, Descriptor> varTable) {
-        return this.getInstruction(instruction.getRhs(), varTable) +
-                this.getStore((Operand) instruction.getDest(), varTable);
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Operand dest = (Operand) instruction.getDest();
+        if (dest instanceof ArrayOperand) {
+            ArrayOperand arrayOperand = (ArrayOperand) dest;
+            this.changeStackLimits(+1);
+            stringBuilder.append("\taload").append(this.getVariableNumber(arrayOperand.getName(), varTable)).append("\n"); // load array (ref)
+            stringBuilder.append(this.getLoadToStack(arrayOperand.getIndexOperands().get(0), varTable)); // load index
+
+        } else {
+            // "iinc" instruction selection
+            if (instruction.getRhs().getInstType() == BINARYOPER) {
+                BinaryOpInstruction binaryOpInstruction = (BinaryOpInstruction) instruction.getRhs();
+
+                if (binaryOpInstruction.getOperation().getOpType() == OperationType.ADD) {
+                    boolean leftIsLiteral = binaryOpInstruction.getLeftOperand().isLiteral();
+                    boolean rightIsLiteral = binaryOpInstruction.getRightOperand().isLiteral();
+
+                    LiteralElement literal = null;
+                    Operand operand = null;
+
+                    if (leftIsLiteral && !rightIsLiteral) {
+                        literal = (LiteralElement) binaryOpInstruction.getLeftOperand();
+                        operand = (Operand) binaryOpInstruction.getRightOperand();
+                    } else if (!leftIsLiteral && rightIsLiteral) {
+                        literal = (LiteralElement) binaryOpInstruction.getRightOperand();
+                        operand = (Operand) binaryOpInstruction.getLeftOperand();
+                    }
+
+                    if (literal != null && operand != null) {
+                        if (operand.getName().equals(dest.getName())) {
+                            int literalValue = Integer.parseInt((literal).getLiteral());
+
+                            if (literalValue >= -128 && literalValue <= 127) {
+                                return "\tiinc " + varTable.get(operand.getName()).getVirtualReg() + " " + literalValue + "\n";
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        stringBuilder.append(this.getInstruction(instruction.getRhs(), varTable));
+        stringBuilder.append(this.getStore(dest, varTable)); // store in array[index] if (dest instanceof ArrayOperand)
+
+        return stringBuilder.toString();
     }
 
     private String getStore(Operand dest, HashMap<String, Descriptor> varTable) {
+        StringBuilder stringBuilder = new StringBuilder();
 
-        return switch (dest.getType().getTypeOfElement()) {
+        switch (dest.getType().getTypeOfElement()) {
             // BOOLEAN is represented as int in JVM
-            case INT32, BOOLEAN -> "\tistore" + getVariableNumber(dest.getName(), varTable) + "\n";
-            case ARRAYREF -> "; CP3\n"; // TODO Check Point 3
-            case OBJECTREF, THIS, STRING -> "\tastore" + getVariableNumber(dest.getName(), varTable) + "\n";
-            default -> "; ERROR: getStore()\n";
-        };
+            case INT32, BOOLEAN -> {
+                if (varTable.get(dest.getName()).getVarType().getTypeOfElement() == ElementType.ARRAYREF) {
+                    stringBuilder.append("\tiastore").append("\n");
+                    this.changeStackLimits(-3);
+                } else {
+                    stringBuilder.append("\tistore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                    this.changeStackLimits(-1);
+                }
+            }
+            case OBJECTREF, THIS, STRING, ARRAYREF -> {
+                stringBuilder.append("\tastore").append(this.getVariableNumber(dest.getName(), varTable)).append("\n");
+                this.changeStackLimits(-1);
+            }
+            default -> stringBuilder.append("; ERROR: getStore()\n");
+        }
+
+        return stringBuilder.toString();
     }
 
     private String getVariableNumber(String name, HashMap<String, Descriptor> varTable) {
@@ -504,6 +698,11 @@ public class JasminBackender implements JasminBackend {
                 + "TRUE" + this.conditionalNumber + ":\n"
                 + "\ticonst_1\n"
                 + "NEXT" + this.conditionalNumber++ + ":";
+    }
+
+    private void changeStackLimits(int variation) {
+        this.currentStack += variation;
+        this.methodStackLimit = Math.max(this.methodStackLimit, this.currentStack);
     }
 
 }

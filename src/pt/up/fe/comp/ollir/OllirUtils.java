@@ -9,22 +9,31 @@ import java.util.List;
 
 public class OllirUtils {
     public static String getCode(Symbol symbol) {
-        return symbol.getName() + getCode(symbol.getType());
+        return symbol.getName() + getOllirType(symbol.getType());
     }
 
-    public static String getCode(Type type) {
-        return getOllirType(type.getName());
-    }
-
-    public static String getOllirType(String jmmType) {
-        return switch (jmmType) {
-            case "void" -> ".V";
-            case "integer" -> ".i32";
-            case "boolean" -> ".bool";
-            case "int" -> ".array.i32";
-            case "String" -> ".array.String";
-            default -> "." + jmmType;
-        };
+    public static String getOllirType(Type jmmType) {
+        switch (jmmType.getName()) {
+            case "void" -> {
+                return ".V";
+            }
+            case "boolean" -> {
+                return ".bool";
+            }
+            case "int" -> {
+                if (jmmType.isArray()) {
+                    return ".array.i32";
+                } else {
+                    return ".i32";
+                }
+            }
+            case "String" -> {
+                return ".array.String";
+            }
+            default -> {
+                return "." + jmmType.getName();
+            }
+        }
     }
 
     public static String getInvokeType(String invokee, SymbolTable symbolTable) {
@@ -51,7 +60,7 @@ public class OllirUtils {
             case "multiplication" -> "*.i32";
             case "division" -> "/.i32";
             case "and" -> "&&.bool";
-            case "lessThan" -> "<.i32";
+            case "lessThan" -> "<.bool";
             default -> "// ERROR: invalid javaCCOperator\n";
         };
     }

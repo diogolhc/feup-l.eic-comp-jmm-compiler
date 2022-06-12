@@ -20,9 +20,8 @@ class SelfMade5 {
 
     public static void main(String[] args) {
         SelfMade5 ola;
-        ola.getB();
         ola = new SelfMade5();
-
+        ola.getB();
 
         io.println(new SelfMade5().getInstance().getInstance().getInstance().getB().length + ola.getLength()); // RESULT 98
     }
