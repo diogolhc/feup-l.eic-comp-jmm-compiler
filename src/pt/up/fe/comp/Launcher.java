@@ -25,24 +25,9 @@ public class Launcher {
 
         SpecsLogs.info("Executing with args: " + Arrays.toString(args));
 
-        // Read the input code
-        if (args.length != 1) {
-            throw new RuntimeException("Expected a single argument, a path to an existing input file.");
-        }
-        File inputFile = new File(args[0]);
-        if (!inputFile.isFile()) {
-            throw new RuntimeException("Expected a path to an existing input file, got '" + args[0] + "'.");
-        }
-        String input = SpecsIo.read(inputFile);
-
-        // Create config
-        Map<String, String> config = new HashMap<>();
-        config.put("inputFile", args[0]);
-        // TODO parse these inputs:
-        // TODO make use of them
-        config.put("optimize", "false");
-        config.put("registerAllocation", "-1");
-        config.put("debug", "false");
+        // Parse input and create config
+        Map<String, String> config = parseInput(args);
+        String input = SpecsIo.read(new File(config.get("inputFile")));
 
         // Instantiate JmmParser
         SimpleParser parser = new SimpleParser();
@@ -115,4 +100,54 @@ public class Launcher {
         backendResult.compile(path.toFile());
     }
 
+    static private Map<String, String> parseInput(String[] args) {
+        // Create config
+        Map<String, String> config = new HashMap<>();
+        String rNum = "-1";
+        String optimize = "false";
+        String debug = "false";
+        String inputFileName = null;
+        for (String arg : args) {
+            if (arg.startsWith("-r")) {
+                String num = arg.split("=")[1];
+                int parsedNum;
+                try {
+                    parsedNum = Integer.parseInt(num);
+                } catch (Exception e) {
+                    throw new RuntimeException("Invalid integer in option -r. " + num + " not a integer.");
+                }
+
+                if (parsedNum >= -1 && parsedNum <= 65535) {
+                    rNum = num;
+                } else {
+                    throw new RuntimeException("Invalid option -r. Number needs to be between [-1, 65535].");
+                }
+            } else if (arg.startsWith("-o")) {
+                optimize = "true";
+            } else if (arg.startsWith("-d")) {
+                debug = "true";
+            } else if (arg.startsWith("-i")) {
+                inputFileName = arg.split("=")[1];
+            } else {
+                throw new RuntimeException("Invalid option " + arg + " .");
+            }
+        }
+
+        // Read the input code
+        if (inputFileName == null) {
+            throw new RuntimeException("Expected at least a single argument, a path to an existing input file.");
+        }
+
+        File inputFile = new File(inputFileName);
+        if (!inputFile.isFile()) {
+            throw new RuntimeException("Expected a path to an existing input file, got '" + inputFileName + "'.");
+        }
+
+        config.put("inputFile", inputFileName);
+        config.put("optimize", optimize);
+        config.put("registerAllocation", rNum);
+        config.put("debug", debug);
+
+        return config;
+    }
 }
