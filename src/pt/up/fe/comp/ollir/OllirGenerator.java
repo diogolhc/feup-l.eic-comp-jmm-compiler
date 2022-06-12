@@ -545,15 +545,21 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
                 || condition.getKind().equals(AstNode.ID);
 
         if (this.optimize) {
-            // TODO review after const propagation + folding
-            code.append(getIndentation()).append("goto whileCondition").append(whileNum).append(";\n");
+            boolean isDoWhile = whileNode.get("do_while") != null && whileNode.get("do_while").equals("true");
+
+            if (!isDoWhile) {
+                code.append(getIndentation()).append("goto whileCondition").append(whileNum).append(";\n");
+            }
 
             code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
 
             this.incrementIndentation();
             visit(whileScope);
 
-            code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
+            if (!isDoWhile) {
+                code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
+            }
+
             String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
             code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
             this.decrementIndentation();

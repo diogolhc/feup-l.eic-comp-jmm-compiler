@@ -117,6 +117,7 @@ public class ConstPropagationVisitor extends AJmmVisitor<ConstPropagationParam, 
     private Boolean whileVisit(JmmNode whileNode, ConstPropagationParam constPropagationParam) {
         boolean change = false;
 
+        JmmNode extraCondNode = whileNode.getJmmChild(whileNode.getNumChildren() - 3); // added by WhileConditionDuplicatorVisitor
         JmmNode condNode = whileNode.getJmmChild(whileNode.getNumChildren() - 2);
         JmmNode scopeNode = whileNode.getJmmChild(whileNode.getNumChildren() - 1);
 
@@ -125,6 +126,9 @@ public class ConstPropagationVisitor extends AJmmVisitor<ConstPropagationParam, 
                 change = visit(child, constPropagationParam) || change;
             }
         } else {
+            // visit extra node to detect do_whiles at compile time
+            change = visit(extraCondNode, constPropagationParam) || change;
+
             // 1st remove all that are assigned inside the scope
             constPropagationParam.setToJustRemoveAssigned(true);
             for (JmmNode child : scopeNode.getChildren()) {
