@@ -27,10 +27,10 @@ public class ConstFoldingVisitor  extends AJmmVisitor<String, Boolean> {
         boolean changes = visit(notNode.getJmmChild(0));
 
         JmmNode child = notNode.getJmmChild(0);
-        if (child.getKind().equals("Bool")) {
+        if (child.getKind().equals(AstNode.BOOL)) {
             String value = child.get("value");
 
-            JmmNode literalNode = new JmmNodeImpl("Bool");
+            JmmNode literalNode = new JmmNodeImpl(AstNode.BOOL);
             literalNode.put("col", notNode.get("col"));
             literalNode.put("line", notNode.get("line"));
 
@@ -59,11 +59,11 @@ public class ConstFoldingVisitor  extends AJmmVisitor<String, Boolean> {
         leftNode = binOpNode.getJmmChild(0);
         rightNode = binOpNode.getJmmChild(1);
 
-        boolean hasBoolOperands = leftNode.getKind().equals("Bool") && rightNode.getKind().equals("Bool");
-        boolean hasIntOperands = leftNode.getKind().equals("IntLiteral") && rightNode.getKind().equals("IntLiteral");
+        boolean hasBoolOperands = leftNode.getKind().equals(AstNode.BOOL) && rightNode.getKind().equals(AstNode.BOOL);
+        boolean hasIntOperands = leftNode.getKind().equals(AstNode.INT_LITERAL) && rightNode.getKind().equals(AstNode.INT_LITERAL);
 
         // shortcut evaluation on '&&'
-        if (binOpNode.get("op").equals("and") && leftNode.getKind().equals("Bool")) {
+        if (binOpNode.get("op").equals("and") && leftNode.getKind().equals(AstNode.BOOL)) {
             // true && x => x
             if (leftNode.get("value").equals("true")) {
                 binOpNode.replace(rightNode);
@@ -82,9 +82,9 @@ public class ConstFoldingVisitor  extends AJmmVisitor<String, Boolean> {
             JmmNode literalNode;
 
             if (value.equals("true") || value.equals("false")) {
-                literalNode = new JmmNodeImpl("Bool");
+                literalNode = new JmmNodeImpl(AstNode.BOOL);
             } else {
-                literalNode = new JmmNodeImpl("IntLiteral");
+                literalNode = new JmmNodeImpl(AstNode.INT_LITERAL);
             }
 
             literalNode.put("value", value);

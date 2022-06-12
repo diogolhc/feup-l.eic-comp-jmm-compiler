@@ -4,10 +4,10 @@ import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.ollir.optimizers.ConstFoldingVisitor;
+import pt.up.fe.comp.ollir.optimizers.ConstPropagationParam;
 import pt.up.fe.comp.ollir.optimizers.ConstPropagationVisitor;
 
 import java.util.Collections;
-import java.util.HashMap;
 
 public class JmmOptimizer implements JmmOptimization {
 
@@ -22,7 +22,7 @@ public class JmmOptimizer implements JmmOptimization {
         boolean hasChanges = true;
         while (hasChanges) {
             ConstPropagationVisitor constPropagationVisitor = new ConstPropagationVisitor();
-            hasChanges = constPropagationVisitor.visit(semanticsResult.getRootNode(), new HashMap<>());
+            hasChanges = constPropagationVisitor.visit(semanticsResult.getRootNode(), new ConstPropagationParam());
 
             ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor();
             hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode()) ||  hasChanges;
