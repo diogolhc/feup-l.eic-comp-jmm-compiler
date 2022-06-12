@@ -6,6 +6,7 @@ import pt.up.fe.comp.jmm.ollir.OllirResult;
 import pt.up.fe.comp.ollir.optimizers.ConstFoldingVisitor;
 import pt.up.fe.comp.ollir.optimizers.ConstPropagationParam;
 import pt.up.fe.comp.ollir.optimizers.ConstPropagationVisitor;
+import pt.up.fe.comp.ollir.optimizers.DeadCodeEliminationVisitor;
 
 import java.util.Collections;
 
@@ -26,7 +27,13 @@ public class JmmOptimizer implements JmmOptimization {
 
             ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor();
             hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode()) ||  hasChanges;
+
+            DeadCodeEliminationVisitor deadCodeEliminationVisitor = new DeadCodeEliminationVisitor();
+            hasChanges = deadCodeEliminationVisitor.visit(semanticsResult.getRootNode()) || hasChanges;
         }
+
+        System.out.println("OPTIMIZED ANNOTATED AST:");
+        System.out.println(semanticsResult.getRootNode().toTree());
 
         return semanticsResult;
     }
