@@ -2,13 +2,17 @@ import io;
 
 class ShortCutAnd {
 
-    public static void main(String[] args) {
+    public boolean getBool() {
+        return true;
+    }
+
+    public int res() {
         boolean a;
         boolean b;
         int res;
 
-        a = false && true;
-        b = true && false;
+        a = false && this.getBool();
+        b = true && this.getBool();
 
         if (a && b) {
             res = 1;
@@ -16,6 +20,10 @@ class ShortCutAnd {
             res = 0;
         }
 
-        io.println(res);
+        return res;
+    }
+
+    public static void main(String[] args) {
+        io.println(new ShortCutAnd().res());
     }
 }

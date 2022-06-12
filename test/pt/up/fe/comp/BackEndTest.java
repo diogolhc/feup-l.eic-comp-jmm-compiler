@@ -19,15 +19,6 @@ public class BackEndTest {
         TestUtils.noErrors(jasminResult);
     }
 
-//    @Test
-//    public void testMonteCarloPi() {
-//        // this requires input
-//        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/Fac.jmm"));
-//        jasminResult.compile();
-//        assertEquals("314\r\n", jasminResult.run());
-//        TestUtils.noErrors(jasminResult);
-//    }
-
     @Test
     public void testSelfMade() {
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade1.jmm"));
@@ -57,6 +48,14 @@ public class BackEndTest {
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade4.jmm"));
         jasminResult.compile();
         assertEquals("3\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testSelfMade5() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade5.jmm"));
+        jasminResult.compile();
+        assertEquals("98\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
     }
 
@@ -127,6 +126,17 @@ public class BackEndTest {
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/ConstPropagationAndFolding.jmm"), config);
         jasminResult.compile();
         assertEquals("-5\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testConstPropFold2() {
+        // NOTE: this test is just to visualize
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/ConstPropFold2.jmm"), config);
+        jasminResult.compile();
         TestUtils.noErrors(jasminResult);
     }
 
