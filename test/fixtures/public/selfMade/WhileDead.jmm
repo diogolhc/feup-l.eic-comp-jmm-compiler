@@ -1,0 +1,17 @@
+import io;
+
+class WhileDead {
+
+    public static void main(String[] args) {
+        int i;
+        boolean b;
+        i = 0;
+        b = i < i;
+
+        while (b) {
+            i = i + 1;
+        }
+
+        io.println(i); // 0
+    }
+}

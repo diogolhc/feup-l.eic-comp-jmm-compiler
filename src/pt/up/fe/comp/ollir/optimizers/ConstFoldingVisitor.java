@@ -5,7 +5,7 @@ import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 import pt.up.fe.comp.jmm.ast.JmmNodeImpl;
 
-public class ConstFoldingVisitor  extends AJmmVisitor<String, Boolean> {
+public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
 
     public ConstFoldingVisitor() {
         setDefaultVisit(this::defaultVisit);

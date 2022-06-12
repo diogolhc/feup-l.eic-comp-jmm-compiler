@@ -57,8 +57,7 @@ public class LivenessAnalyser {
                 for (int i = 0; i < varNum; i++) {
                     if (inAliveNew.get(i) && !def.get(i)) {
                         inAliveNew.set(i);
-                    }
-                    else {
+                    } else {
                         inAliveNew.clear(i);
                     }
                 }

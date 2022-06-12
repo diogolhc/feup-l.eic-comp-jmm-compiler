@@ -25,8 +25,7 @@ public class LocalVariableOptimization {
         for (Method method : unit.getMethods()) {
             LivenessAnalyser analyser = new LivenessAnalyser(method);
             analyser.analyse();
-            LocalVariableInterferenceGraph varGraph =
-                    new LocalVariableInterferenceGraph(analyser.getInAlive(), analyser.getOutAlive(), method);
+            LocalVariableInterferenceGraph varGraph = new LocalVariableInterferenceGraph(analyser.getInAlive(), analyser.getOutAlive(), method);
             var updatedVarTable = varGraph.allocateLocalVariables(localVariableNum);
 
             for (String varName : method.getVarTable().keySet()) {

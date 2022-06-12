@@ -140,4 +140,27 @@ public class BackEndTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testWhileDead() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/WhileDead.jmm"), config);
+        jasminResult.compile();
+        assertEquals("0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testIfDead() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/IfDead.jmm"), config);
+        jasminResult.compile();
+        assertEquals("-2\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+
 }

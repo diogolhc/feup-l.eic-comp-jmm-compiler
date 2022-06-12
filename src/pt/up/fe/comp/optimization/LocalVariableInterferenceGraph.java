@@ -11,13 +11,13 @@ public class LocalVariableInterferenceGraph {
     private static class VarNode {
         int ogLocalVariable;
         String varName;
-        List<VarNode> adjacentNodes;
+        Set<VarNode> adjacentNodes;
         boolean isActive;
 
         public VarNode(String name, int localVariable) {
             ogLocalVariable = localVariable;
             varName = name;
-            adjacentNodes = new ArrayList<>();
+            adjacentNodes = new HashSet<>();
             isActive = true;
         }
 
@@ -33,7 +33,12 @@ public class LocalVariableInterferenceGraph {
 
         @Override
         public int hashCode() {
-            return Objects.hash(varName, ogLocalVariable, adjacentNodes);
+            return Objects.hash(varName, ogLocalVariable);
+        }
+
+        @Override
+        public String toString() {
+            return varName + " " + ogLocalVariable;
         }
 
         public List<String> getActiveAdjacentNodes() {
@@ -60,6 +65,14 @@ public class LocalVariableInterferenceGraph {
         isStaticMethod = method.isStaticMethod();
         minLocalVariables = isStaticMethod ? 0 : 1;
 
+        /*
+            a    { 5 }     { 2, 5 }
+            b    { 2, 5 }  { 3, 5 }
+            c    { 3, 5 }  {4,5}
+            d    { 4, 5 }  {5}
+            ret  { 5 }     {}
+
+         */
         addNodes();
         addEdges(inAlive);
         addEdges(outAlive);
@@ -107,26 +120,26 @@ public class LocalVariableInterferenceGraph {
         if (localVariableNum < minLocalVariables) {
             return allocateLocalVariables(localVariableNum+1);
         }
-
         Stack<VarNode> stack = new Stack<>();
 
         while (!nodes.isEmpty()) {
             Iterator<Map.Entry<Integer, VarNode>> it = nodes.entrySet().iterator();
-
             while (it.hasNext()) {
                 VarNode node = it.next().getValue();
-
                 if (node.getActiveAdjacentNodes().size() < localVariableNum) {
                     stack.push(node);
                     node.isActive = false;
                     it.remove();
                 }
             }
-        }
 
-        // If no node had a degree smaller than the desired number of local variables
-        if (stack.isEmpty()) {
-            return allocateLocalVariables(localVariableNum+1);
+            if (!nodes.isEmpty()) {
+                Integer local = (Integer) nodes.keySet().toArray()[0];
+                VarNode nodeToSpill = nodes.get(local);
+                stack.push(nodeToSpill);
+                nodeToSpill.isActive = false;
+                nodes.remove(local);
+            }
         }
 
         Map<Integer, List<String>> localVariables = new HashMap<>();
