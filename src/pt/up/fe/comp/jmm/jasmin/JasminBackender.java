@@ -479,7 +479,8 @@ public class JasminBackender implements JasminBackend {
                 if (instruction.getFirstArg().getType().getTypeOfElement() == ElementType.THIS) {
                     stringBuilder.append(this.superClass);
                 } else {
-                    stringBuilder.append(this.classUnit.getClassName());
+                    String className = this.getClassFullName(((ClassType) instruction.getFirstArg().getType()).getName());
+                    stringBuilder.append(className);
                 }
 
                 stringBuilder.append("/").append("<init>(");
