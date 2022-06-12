@@ -19,4 +19,10 @@ public class JmmOptimizer implements JmmOptimization {
 
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
+
+    @Override
+    public OllirResult optimize(OllirResult ollirResult) {
+
+        return ollirResult;
+    }
 }
