@@ -1,0 +1,36 @@
+import io;
+
+class ConstPropFold2 {
+
+    public ConstPropFold2 getInst() {
+        return this;
+    }
+
+    public int[] getArr(int dummy) {
+        int[] arr;
+        arr = new int[20];
+        return arr;
+    }
+
+    public int call(int arg) {
+        int[] m;
+        int call;
+
+        call = 5;
+        m = new int[call];
+
+        arg = this.getInst().call(m[call]);
+
+        arg = this.getArr(call).length;
+
+        arg = this.getArr(call)[call];
+
+        arg = this.getInst().call(this.getArr(call)[call]);
+
+        return call;
+	}
+
+	public static void main(String[] args) {
+	    io.println(new ConstPropFold2().call(5));
+	}
+}

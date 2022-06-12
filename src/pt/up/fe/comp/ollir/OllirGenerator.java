@@ -26,7 +26,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
         this.symbolTable = symbolTable;
         this.optimize = optimize;
         this.indentationLevel = 0;
-        this.tempVarNum = 1;
+        this.tempVarNum = 0;
         this.ifThenElseNum = 1;
         this.whileNum = 1;
 
