@@ -145,6 +145,7 @@ public class Launcher {
 
         config.put("inputFile", inputFileName);
         config.put("optimize", optimize);
+        System.out.println("Putting");
         config.put("registerAllocation", rNum);
         config.put("debug", debug);
 

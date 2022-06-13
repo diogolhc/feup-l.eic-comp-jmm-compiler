@@ -3,6 +3,11 @@ package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
+import pt.up.fe.comp.ollir.optimizers.ConstFoldingVisitor;
+import pt.up.fe.comp.ollir.optimizers.ConstPropagationParam;
+import pt.up.fe.comp.ollir.optimizers.ConstPropagationVisitor;
+import pt.up.fe.comp.optimization.LocalVariableOptimization;
+import pt.up.fe.comp.ollir.optimizers.DeadCodeEliminationVisitor;
 import pt.up.fe.comp.ollir.optimizers.*;
 
 import java.util.Collections;
@@ -58,4 +63,20 @@ public class JmmOptimizer implements JmmOptimization {
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
 
+    @Override
+    public OllirResult optimize(OllirResult ollirResult) {
+        String localVariableAllocation = ollirResult.getConfig().get("registerAllocation");
+        int localVariableNum = localVariableAllocation == null? -1 : Integer.parseInt(localVariableAllocation);
+        System.out.println("LOCAL VARIABLE NUM " + localVariableNum);
+
+        // TODO assure this outside (?)
+
+        if (localVariableNum != -1) {
+            LocalVariableOptimization optimization = new LocalVariableOptimization(ollirResult.getOllirClass());
+            optimization.optimize(localVariableNum);
+
+        }
+
+        return ollirResult;
+    }
 }
