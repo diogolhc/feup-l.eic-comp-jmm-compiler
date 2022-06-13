@@ -8,6 +8,7 @@ import pt.up.fe.comp.ollir.optimizers.ConstPropagationParam;
 import pt.up.fe.comp.ollir.optimizers.ConstPropagationVisitor;
 import pt.up.fe.comp.optimization.LocalVariableOptimization;
 import pt.up.fe.comp.ollir.optimizers.DeadCodeEliminationVisitor;
+import pt.up.fe.comp.ollir.optimizers.*;
 
 import java.util.Collections;
 
@@ -21,6 +22,10 @@ public class JmmOptimizer implements JmmOptimization {
         // TODO assure this outside (?)
         if (!optimize) return semanticsResult;
 
+        // duplicate condition of while loops in order to check if they can be promoted to do-while loops at compile-time
+        WhileConditionDuplicatorVisitor whileConditionDuplicatorVisitor = new WhileConditionDuplicatorVisitor();
+        whileConditionDuplicatorVisitor.visit(semanticsResult.getRootNode());
+
         boolean hasChanges = true;
         while (hasChanges) {
             ConstPropagationVisitor constPropagationVisitor = new ConstPropagationVisitor();
@@ -32,6 +37,10 @@ public class JmmOptimizer implements JmmOptimization {
             DeadCodeEliminationVisitor deadCodeEliminationVisitor = new DeadCodeEliminationVisitor();
             hasChanges = deadCodeEliminationVisitor.visit(semanticsResult.getRootNode()) || hasChanges;
         }
+
+        // remove duplicated while condition and annotate with do-while true/false at compile-time
+        DoWhileAnnotatorVisitor doWhileAnnotatorVisitor = new DoWhileAnnotatorVisitor();
+        doWhileAnnotatorVisitor.visit(semanticsResult.getRootNode());
 
         System.out.println("OPTIMIZED ANNOTATED AST:");
         System.out.println(semanticsResult.getRootNode().toTree());

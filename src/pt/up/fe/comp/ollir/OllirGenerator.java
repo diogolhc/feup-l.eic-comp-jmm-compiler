@@ -1,9 +1,12 @@
 package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.analysis.table.AstNode;
+import pt.up.fe.comp.analysis.table.Method;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.analysis.table.VarNotInScopeException;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
@@ -235,7 +238,16 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             }
 
             if (type.equals(symbolTable.getClassName())) {
-                returnType = OllirUtils.getOllirType(symbolTable.getReturnType(method));
+                Type retType = symbolTable.getReturnType(method);
+
+                // if inherited method
+                if (retType == null) {
+                    // always void because if we could infer its type, it would not enter in the outer "if" and go to the "else"
+                    returnType = ".V";
+                } else {
+                    returnType = OllirUtils.getOllirType(retType);
+                }
+
             } else {
                 // This is the case where an unknown method is not the last method call on a chain of calls
                 // and due to that, it's not possible to know its return type
@@ -246,9 +258,24 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             returnType = ollirInference.getInferredType();
         }
 
+        Method methodM = ((SymbolTableImpl) symbolTable).getMethod(method);
+
+        int iArg = 0;
         List<String> args = new ArrayList<>();
         for (JmmNode arg : expressionDot.getJmmChild(2).getChildren()) {
+
+            if (methodM != null) {
+                Symbol paramSymbol = methodM.getParameters().get(iArg);
+                if (paramSymbol != null) {
+                    String inferredArgType = OllirUtils.getOllirType(paramSymbol.getType());
+                    args.add(visit(arg.getJmmChild(0), new OllirInference(inferredArgType, true)));
+                    iArg += 1;
+                    continue;
+                }
+            }
+
             args.add(visit(arg.getJmmChild(0), new OllirInference(true)));
+            iArg += 1;
         }
 
         StringBuilder operationString = new StringBuilder(invokeType + "(" + firstArg + ", \"" + method + "\"");
@@ -309,7 +336,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     }
 
     private String notVisit(JmmNode not, OllirInference ollirInference) {
-        String child = visit(not.getJmmChild(0));
+        String child = visit(not.getJmmChild(0), new OllirInference(".bool", true));
 
         String operationString = "!.bool " + child;
 
@@ -456,7 +483,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     }
 
     private String lengthVisit(JmmNode lengthNode, OllirInference ollirInference) {
-        String child = visit(lengthNode.getJmmChild(0));
+        String child = visit(lengthNode.getJmmChild(0), new OllirInference(".array.i32", true));
 
         String operationString = "arraylength(" + child + ").i32";
 
@@ -472,11 +499,11 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     }
 
     private String arrayAccessVisit(JmmNode arrayAccess, OllirInference ollirInference) {
-        String child = visit(arrayAccess.getJmmChild(0));
+        String child = visit(arrayAccess.getJmmChild(0), new OllirInference(".array.i32", true));
 
         String id = OllirUtils.getArrayIdWithoutType(child);
 
-        String index = visit(arrayAccess.getJmmChild(1));
+        String index = visit(arrayAccess.getJmmChild(1),  new OllirInference(".i32", true));
         String indexReg = index;
 
         if (OllirUtils.isImmediateValueIndex(index)) {
@@ -511,7 +538,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
                 || condition.getKind().equals(AstNode.NOT)
                 || condition.getKind().equals(AstNode.ID);
 
-        String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+        String conditionRegOrExpression = visit(condition, new OllirInference(".bool", !isNotToAssignToTemp));
 
         code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
 
@@ -545,23 +572,29 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
                 || condition.getKind().equals(AstNode.ID);
 
         if (this.optimize) {
-            // TODO review after const propagation + folding
-            code.append(getIndentation()).append("goto whileCondition").append(whileNum).append(";\n");
+            boolean isDoWhile = whileNode.get("do_while") != null && whileNode.get("do_while").equals("true");
+
+            if (!isDoWhile) {
+                code.append(getIndentation()).append("goto whileCondition").append(whileNum).append(";\n");
+            }
 
             code.append(getIndentation()).append("whileBody").append(whileNum).append(":\n");
 
             this.incrementIndentation();
             visit(whileScope);
 
-            code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
-            String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+            if (!isDoWhile) {
+                code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
+            }
+
+            String conditionRegOrExpression = visit(condition, new OllirInference(".bool", !isNotToAssignToTemp));
             code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
             this.decrementIndentation();
 
         } else {
             code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
 
-            String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+            String conditionRegOrExpression = visit(condition, new OllirInference(".bool", !isNotToAssignToTemp));
 
             code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
             this.incrementIndentation();

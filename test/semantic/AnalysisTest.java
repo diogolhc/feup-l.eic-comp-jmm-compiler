@@ -22,6 +22,13 @@ public class AnalysisTest {
         TestUtils.mustFail(results);
     }
 
+    @Test
+    public void testOtherClass() {
+        var results = TestUtils.analyse(SpecsIo.getResource("fixtures/public/selfMade/OtherClass.jmm"));
+        System.out.println("SymbolTable: " + results.getSymbolTable().print());
+        TestUtils.noErrors(results);
+    }
+
     // CP2 TESTS
 
     @Test

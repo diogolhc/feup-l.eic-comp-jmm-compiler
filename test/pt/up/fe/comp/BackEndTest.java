@@ -108,6 +108,21 @@ public class BackEndTest {
     }
 
     @Test
+    public void testOtherClass() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/OtherClass.jmm"));
+        jasminResult.compile();
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testGetterAndSetterExtend() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/GetterAndSetterExtend.jmm"));
+        jasminResult.compile();
+        assertEquals("1\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
     public void testShortCutAnd() {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");

@@ -5,25 +5,25 @@ import java.io.File;
 class HelloWorld extends BoardBase {
     int i;
     int[] iArray;
-/*
+
     public int mint() {
         return 0;
     }
-*/
+
     public int[] met(int[] j, int k) {
         //j[k] = j[j[j[j[k / this.met(j,k)[-1]] + j[-2 * k] - this.mint()]]];
 
-/*
+
         while (true && k < 3) {
-            if (k < -4) {
+            if (k < (0 - 4)) {
                 k = 0;
             } else {
                 while (true) {
-                    k = -1;
+                    k = 0 - 1;
                 }
             }
         }
-*/
+
         return new H().g();
     }
 
