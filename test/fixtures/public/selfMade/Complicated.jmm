@@ -2,6 +2,18 @@ import ioPlus;
 
 class Complicated {
 
+    public int toInt(boolean b) {
+        int i;
+
+        if (b) {
+            i = 1;
+        } else {
+            i = 0;
+        }
+
+        return i;
+    }
+
     public int[] getArray(int n) {
         int[] arr;
         arr = new int[n];
@@ -11,7 +23,9 @@ class Complicated {
 
     public static void main(String[] args) {
         ioPlus.printResult(
-            new Complicated().getArray(new Complicated().getArray(new Complicated().getArray(10)[0])[0]).length
+            new Complicated().getArray(new Complicated().getArray(new Complicated().getArray(10)[0])[0]).length // 20
+            +
+            new Complicated().toInt(!!!!(4+5 - new Complicated().toInt(!!(3*9 < (2+8)*3)) < 9 + 500/1000)) // 1
         );
     }
 

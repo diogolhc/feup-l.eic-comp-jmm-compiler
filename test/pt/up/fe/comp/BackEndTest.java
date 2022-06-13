@@ -131,7 +131,7 @@ public class BackEndTest {
 
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Complicated.jmm"), config);
         jasminResult.compile();
-        assertEquals("Result: 20\r\n", jasminResult.run());
+        assertEquals("Result: 21\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
     }
 
