@@ -1,0 +1,19 @@
+import io;
+
+class SimpleConflict {
+
+    public int get() {
+        return 1;
+    }
+
+    public static void main(String[] args) {
+        SimpleConflict obj;
+        int i;
+
+        obj = new SimpleConflict();
+        i = 10;
+        obj.get();
+        io.println(i);
+    }
+
+}
