@@ -8,9 +8,11 @@ class GetterAndSetterExtend extends GetterAndSetter {
 
     public static void main(String[] args) {
         GetterAndSetterExtend g;
-        g = new GetterAndSetterExtend();
+        int i;
 
-        g.setA(1);
+        g = new GetterAndSetterExtend();
+        i = g.setA(1);
+
         io.println(g.getArg(g.getA())); // 1
     }
 
