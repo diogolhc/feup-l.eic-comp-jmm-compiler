@@ -141,7 +141,10 @@ public class LivenessAnalyser {
     private BitSet getUsedVars(CallInstruction instruction, Map<String, Descriptor> varTable) {
         BitSet vars = new BitSet();
 
-        setElement(vars, instruction.getFirstArg(), varTable);
+        CallType callType = instruction.getInvocationType();
+        if (callType.equals(CallType.invokevirtual) || callType.equals(CallType.invokespecial) ||  callType.equals(CallType.arraylength)) {
+            setElement(vars, instruction.getFirstArg(), varTable);
+        }
 
         if (instruction.getNumOperands() > 1) {
             if (instruction.getInvocationType() != CallType.NEW) {

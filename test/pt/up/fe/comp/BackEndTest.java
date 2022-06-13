@@ -124,7 +124,12 @@ public class BackEndTest {
 
     @Test
     public void testComplicated() {
-        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Complicated.jmm"));
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "0");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Complicated.jmm"), config);
         jasminResult.compile();
         assertEquals("Result: 20\r\n", jasminResult.run());
         TestUtils.noErrors(jasminResult);
