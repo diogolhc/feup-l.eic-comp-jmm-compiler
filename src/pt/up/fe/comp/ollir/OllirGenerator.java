@@ -236,7 +236,6 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             }
 
             if (type.equals(symbolTable.getClassName())) {
-                System.out.println("DEBUG: " + type + " " );
                 Type retType = symbolTable.getReturnType(method);
 
                 // if inherited method
