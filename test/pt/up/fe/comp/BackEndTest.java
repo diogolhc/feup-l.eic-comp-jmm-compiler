@@ -123,6 +123,14 @@ public class BackEndTest {
     }
 
     @Test
+    public void testComplicated() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Complicated.jmm"));
+        jasminResult.compile();
+        assertEquals("Result: 20\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
     public void testShortCutAnd() {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");

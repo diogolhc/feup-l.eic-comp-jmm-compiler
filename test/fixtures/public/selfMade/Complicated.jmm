@@ -1,0 +1,18 @@
+import ioPlus;
+
+class Complicated {
+
+    public int[] getArray(int n) {
+        int[] arr;
+        arr = new int[n];
+        arr[0] = 20;
+        return arr;
+    }
+
+    public static void main(String[] args) {
+        ioPlus.printResult(
+            new Complicated().getArray(new Complicated().getArray(new Complicated().getArray(10)[0])[0]).length
+        );
+    }
+
+}
