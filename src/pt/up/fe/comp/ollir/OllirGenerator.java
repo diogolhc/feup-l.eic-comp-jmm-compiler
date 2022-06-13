@@ -1,8 +1,10 @@
 package pt.up.fe.comp.ollir;
 
 import pt.up.fe.comp.analysis.table.AstNode;
+import pt.up.fe.comp.analysis.table.Method;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.analysis.table.VarNotInScopeException;
+import pt.up.fe.comp.jmm.analysis.table.Symbol;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
 import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
@@ -256,9 +258,24 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             returnType = ollirInference.getInferredType();
         }
 
+        Method methodM = ((SymbolTableImpl) symbolTable).getMethod(method);
+
+        int iArg = 0;
         List<String> args = new ArrayList<>();
         for (JmmNode arg : expressionDot.getJmmChild(2).getChildren()) {
+
+            if (methodM != null) {
+                Symbol paramSymbol = methodM.getParameters().get(iArg);
+                if (paramSymbol != null) {
+                    String inferredArgType = OllirUtils.getOllirType(paramSymbol.getType());
+                    args.add(visit(arg.getJmmChild(0), new OllirInference(inferredArgType, true)));
+                    iArg += 1;
+                    continue;
+                }
+            }
+
             args.add(visit(arg.getJmmChild(0), new OllirInference(true)));
+            iArg += 1;
         }
 
         StringBuilder operationString = new StringBuilder(invokeType + "(" + firstArg + ", \"" + method + "\"");

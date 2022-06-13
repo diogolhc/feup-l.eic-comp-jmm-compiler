@@ -209,6 +209,10 @@ public class SymbolTableImpl implements SymbolTable {
         methods.put(methodSignature, method);
     }
 
+    public Method getMethod(String methodSignature) {
+        return methods.get(methodSignature);
+    }
+
     public String getOllirLikeReference(String methodSignature, String variableName) {
         // This method assumes all class methods are not static
 
