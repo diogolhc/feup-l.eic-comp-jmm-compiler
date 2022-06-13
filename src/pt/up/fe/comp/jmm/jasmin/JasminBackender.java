@@ -417,10 +417,12 @@ public class JasminBackender implements JasminBackend {
             ArrayOperand operand = (ArrayOperand) element;
 
             stringBuilder.append("\taload").append(this.getVariableNumber(operand.getName(), varTable)).append("\n"); // load array (ref)
+            this.changeStackLimits(+1);
+
             stringBuilder.append(getLoadToStack(operand.getIndexOperands().get(0), varTable)); // load index
             stringBuilder.append("\tiaload"); // load array[index]
 
-            this.changeStackLimits(+3);
+            this.changeStackLimits(-1);
         } else if (element instanceof Operand) {
             Operand operand = (Operand) element;
             switch (operand.getType().getTypeOfElement()) {
