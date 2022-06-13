@@ -1,9 +1,6 @@
 package pt.up.fe.comp.optimization;
 
-import org.specs.comp.ollir.Descriptor;
-import org.specs.comp.ollir.Node;
-import org.specs.comp.ollir.Method;
-import org.specs.comp.ollir.VarScope;
+import org.specs.comp.ollir.*;
 
 import java.util.*;
 
@@ -56,23 +53,15 @@ public class LocalVariableInterferenceGraph {
     private final Map<Integer, VarNode> nodes;
     private final Map<String, Descriptor> varTable;
     private int minLocalVariables;
-    private boolean isStaticMethod;
+    private final boolean isStaticMethod;
 
     public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Method method) {
         nodes = new HashMap<>();
 
         varTable = method.getVarTable();
         isStaticMethod = method.isStaticMethod();
-        minLocalVariables = isStaticMethod ? 0 : 1;
+        minLocalVariables = isStaticMethod ? 0 : 1; // THIS
 
-        /*
-            a    { 5 }     { 2, 5 }
-            b    { 2, 5 }  { 3, 5 }
-            c    { 3, 5 }  {4,5}
-            d    { 4, 5 }  {5}
-            ret  { 5 }     {}
-
-         */
         addNodes();
         addEdges(inAlive);
         addEdges(outAlive);
@@ -86,7 +75,7 @@ public class LocalVariableInterferenceGraph {
                     descriptor.getScope() == VarScope.FIELD) {
                 // save local variables for the parameters and fields
                 minLocalVariables++;
-            } else {
+            } else if (descriptor.getVarType().getTypeOfElement() != ElementType.THIS) {
                 nodes.put(descriptor.getVirtualReg(),
                         new VarNode(name, descriptor.getVirtualReg()));
             }
@@ -134,11 +123,12 @@ public class LocalVariableInterferenceGraph {
             }
 
             if (!nodes.isEmpty()) {
-                Integer local = (Integer) nodes.keySet().toArray()[0];
-                VarNode nodeToSpill = nodes.get(local);
-                stack.push(nodeToSpill);
-                nodeToSpill.isActive = false;
-                nodes.remove(local);
+                while (!stack.isEmpty()) {
+                    VarNode n = stack.pop();
+                    n.isActive = true;
+                    nodes.put(n.ogLocalVariable, n);
+                }
+                return allocateLocalVariables(localVariableNum+1);
             }
         }
 

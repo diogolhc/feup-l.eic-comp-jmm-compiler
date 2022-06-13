@@ -28,7 +28,7 @@ public class LocalVariableOptimization {
             LocalVariableInterferenceGraph varGraph = new LocalVariableInterferenceGraph(analyser.getInAlive(), analyser.getOutAlive(), method);
             var updatedVarTable = varGraph.allocateLocalVariables(localVariableNum);
 
-            for (String varName : method.getVarTable().keySet()) {
+            for (String varName : updatedVarTable.keySet()) {
                 method.getVarTable().put(varName, updatedVarTable.get(varName));
             }
         }

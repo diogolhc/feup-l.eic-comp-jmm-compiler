@@ -54,10 +54,8 @@ public class LivenessAnalyser {
                 BitSet inAliveNew = (BitSet) outAlive.get(node).clone();
                 BitSet def = defined.get(node);
 
-                for (int i = 0; i < varNum; i++) {
-                    if (inAliveNew.get(i) && !def.get(i)) {
-                        inAliveNew.set(i);
-                    } else {
+                for (int i = 0; i < inAliveNew.size(); i++) {
+                    if (inAliveNew.get(i) && def.get(i)) {
                         inAliveNew.clear(i);
                     }
                 }
@@ -223,4 +221,17 @@ public class LivenessAnalyser {
 
         vars.set(reg);
     }
+
+    public void showMaps(int iterNum) {
+        System.out.println("\nMAPS: (" + iterNum + ")");
+        for (var v : nodes) {
+            System.out.println("KEY: " + v.getId());
+
+            System.out.println("DEF      : " + defined.get(v));
+            System.out.println("USED     : " + used.get(v));
+            System.out.println("IN ALIVE : " + inAlive.get(v));
+            System.out.println("OUT ALIVE: " + outAlive.get(v));
+        }
+    }
+
 }
