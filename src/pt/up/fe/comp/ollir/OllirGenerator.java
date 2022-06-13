@@ -4,6 +4,7 @@ import pt.up.fe.comp.analysis.table.AstNode;
 import pt.up.fe.comp.analysis.table.SymbolTableImpl;
 import pt.up.fe.comp.analysis.table.VarNotInScopeException;
 import pt.up.fe.comp.jmm.analysis.table.SymbolTable;
+import pt.up.fe.comp.jmm.analysis.table.Type;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;
 import pt.up.fe.comp.jmm.ast.JmmNode;
 
@@ -235,7 +236,17 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
             }
 
             if (type.equals(symbolTable.getClassName())) {
-                returnType = OllirUtils.getOllirType(symbolTable.getReturnType(method));
+                System.out.println("DEBUG: " + type + " " );
+                Type retType = symbolTable.getReturnType(method);
+
+                // if inherited method
+                if (retType == null) {
+                    // always void because if we could infer its type, it would not enter in the outer "if" and go to the "else"
+                    returnType = ".V";
+                } else {
+                    returnType = OllirUtils.getOllirType(retType);
+                }
+
             } else {
                 // This is the case where an unknown method is not the last method call on a chain of calls
                 // and due to that, it's not possible to know its return type
@@ -309,7 +320,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     }
 
     private String notVisit(JmmNode not, OllirInference ollirInference) {
-        String child = visit(not.getJmmChild(0));
+        String child = visit(not.getJmmChild(0), new OllirInference(".bool", true));
 
         String operationString = "!.bool " + child;
 
@@ -456,7 +467,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     }
 
     private String lengthVisit(JmmNode lengthNode, OllirInference ollirInference) {
-        String child = visit(lengthNode.getJmmChild(0));
+        String child = visit(lengthNode.getJmmChild(0), new OllirInference(".array.i32", true));
 
         String operationString = "arraylength(" + child + ").i32";
 
@@ -472,11 +483,11 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
     }
 
     private String arrayAccessVisit(JmmNode arrayAccess, OllirInference ollirInference) {
-        String child = visit(arrayAccess.getJmmChild(0));
+        String child = visit(arrayAccess.getJmmChild(0), new OllirInference(".array.i32", true));
 
         String id = OllirUtils.getArrayIdWithoutType(child);
 
-        String index = visit(arrayAccess.getJmmChild(1));
+        String index = visit(arrayAccess.getJmmChild(1),  new OllirInference(".i32", true));
         String indexReg = index;
 
         if (OllirUtils.isImmediateValueIndex(index)) {
@@ -511,7 +522,7 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
                 || condition.getKind().equals(AstNode.NOT)
                 || condition.getKind().equals(AstNode.ID);
 
-        String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+        String conditionRegOrExpression = visit(condition, new OllirInference(".bool", !isNotToAssignToTemp));
 
         code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto ifTrue").append(ifThenElseNum).append(";\n");
 
@@ -560,14 +571,14 @@ public class OllirGenerator extends AJmmVisitor<OllirInference, String> {
                 code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
             }
 
-            String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+            String conditionRegOrExpression = visit(condition, new OllirInference(".bool", !isNotToAssignToTemp));
             code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
             this.decrementIndentation();
 
         } else {
             code.append(getIndentation()).append("whileCondition").append(whileNum).append(":\n");
 
-            String conditionRegOrExpression = visit(condition, new OllirInference(!isNotToAssignToTemp));
+            String conditionRegOrExpression = visit(condition, new OllirInference(".bool", !isNotToAssignToTemp));
 
             code.append(getIndentation()).append("if (").append(conditionRegOrExpression).append(") goto whileBody").append(whileNum).append(";\n");
             this.incrementIndentation();
