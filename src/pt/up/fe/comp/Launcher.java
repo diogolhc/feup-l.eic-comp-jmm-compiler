@@ -27,6 +27,8 @@ public class Launcher {
 
         // Parse input and create config
         Map<String, String> config = parseInput(args);
+
+        // Input source code
         String input = SpecsIo.read(new File(config.get("inputFile")));
 
         // Instantiate JmmParser
@@ -53,26 +55,30 @@ public class Launcher {
         var optimizer = new JmmOptimizer();
 
         // Optimization stage
-        var optimizationResult1 = optimizer.optimize(semanticsResult);
+        if (config.get("optimize") != null && config.get("optimize").equals("true")) {
+            semanticsResult = optimizer.optimize(semanticsResult);
+        }
 
         // Check if there are optimization errors
-        TestUtils.noErrors(optimizationResult1);
+        TestUtils.noErrors(semanticsResult);
 
-        var ollirResult = optimizer.toOllir(optimizationResult1);
+        var ollirResult = optimizer.toOllir(semanticsResult);
 
-        // Check if there are ollir errors
+        // Check if there are OLLIR errors
         TestUtils.noErrors(ollirResult);
 
-        var optimizationResult2 = optimizer.optimize(ollirResult);
+        if (config.get("registerAllocation") != null) {
+            ollirResult = optimizer.optimize(ollirResult);
+        }
 
         // Check if there are optimization errors
-        TestUtils.noErrors(optimizationResult2);
+        TestUtils.noErrors(ollirResult);
 
 
         // Instantiate JasminBackender
         var jasminBackend = new JasminBackender();
 
-        var backendResult = jasminBackend.toJasmin(optimizationResult2);
+        var backendResult = jasminBackend.toJasmin(ollirResult);
 
         // Check if there are jasmin errors
         TestUtils.noErrors(backendResult);
@@ -84,7 +90,8 @@ public class Launcher {
                 Files.createDirectory(resultsDirectory);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error creating the " + resultsDirectory.toString() + " directory.");
+            return;
         }
 
         Path path = Paths.get("generated-files/" + backendResult.getClassName() + "/");
@@ -94,9 +101,10 @@ public class Launcher {
             fileWriter.write(backendResult.getJasminCode());
             fileWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Error while writing the .j file.");
         }
 
+        // Generate .class file
         backendResult.compile(path.toFile());
     }
 
@@ -108,47 +116,62 @@ public class Launcher {
         String debug = "false";
         String inputFileName = null;
         for (String arg : args) {
-            if (arg.startsWith("-r")) {
-                String num = arg.split("=")[1];
-                int parsedNum;
-                try {
-                    parsedNum = Integer.parseInt(num);
-                } catch (Exception e) {
-                    throw new RuntimeException("Invalid integer in option -r. " + num + " not a integer.");
-                }
+            if (arg.startsWith("-r=")) {
+                String[] argSplit = arg.split("=");
+                if (argSplit.length == 2) {
+                    String num = argSplit[1];
+                    int parsedNum;
+                    try {
+                        parsedNum = Integer.parseInt(num);
+                    } catch (Exception e) {
+                        printUsage();
+                        throw new RuntimeException("Invalid integer in option -r. " + num + " not a integer.");
+                    }
 
-                if (parsedNum >= -1 && parsedNum <= 65535) {
-                    rNum = num;
-                } else {
-                    throw new RuntimeException("Invalid option -r. Number needs to be between [-1, 65535].");
+                    if (parsedNum >= -1 && parsedNum <= 65535) {
+                        rNum = num;
+                    } else {
+                        printUsage();
+                        throw new RuntimeException("Invalid option -r. Number needs to be between [-1, 65535].");
+                    }
                 }
             } else if (arg.startsWith("-o")) {
                 optimize = "true";
             } else if (arg.startsWith("-d")) {
                 debug = "true";
-            } else if (arg.startsWith("-i")) {
-                inputFileName = arg.split("=")[1];
+            } else if (arg.startsWith("-i=")) {
+                String[] argSplit = arg.split("=");
+                if (argSplit.length == 2) {
+                    inputFileName = argSplit[1];
+                }
             } else {
+                printUsage();
                 throw new RuntimeException("Invalid option " + arg + " .");
             }
         }
 
         // Read the input code
         if (inputFileName == null) {
+            printUsage();
             throw new RuntimeException("Expected at least a single argument, a path to an existing input file.");
         }
 
         File inputFile = new File(inputFileName);
         if (!inputFile.isFile()) {
+            printUsage();
             throw new RuntimeException("Expected a path to an existing input file, got '" + inputFileName + "'.");
         }
 
         config.put("inputFile", inputFileName);
         config.put("optimize", optimize);
-        System.out.println("Putting");
         config.put("registerAllocation", rNum);
         config.put("debug", debug);
 
         return config;
     }
+
+    public static void printUsage() {
+        System.out.println("USAGE: ./comp2022-1a [-r=<num>] [-o] [-d] -i=<input_file.jmm>");
+    }
+
 }

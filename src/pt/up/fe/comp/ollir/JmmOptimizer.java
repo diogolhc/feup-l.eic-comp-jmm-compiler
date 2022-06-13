@@ -19,7 +19,6 @@ public class JmmOptimizer implements JmmOptimization {
         boolean optimize = semanticsResult.getConfig().get("optimize") != null
                 && semanticsResult.getConfig().get("optimize").equals("true");
 
-        // TODO assure this outside (?)
         if (!optimize) return semanticsResult;
 
         // duplicate condition of while loops in order to check if they can be promoted to do-while loops at compile-time
@@ -69,9 +68,7 @@ public class JmmOptimizer implements JmmOptimization {
         int localVariableNum = localVariableAllocation == null? -1 : Integer.parseInt(localVariableAllocation);
         System.out.println("LOCAL VARIABLE NUM " + localVariableNum);
 
-        // TODO assure this outside (?)
-
-        if (localVariableNum != -1) {
+        if (localVariableNum > -1) {
             LocalVariableOptimization optimization = new LocalVariableOptimization(ollirResult.getOllirClass());
             optimization.optimize(localVariableNum);
 
