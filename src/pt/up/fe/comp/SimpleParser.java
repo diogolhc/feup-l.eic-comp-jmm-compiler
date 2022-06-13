@@ -37,6 +37,8 @@ public class SimpleParser implements JmmParser {
     public JmmParserResult parse(String jmmCode, String startingRule, Map<String, String> config) {
         try {
 
+            System.out.println("Parsing ...");
+
             JmmGrammarParser parser = new JmmGrammarParser(SpecsIo.toInputStream(jmmCode));
             SpecsSystem.invoke(parser, startingRule);
 

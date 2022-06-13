@@ -18,7 +18,14 @@ public class JmmAnalyser implements JmmAnalysis {
         var symbolTable = new SymbolTableImpl();
 
         var symbolTableFiller = new SymbolTableFiller();
+
+        System.out.println("Filling the symbol table ...");
+
         symbolTableFiller.visit(parserResult.getRootNode(), symbolTable);
+
+        if (parserResult.getConfig().get("debug") != null && parserResult.getConfig().get("debug").equals("true")) {
+            System.out.println("SYMBOL TABLE : \n" + symbolTable.print());
+        }
 
         List<Report> reports = new ArrayList<>(symbolTableFiller.getReports());
 
@@ -28,12 +35,16 @@ public class JmmAnalyser implements JmmAnalysis {
                 new MethodLiteralCallAnalyser(), new MethodReturnAnalyser(),
                 new LengthAnalyser(), new DeclarationAnalyser(), new MainAnalyser());
 
+        System.out.println("Performing semantic analysis ...");
+
         for (var analyser : analysers) {
             analyser.visit(parserResult.getRootNode(), symbolTable);
             reports.addAll(analyser.getReports());
         }
 
-        System.out.println("ANNOTATED AST : \n" + parserResult.getRootNode().toTree());
+        if (parserResult.getConfig().get("debug") != null && parserResult.getConfig().get("debug").equals("true")) {
+            System.out.println("ANNOTATED AST : \n" + parserResult.getRootNode().toTree());
+        }
 
         return new JmmSemanticsResult(parserResult, symbolTable, reports);
     }

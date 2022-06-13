@@ -28,10 +28,14 @@ public class JasminBackender implements JasminBackend {
             this.classUnit.buildCFGs();
             this.classUnit.buildVarTables();
 
+            System.out.println("Generating Jasmin code ...");
+
             String jasminCode = buildJasminCode();
             List<Report> reports = new ArrayList<>();
 
-            System.out.println("JASMIN CODE : \n" + jasminCode);
+            if (ollirResult.getConfig().get("debug") != null && ollirResult.getConfig().get("debug").equals("true")) {
+                System.out.println("JASMIN CODE : \n" + jasminCode);
+            }
 
             return new JasminResult(ollirResult, jasminCode, reports);
 

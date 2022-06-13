@@ -21,6 +21,10 @@ public class JmmOptimizer implements JmmOptimization {
 
         if (!optimize) return semanticsResult;
 
+        boolean debug = semanticsResult.getConfig().get("debug") != null && semanticsResult.getConfig().get("debug").equals("true");
+
+        System.out.println("Performing optimizations before OLLIR ...");
+
         // duplicate condition of while loops in order to check if they can be promoted to do-while loops at compile-time
         WhileConditionDuplicatorVisitor whileConditionDuplicatorVisitor = new WhileConditionDuplicatorVisitor();
         whileConditionDuplicatorVisitor.visit(semanticsResult.getRootNode());
@@ -28,12 +32,21 @@ public class JmmOptimizer implements JmmOptimization {
         boolean hasChanges = true;
         while (hasChanges) {
             ConstPropagationVisitor constPropagationVisitor = new ConstPropagationVisitor();
+            if (debug) {
+                System.out.println("Performing constant propagation ...");
+            }
             hasChanges = constPropagationVisitor.visit(semanticsResult.getRootNode(), new ConstPropagationParam());
 
             ConstFoldingVisitor constFoldingVisitor = new ConstFoldingVisitor();
+            if (debug) {
+                System.out.println("Performing constant folding ...");
+            }
             hasChanges = constFoldingVisitor.visit(semanticsResult.getRootNode()) ||  hasChanges;
 
             DeadCodeEliminationVisitor deadCodeEliminationVisitor = new DeadCodeEliminationVisitor();
+            if (debug) {
+                System.out.println("Performing dead code elimination ...");
+            }
             hasChanges = deadCodeEliminationVisitor.visit(semanticsResult.getRootNode()) || hasChanges;
         }
 
@@ -41,8 +54,9 @@ public class JmmOptimizer implements JmmOptimization {
         DoWhileAnnotatorVisitor doWhileAnnotatorVisitor = new DoWhileAnnotatorVisitor();
         doWhileAnnotatorVisitor.visit(semanticsResult.getRootNode());
 
-        System.out.println("OPTIMIZED ANNOTATED AST:");
-        System.out.println(semanticsResult.getRootNode().toTree());
+        if (debug) {
+            System.out.println("OPTIMIZED ANNOTATED AST : \n" + semanticsResult.getRootNode().toTree());
+        }
 
         return semanticsResult;
     }
@@ -52,12 +66,16 @@ public class JmmOptimizer implements JmmOptimization {
         boolean optimize = semanticsResult.getConfig().get("optimize") != null
                 && semanticsResult.getConfig().get("optimize").equals("true");
 
+        System.out.println("Generating OLLIR code ...");
+
         var ollirGenerator = new OllirGenerator(semanticsResult.getSymbolTable(), optimize);
         ollirGenerator.visit(semanticsResult.getRootNode());
 
         var ollirCode = ollirGenerator.getCode();
 
-        System.out.println("OLLIR CODE : \n" + ollirCode);
+        if (semanticsResult.getConfig().get("debug") != null && semanticsResult.getConfig().get("debug").equals("true")) {
+            System.out.println("OLLIR CODE : \n" + ollirCode);
+        }
 
         return new OllirResult(semanticsResult, ollirCode, Collections.emptyList());
     }
@@ -66,10 +84,10 @@ public class JmmOptimizer implements JmmOptimization {
     public OllirResult optimize(OllirResult ollirResult) {
         String localVariableAllocation = ollirResult.getConfig().get("registerAllocation");
         int localVariableNum = localVariableAllocation == null? -1 : Integer.parseInt(localVariableAllocation);
-        System.out.println("LOCAL VARIABLE NUM " + localVariableNum);
 
         if (localVariableNum > -1) {
-            LocalVariableOptimization optimization = new LocalVariableOptimization(ollirResult.getOllirClass());
+            System.out.println("Performing register allocation ...");
+            LocalVariableOptimization optimization = new LocalVariableOptimization(ollirResult);
             optimization.optimize(localVariableNum);
 
         }

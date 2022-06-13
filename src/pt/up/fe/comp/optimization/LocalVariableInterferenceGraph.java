@@ -54,13 +54,15 @@ public class LocalVariableInterferenceGraph {
     private final Map<String, Descriptor> varTable;
     private int minLocalVariables;
     private final boolean isStaticMethod;
+    private final boolean debug;
 
-    public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Method method) {
+    public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Method method, boolean debug) {
         nodes = new HashMap<>();
 
         varTable = method.getVarTable();
         isStaticMethod = method.isStaticMethod();
         minLocalVariables = isStaticMethod ? 0 : 1; // THIS
+        this.debug = debug;
 
         addNodes();
         addEdges(inAlive);
@@ -162,6 +164,10 @@ public class LocalVariableInterferenceGraph {
                 updatedVarTable.put(varName, new Descriptor(d.getScope(), local, d.getVarType()));
                 local++;
             }
+        }
+
+        if (this.debug) {
+            System.out.println("Used " + localVariableNum + " registers.");
         }
 
         return updatedVarTable;

@@ -100,12 +100,14 @@ public class Launcher {
             FileWriter fileWriter = new FileWriter(path + ".j");
             fileWriter.write(backendResult.getJasminCode());
             fileWriter.close();
+            System.out.println("Jasmin file saved successfully!");
         } catch (IOException e) {
             System.out.println("Error while writing the .j file.");
         }
 
         // Generate .class file
         backendResult.compile(path.toFile());
+        System.out.println(".class file saved successfully!");
     }
 
     static private Map<String, String> parseInput(String[] args) {
@@ -128,11 +130,11 @@ public class Launcher {
                         throw new RuntimeException("Invalid integer in option -r. " + num + " not a integer.");
                     }
 
-                    if (parsedNum >= -1 && parsedNum <= 65535) {
+                    if (parsedNum >= -1 && parsedNum <= 255) {
                         rNum = num;
                     } else {
                         printUsage();
-                        throw new RuntimeException("Invalid option -r. Number needs to be between [-1, 65535].");
+                        throw new RuntimeException("Invalid option -r. Number needs to be between [-1, 255].");
                     }
                 }
             } else if (arg.startsWith("-o")) {
