@@ -31,15 +31,15 @@ public class LocalVariableOptimization {
         unit.buildCFGs();
         unit.buildVarTables();
 
-        if (this.debug) {
-            System.out.println("Number of registers used per method:");
-        }
-
         int maxLocalsNeeded = -1;
 
         for (Method method : unit.getMethods()) {
+            if (this.debug) {
+                System.out.println(method.isConstructMethod() ? "{Constructor}" : method.getMethodName() + ":");
+            }
+
             LivenessAnalyser analyser = new LivenessAnalyser(method);
-            analyser.analyse();
+            analyser.analyse(this.debug);
             LocalVariableInterferenceGraph varGraph = new LocalVariableInterferenceGraph(analyser.getInAlive(), analyser.getOutAlive(), analyser.getDefined(), method);
 
             AllocateVariablesRes allocateVariablesRes = varGraph.allocateLocalVariables(localVariableNum);
@@ -53,8 +53,7 @@ public class LocalVariableOptimization {
             }
 
             if (this.debug) {
-                System.out.println(method.getMethodName() + ":");
-                System.out.println("Used " + JasminBackender.calculateLimitLocals(method) + " registers.");
+                System.out.println("Used " + JasminBackender.calculateLimitLocals(method) + " register(s).\n");
             }
         }
 

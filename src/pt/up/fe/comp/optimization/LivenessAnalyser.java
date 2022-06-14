@@ -31,8 +31,18 @@ public class LivenessAnalyser {
         Collections.reverse(nodes);
     }
 
-    public void analyse() {
+    public void analyse(boolean debug) {
+        if (debug) {
+            System.out.println("LIVENESS ANALYSIS:");
+        }
+
+        int iterNum = 0;
+
         while (true) {
+            if (debug) {
+                showMaps(iterNum);
+            }
+
             Map<Node, BitSet> inAlivePrev = new HashMap<>(inAlive);
             Map<Node, BitSet> outAlivePrev = new HashMap<>(outAlive);
 
@@ -67,6 +77,13 @@ public class LivenessAnalyser {
             if (isDone(inAlivePrev, outAlivePrev)) {
                 break;
             }
+
+            iterNum++;
+        }
+
+        iterNum++;
+        if (debug) {
+            showMaps(iterNum);
         }
     }
 
@@ -230,7 +247,7 @@ public class LivenessAnalyser {
     }
 
     public void showMaps(int iterNum) {
-        System.out.println("\nMAPS: (" + iterNum + ")");
+        System.out.println("\nIteration: (" + iterNum + ")");
         for (var v : nodes) {
             System.out.println("KEY: " + v.getId());
 
