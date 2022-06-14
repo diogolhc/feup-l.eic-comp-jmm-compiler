@@ -156,7 +156,25 @@ public class LivenessAnalyser {
     }
 
     private BitSet getUsedVars(AssignInstruction instruction, Map<String, Descriptor> varTable) {
-        return getUsedVars(instruction.getRhs(), varTable);
+        Operand dest = (Operand) instruction.getDest();
+        Descriptor descriptor = varTable.get(dest.getName());
+
+        BitSet vars = new BitSet();
+
+        // array[index] = ...
+        // 'array' and 'index' are used
+        if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF
+                && dest.getType().getTypeOfElement() == ElementType.INT32) {
+            for (Element index : ((ArrayOperand) dest).getIndexOperands()) {
+                setElement(vars, index, varTable);
+            }
+
+            setElement(vars, dest, varTable);
+        }
+
+        vars.or(getUsedVars(instruction.getRhs(), varTable));
+
+        return vars;
     }
 
     private BitSet getUsedVars(CallInstruction instruction, Map<String, Descriptor> varTable) {
@@ -211,13 +229,17 @@ public class LivenessAnalyser {
         BitSet vars = new BitSet();
 
         if (instruction.getInstType() == InstructionType.ASSIGN) {
-            setElement(vars, ((AssignInstruction) instruction).getDest(), varTable);
+            setElement(vars, ((AssignInstruction) instruction).getDest(), varTable, false);
         }
 
         return vars;
     }
 
     private void setElement(BitSet vars, Element element, Map<String, Descriptor> varTable) {
+        setElement(vars, element, varTable, true);
+    }
+
+    private void setElement(BitSet vars, Element element, Map<String, Descriptor> varTable, boolean getUsed) {
         if (element.isLiteral()) {
             return;
         }
@@ -230,10 +252,13 @@ public class LivenessAnalyser {
 
         Descriptor descriptor = varTable.get(((Operand) element).getName());
 
-        if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF
-                && element.getType().getTypeOfElement() == ElementType.INT32) {
-            for (Element index : ((ArrayOperand) element).getIndexOperands()) {
-                setElement(vars, index, varTable);
+        if (getUsed) {
+            // array[index], set 'index' as used also
+            if (descriptor.getVarType().getTypeOfElement() == ElementType.ARRAYREF
+                    && element.getType().getTypeOfElement() == ElementType.INT32) {
+                for (Element index : ((ArrayOperand) element).getIndexOperands()) {
+                    setElement(vars, index, varTable);
+                }
             }
         }
 
