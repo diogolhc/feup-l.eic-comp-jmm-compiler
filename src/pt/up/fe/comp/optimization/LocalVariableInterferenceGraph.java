@@ -56,7 +56,7 @@ public class LocalVariableInterferenceGraph {
     private final boolean isStaticMethod;
     private final boolean debug;
 
-    public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Method method, boolean debug) {
+    public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Map<Node, BitSet> define, Method method, boolean debug) {
         nodes = new HashMap<>();
 
         varTable = method.getVarTable();
@@ -67,6 +67,7 @@ public class LocalVariableInterferenceGraph {
         addNodes();
         addEdges(inAlive);
         addEdges(outAlive);
+        addEdges(define, outAlive);
     }
 
     private void addNodes() {
@@ -84,9 +85,10 @@ public class LocalVariableInterferenceGraph {
         }
     }
 
+    // Connect each pair of variables that belong to the same IN or OUT set
     private void addEdges(Map<Node, BitSet> liveRange) {
-        for (Node node : liveRange.keySet()) {
-            BitSet bitset = liveRange.get(node);
+        for (Node instruction : liveRange.keySet()) {
+            BitSet bitset = liveRange.get(instruction);
             List<Integer> varIdxs = new ArrayList<>();
 
             for (int i = 0; i < bitset.length(); i++) {
@@ -100,6 +102,39 @@ public class LocalVariableInterferenceGraph {
 
                 for (int j = i + 1; j < varIdxs.size(); j++) {
                     VarNode node2 = nodes.get(varIdxs.get(j));
+                    node1.adjacentNodes.add(node2);
+                    node2.adjacentNodes.add(node1);
+                }
+            }
+        }
+    }
+
+    // Connect variables in KILL[i] with those in OUT[i]
+    private void addEdges(Map<Node, BitSet> define, Map<Node, BitSet> outAlive) {
+        for (Node instruction : define.keySet()) {
+            BitSet defineBitset = define.get(instruction);
+            BitSet outBitset = outAlive.get(instruction);
+
+            List<Integer> defVarIdxs = new ArrayList<>();
+            List<Integer> outVarIdxs = new ArrayList<>();
+
+            for (int i = 0; i < defineBitset.length(); i++) {
+                if (defineBitset.get(i)) {
+                    defVarIdxs.add(i);
+                }
+            }
+
+            for (int i = 0; i < outBitset.length(); i++) {
+                if (outBitset.get(i)) {
+                    outVarIdxs.add(i);
+                }
+            }
+
+            for (Integer defVarIdx : defVarIdxs) {
+                VarNode node1 = nodes.get(defVarIdx);
+
+                for (Integer outVarIdx : outVarIdxs) {
+                    VarNode node2 = nodes.get(outVarIdx);
                     node1.adjacentNodes.add(node2);
                     node2.adjacentNodes.add(node1);
                 }
@@ -134,6 +169,7 @@ public class LocalVariableInterferenceGraph {
             }
         }
 
+        // maps colors to the instructions
         Map<Integer, List<String>> localVariables = new HashMap<>();
         for (int i = minLocalVariables; i < localVariableNum; i++) {
             localVariables.put(i, new ArrayList<>());

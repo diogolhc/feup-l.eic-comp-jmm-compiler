@@ -88,6 +88,10 @@ public class LivenessAnalyser {
         return outAlive;
     }
 
+    public Map<Node, BitSet> getDefined() {
+        return this.defined;
+    }
+
     private BitSet getUsedVars(Instruction instruction, Map<String, Descriptor> varTable) {
         switch (instruction.getInstType()) {
             case UNARYOPER:

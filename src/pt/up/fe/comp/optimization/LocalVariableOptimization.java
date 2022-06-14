@@ -32,7 +32,7 @@ public class LocalVariableOptimization {
         for (Method method : unit.getMethods()) {
             LivenessAnalyser analyser = new LivenessAnalyser(method);
             analyser.analyse();
-            LocalVariableInterferenceGraph varGraph = new LocalVariableInterferenceGraph(analyser.getInAlive(), analyser.getOutAlive(), method, debug);
+            LocalVariableInterferenceGraph varGraph = new LocalVariableInterferenceGraph(analyser.getInAlive(), analyser.getOutAlive(), analyser.getDefined(), method, debug);
 
             if (this.debug) {
                 System.out.println(method.getMethodName() + ":");
