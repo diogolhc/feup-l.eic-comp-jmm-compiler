@@ -118,7 +118,7 @@ public class ConstFoldingVisitor extends AJmmVisitor<String, Boolean> {
                 case "multiplication" -> String.valueOf(lhsInt * rhsInt);
                 case "division" -> String.valueOf(lhsInt / rhsInt);
                 case "lessThan" -> (lhsInt < rhsInt) ? "true" : "false";
-                default -> throw new IllegalStateException("Unexpected value: " + op); // TODO remove this (?)
+                default -> throw new IllegalStateException("Unexpected value: " + op);
             };
         }
     }

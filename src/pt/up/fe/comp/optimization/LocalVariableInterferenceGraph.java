@@ -140,7 +140,7 @@ public class LocalVariableInterferenceGraph {
         }
     }
 
-    public Map<String, Descriptor> allocateLocalVariables(int localVariableNum) {
+    public AllocateVariablesRes allocateLocalVariables(int localVariableNum) {
         if (localVariableNum < minLocalVariables) {
             return allocateLocalVariables(localVariableNum+1);
         }
@@ -189,7 +189,7 @@ public class LocalVariableInterferenceGraph {
             }
         }
 
-        return updatedVarTable;
+        return new AllocateVariablesRes(updatedVarTable, localVariableNum);
     }
 
     private boolean assignLocalVariable(Map<Integer, List<String>> localVariables, VarNode node, Map<String, Descriptor> updatedVarTable) {
