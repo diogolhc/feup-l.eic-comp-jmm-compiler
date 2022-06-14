@@ -44,7 +44,7 @@ Note that at any stage, if errors are detected the compilation process aborts an
 displayed.
 
 
-## SEMANTIC ANALYSIS: (Refer the semantic rules implemented by your tool.)
+## SEMANTIC ANALYSIS:
 
 ### Symbol Table 
 	
@@ -62,7 +62,7 @@ displayed.
 - Array access is done over an array 	
 - Array access index is an expression of type integer
 - Array can only be of type integer
-- Array size on intilization must be of type integer 	
+- Array size on initialization must be of type integer 	
 - Type of the assignee must be compatible with the assigned (an_int = a_bool is an error) 
 - Expressions in conditions must return a boolean (if(2+3) is an error) 
 
