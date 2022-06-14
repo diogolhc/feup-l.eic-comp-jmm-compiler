@@ -1,4 +1,4 @@
-package pt.up.fe.comp.ollir.optimizers;
+package pt.up.fe.comp.ollir.optimization.optimizers;
 
 import pt.up.fe.comp.analysis.table.AstNode;
 import pt.up.fe.comp.jmm.ast.AJmmVisitor;

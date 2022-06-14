@@ -3,12 +3,12 @@ package pt.up.fe.comp.ollir;
 import pt.up.fe.comp.jmm.analysis.JmmSemanticsResult;
 import pt.up.fe.comp.jmm.ollir.JmmOptimization;
 import pt.up.fe.comp.jmm.ollir.OllirResult;
-import pt.up.fe.comp.ollir.optimizers.ConstFoldingVisitor;
-import pt.up.fe.comp.ollir.optimizers.ConstPropagationParam;
-import pt.up.fe.comp.ollir.optimizers.ConstPropagationVisitor;
-import pt.up.fe.comp.optimization.LocalVariableOptimization;
-import pt.up.fe.comp.ollir.optimizers.DeadCodeEliminationVisitor;
-import pt.up.fe.comp.ollir.optimizers.*;
+import pt.up.fe.comp.ollir.optimization.optimizers.ConstFoldingVisitor;
+import pt.up.fe.comp.ollir.optimization.optimizers.ConstPropagationParam;
+import pt.up.fe.comp.ollir.optimization.optimizers.ConstPropagationVisitor;
+import pt.up.fe.comp.ollir.optimization.LocalVariableOptimization;
+import pt.up.fe.comp.ollir.optimization.optimizers.DeadCodeEliminationVisitor;
+import pt.up.fe.comp.ollir.optimization.optimizers.*;
 
 import java.util.Collections;
 

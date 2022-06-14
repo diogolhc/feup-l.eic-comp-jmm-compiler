@@ -1,4 +1,4 @@
-package pt.up.fe.comp.optimization;
+package pt.up.fe.comp.ollir.optimization;
 
 import org.specs.comp.ollir.*;
 
