@@ -41,6 +41,19 @@ public class OptimizationTest {
     }
 
     @Test
+    public void testFacR() {
+        Map<String, String> config = new HashMap<>();
+        config.put("debug", "true");
+        config.put("optimize", "true");
+        config.put("registerAllocation", "4");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/Fac.jmm"), config);
+        jasminResult.compile();
+        assertEquals("3628800\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
     public void testNestedWhilesIfs() {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");

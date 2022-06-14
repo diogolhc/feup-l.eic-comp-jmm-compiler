@@ -100,8 +100,11 @@ public class LocalVariableInterferenceGraph {
 
                 for (int j = i + 1; j < varIdxs.size(); j++) {
                     VarNode node2 = nodes.get(varIdxs.get(j));
-                    node1.adjacentNodes.add(node2);
-                    node2.adjacentNodes.add(node1);
+
+                    if (node1 != null && node2 != null) {
+                        node1.adjacentNodes.add(node2);
+                        node2.adjacentNodes.add(node1);
+                    }
                 }
             }
         }
@@ -133,8 +136,11 @@ public class LocalVariableInterferenceGraph {
 
                 for (Integer outVarIdx : outVarIdxs) {
                     VarNode node2 = nodes.get(outVarIdx);
-                    node1.adjacentNodes.add(node2);
-                    node2.adjacentNodes.add(node1);
+
+                    if (node1 != null && node2 != null) {
+                        node1.adjacentNodes.add(node2);
+                        node2.adjacentNodes.add(node1);
+                    }
                 }
             }
         }
