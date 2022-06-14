@@ -222,7 +222,8 @@ public class LivenessAnalyser {
             return;
         }
 
-        if (element.getType().getTypeOfElement() == ElementType.THIS) {
+        if (element.getType().getTypeOfElement() == ElementType.THIS
+            || (element.getType().getTypeOfElement() == ElementType.OBJECTREF && ((Operand) element).getName().equals("this"))) {
             vars.set(0);
             return;
         }
