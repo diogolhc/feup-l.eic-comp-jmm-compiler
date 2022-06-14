@@ -45,7 +45,7 @@ public class OptimizationTest {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");
         config.put("debug", "true");
-        config.put("registerAllocation", "10");
+        config.put("registerAllocation", "0");
 
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/NestedWhilesIfs.jmm"), config);
         jasminResult.compile();
@@ -58,7 +58,7 @@ public class OptimizationTest {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");
         config.put("debug", "true");
-        config.put("registerAllocation", "4");
+        config.put("registerAllocation", "0");
 
         JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SimpleConflict.jmm"), config);
         jasminResult.compile();
