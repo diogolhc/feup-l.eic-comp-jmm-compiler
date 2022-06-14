@@ -1,4 +1,4 @@
-package pt.up.fe.comp.ollir.optimizers;
+package pt.up.fe.comp.ollir.optimization.optimizers;
 
 import java.util.HashMap;
 import java.util.Map;
