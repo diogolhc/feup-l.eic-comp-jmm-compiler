@@ -120,18 +120,14 @@ public class JasminBackender implements JasminBackend {
     }
 
     private String getMethodStatements(Method method) {
-        Set<Integer> virtualRegs = new TreeSet<>();
-        virtualRegs.add(0);
-        for (Descriptor descriptor : method.getVarTable().values()) {
-            virtualRegs.add(descriptor.getVirtualReg());
-        }
+        int limitLocals = calculateLimitLocals(method);
 
         this.currentStack = 0;
         this.methodStackLimit = 0;
         String methodInstructions = this.getMethodInstructions(method);
 
         return "\t.limit stack " + this.methodStackLimit + "\n" +
-                "\t.limit locals " + virtualRegs.size() + "\n" +
+                "\t.limit locals " + limitLocals + "\n" +
                 methodInstructions;
     }
 
@@ -710,6 +706,17 @@ public class JasminBackender implements JasminBackend {
     private void changeStackLimits(int variation) {
         this.currentStack += variation;
         this.methodStackLimit = Math.max(this.methodStackLimit, this.currentStack);
+    }
+
+    public static int calculateLimitLocals(Method method) {
+        Set<Integer> virtualRegs = new TreeSet<>();
+        virtualRegs.add(0);
+
+        for (Descriptor descriptor : method.getVarTable().values()) {
+            virtualRegs.add(descriptor.getVirtualReg());
+        }
+
+        return virtualRegs.size();
     }
 
 }

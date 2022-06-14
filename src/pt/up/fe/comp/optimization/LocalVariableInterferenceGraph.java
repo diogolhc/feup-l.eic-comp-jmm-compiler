@@ -54,15 +54,13 @@ public class LocalVariableInterferenceGraph {
     private final Map<String, Descriptor> varTable;
     private int minLocalVariables;
     private final boolean isStaticMethod;
-    private final boolean debug;
 
-    public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Map<Node, BitSet> define, Method method, boolean debug) {
+    public LocalVariableInterferenceGraph(Map<Node, BitSet> inAlive, Map<Node, BitSet> outAlive, Map<Node, BitSet> define, Method method) {
         nodes = new HashMap<>();
 
         varTable = method.getVarTable();
         isStaticMethod = method.isStaticMethod();
         minLocalVariables = isStaticMethod ? 0 : 1; // THIS
-        this.debug = debug;
 
         addNodes();
         addEdges(inAlive);
@@ -152,20 +150,9 @@ public class LocalVariableInterferenceGraph {
             Iterator<Map.Entry<Integer, VarNode>> it = nodes.entrySet().iterator();
             while (it.hasNext()) {
                 VarNode node = it.next().getValue();
-                if (node.getActiveAdjacentNodes().size() < localVariableNum) {
-                    stack.push(node);
-                    node.isActive = false;
-                    it.remove();
-                }
-            }
-
-            if (!nodes.isEmpty()) {
-                while (!stack.isEmpty()) {
-                    VarNode n = stack.pop();
-                    n.isActive = true;
-                    nodes.put(n.ogLocalVariable, n);
-                }
-                return allocateLocalVariables(localVariableNum+1);
+                stack.push(node);
+                node.isActive = false;
+                it.remove();
             }
         }
 
@@ -200,10 +187,6 @@ public class LocalVariableInterferenceGraph {
                 updatedVarTable.put(varName, new Descriptor(d.getScope(), local, d.getVarType()));
                 local++;
             }
-        }
-
-        if (this.debug) {
-            System.out.println("Used " + localVariableNum + " registers.");
         }
 
         return updatedVarTable;
