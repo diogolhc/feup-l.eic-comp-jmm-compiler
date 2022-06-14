@@ -54,7 +54,7 @@ public class LivenessAnalyser {
                 BitSet inAliveNew = (BitSet) outAlive.get(node).clone();
                 BitSet def = defined.get(node);
 
-                for (int i = 0; i < inAliveNew.size(); i++) {
+                for (int i = 0; i < inAliveNew.length(); i++) {
                     if (inAliveNew.get(i) && def.get(i)) {
                         inAliveNew.clear(i);
                     }
