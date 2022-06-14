@@ -104,6 +104,69 @@ public class OptimizationTest {
     }
 
     @Test
+    public void testShortCutAndReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "10");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/ShortCutAnd.jmm"), config);
+        jasminResult.compile();
+        assertEquals("0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testShortCutAndRegFail() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "1");
+
+        var ollirResult = TestUtils.optimize(SpecsIo.getResource("fixtures/public/selfMade/ShortCutAnd.jmm"), config);
+        TestUtils.mustFail(ollirResult);
+    }
+
+    @Test
+    public void testSelfMade2Reg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "5");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade2.jmm"), config);
+        jasminResult.compile();
+        assertEquals("2\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testBinomialCoefficientReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "6");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/BinomialCoefficient.jmm"), config);
+        jasminResult.compile();
+        assertEquals("28\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testGetterAndSetterExtendReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "3");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/GetterAndSetterExtend.jmm"), config);
+        jasminResult.compile();
+        assertEquals("1\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
     public void testShortCutAnd() {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");
