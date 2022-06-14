@@ -182,6 +182,19 @@ public class OptimizationTest {
     }
 
     @Test
+    public void testArray() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("debug", "true");
+        config.put("registerAllocation", "5");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/Array.jmm"), config);
+        jasminResult.compile();
+        assertEquals("1\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
     public void testShortCutAnd() {
         Map<String, String> config = new HashMap<>();
         config.put("optimize", "true");
