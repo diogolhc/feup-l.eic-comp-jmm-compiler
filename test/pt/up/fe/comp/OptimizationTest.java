@@ -249,4 +249,15 @@ public class OptimizationTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testVarConflict() {
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", "0");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/VarConflict.jmm"), config);
+        jasminResult.compile();
+        assertEquals("6\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }
