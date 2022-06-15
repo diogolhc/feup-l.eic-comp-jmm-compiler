@@ -127,4 +127,12 @@ public class BackEndTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testWhileIssue() {
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/WhileIssueConstProp.jmm"));
+        jasminResult.compile();
+        assertEquals("1\r\n0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }

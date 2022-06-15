@@ -296,4 +296,39 @@ public class OptimizationTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testWhileIssueOptReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("registerAllocation", "0");
+        config.put("debug", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/WhileIssueConstProp.jmm"), config);
+        jasminResult.compile();
+        assertEquals("1\r\n0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testWhileIssueOpt() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/WhileIssueConstProp.jmm"), config);
+        jasminResult.compile();
+        assertEquals("1\r\n0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testWhileIssueReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", "0");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/WhileIssueConstProp.jmm"), config);
+        jasminResult.compile();
+        assertEquals("1\r\n0\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }

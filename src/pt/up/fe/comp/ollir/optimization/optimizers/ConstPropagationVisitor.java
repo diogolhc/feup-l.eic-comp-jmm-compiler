@@ -129,15 +129,21 @@ public class ConstPropagationVisitor extends AJmmVisitor<ConstPropagationParam, 
             // visit extra node to detect do_whiles at compile time
             change = visit(extraCondNode, constPropagationParam) || change;
 
+            ConstPropagationParam constPropagationParamCopy = new ConstPropagationParam(constPropagationParam);
+
             // 1st remove all that are assigned inside the scope
             constPropagationParam.setToJustRemoveAssigned(true);
             change = visit(scopeNode, constPropagationParam) || change;
             constPropagationParam.setToJustRemoveAssigned(false);
 
+            change = visit(condNode, constPropagationParam) || change;
             change = visit(scopeNode, constPropagationParam) || change;
 
-            change = visit(condNode, constPropagationParam) || change;
-
+            ConstPropagationVisitor.intersectMaps(
+                    constPropagationParam.getConstants(),
+                    constPropagationParam.getConstants(),
+                    constPropagationParamCopy.getConstants()
+            );
         }
 
         return change;
