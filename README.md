@@ -97,7 +97,7 @@ in order while they are changing the AST:
 3. [DeadCodeEliminationVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/DeadCodeEliminationVisitor.java)
 
 The first substitutes local variables that can be replaced by constant values.  
-The second performs constant folding in `not` operations and`binary` operations, including short-cut evaluation of
+The second performs constant folding in `not` operations and `binary` operations, including short-cut evaluation of
 the `&&` operation.
 The third checks if `if` and `while` conditions are immediate values and if so eliminates the code accordingly.
 Note that in the case of `<` condition, if its operands are the same id, the condition evaluates to false, and
@@ -128,9 +128,9 @@ whileBody1:
 
 
 This is done by duplicating the while condition before the optimization loop:
-[WhileConditionDuplicatorVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/WhileConditionDuplicatorVisitor.java)  
+[WhileConditionDuplicatorVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/WhileConditionDuplicatorVisitor.java).  
 And after checking its value on which the optimizations were performed to check if its true:
-[DoWhileAnnotatorVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/DoWhileAnnotatorVisitor.java)
+[DoWhileAnnotatorVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/DoWhileAnnotatorVisitor.java).
 
 The rationale for choosing this particular order of optimizations is that if we first propagate
 constants on the expressions and then fold them, we can detect ifs and whiles whose conditions
