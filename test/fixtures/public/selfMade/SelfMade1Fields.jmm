@@ -1,6 +1,6 @@
 import io;
 
-class SelfMade1 {
+class SelfMade1Fields {
     int i;
     int div;
 
@@ -22,6 +22,6 @@ class SelfMade1 {
     }
 
     public static void main(String[] args){
-        io.println(new SelfMade1().call(10, true));
+        io.println(new SelfMade1Fields().call(10, true));
     }
 }

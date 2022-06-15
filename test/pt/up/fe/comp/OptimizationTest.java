@@ -271,4 +271,29 @@ public class OptimizationTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testSelfMadeFieldsReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("registerAllocation", "0");
+        config.put("debug", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade1Fields.jmm"), config);
+        jasminResult.compile();
+        assertEquals("5\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
+    @Test
+    public void testSelfMadeFieldsOptReg() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+        config.put("registerAllocation", "0");
+        config.put("debug", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade1Fields.jmm"), config);
+        jasminResult.compile();
+        assertEquals("5\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }

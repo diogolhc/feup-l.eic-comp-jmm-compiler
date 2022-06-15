@@ -213,14 +213,12 @@ public class LivenessAnalyser {
     private BitSet getUsedVars(GetFieldInstruction instruction, Map<String, Descriptor> varTable) {
         BitSet vars = new BitSet();
         setElement(vars, instruction.getFirstOperand(), varTable);
-        setElement(vars, instruction.getSecondOperand(), varTable);
         return vars;
     }
 
     private BitSet getUsedVars(PutFieldInstruction instruction, Map<String, Descriptor> varTable) {
         BitSet vars = new BitSet();
         setElement(vars, instruction.getFirstOperand(), varTable);
-        setElement(vars, instruction.getSecondOperand(), varTable);
         setElement(vars, instruction.getThirdOperand(), varTable);
         return vars;
     }
@@ -230,6 +228,8 @@ public class LivenessAnalyser {
 
         if (instruction.getInstType() == InstructionType.ASSIGN) {
             setElement(vars, ((AssignInstruction) instruction).getDest(), varTable, false);
+        } else if (instruction.getInstType() == InstructionType.PUTFIELD) {
+            setElement(vars, ((PutFieldInstruction) instruction).getFirstOperand(), varTable, false);
         }
 
         return vars;

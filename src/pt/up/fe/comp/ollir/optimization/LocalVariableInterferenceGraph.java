@@ -72,11 +72,11 @@ public class LocalVariableInterferenceGraph {
         for(String name: varTable.keySet()) {
             Descriptor descriptor = varTable.get(name);
 
-            if (descriptor.getScope() == VarScope.PARAMETER ||
-                    descriptor.getScope() == VarScope.FIELD) {
-                // save local variables for the parameters and fields
+            if (descriptor.getScope() == VarScope.PARAMETER) {
+                // save local variables for the parameters
                 minLocalVariables++;
-            } else if (descriptor.getVarType().getTypeOfElement() != ElementType.THIS) {
+            } else if (descriptor.getVarType().getTypeOfElement() != ElementType.THIS
+                    && descriptor.getScope() != VarScope.FIELD) {
                 nodes.put(descriptor.getVirtualReg(),
                         new VarNode(name, descriptor.getVirtualReg()));
             }
@@ -189,7 +189,7 @@ public class LocalVariableInterferenceGraph {
 
         for (String varName: varTable.keySet()) {
             Descriptor d = varTable.get(varName);
-            if (d.getScope() == VarScope.PARAMETER || d.getScope() == VarScope.FIELD) {
+            if (d.getScope() == VarScope.PARAMETER) {
                 updatedVarTable.put(varName, new Descriptor(d.getScope(), local, d.getVarType()));
                 local++;
             }
