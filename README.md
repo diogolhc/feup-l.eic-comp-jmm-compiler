@@ -91,7 +91,7 @@ of ids and values of literals.
 #### Optimizations (-o)
 
 After the AST is generated, and before OLLIR is generated, three visitors are executed
-in order while they are changing the AST:
+in order while they are changing the AST (loop can be seen here: [JmmOptimizer.java](src/pt/up/fe/comp/ollir/JmmOptimizer.java)):
 1. [ConstPropagationVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/ConstPropagationVisitor.java)
 2. [ConstFoldingVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/ConstFoldingVisitor.java)
 3. [DeadCodeEliminationVisitor.java](src/pt/up/fe/comp/ollir/optimization/optimizers/DeadCodeEliminationVisitor.java)
