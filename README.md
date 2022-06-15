@@ -290,14 +290,12 @@ e.g. iload_0, bipush 10, iconst_0, ...
 - Everything proposed was implemented, including both -o and -r optimizations as described above.  
 - The [-d] option is very verbose which is very useful when trying to understand the compilation process.  
 
-- Shortcut evaluation was performed on `&&` as shown in this test:
-[ShortCutAnd.jmm](test/fixtures/public/selfMade/ShortCutAnd.jmm).  
-
 - The compiler is highly user-friendly, giving useful information on syntactic and semantic error reports such as line, column and readable
 messages.
 
 - Many optimizations were implemented:
   - Constant propagation
+  - Elimination of unnecessary GOTOs (promotion of whiles to do-whiles)
   - Use of optimized instructions
   - Constant folding (with also shortcut evaluation was performed on `&&` as shown in this test:
     [ShortCutAnd.jmm](test/fixtures/public/selfMade/ShortCutAnd.jmm))
