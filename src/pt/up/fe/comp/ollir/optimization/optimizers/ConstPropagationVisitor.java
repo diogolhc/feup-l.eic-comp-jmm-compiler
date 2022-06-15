@@ -21,6 +21,7 @@ public class ConstPropagationVisitor extends AJmmVisitor<ConstPropagationParam, 
         addVisit(AstNode.NOT, this::iterateVisit);
         addVisit(AstNode.RETURN, this::iterateVisit);
         addVisit(AstNode.METHOD_BODY_NO_FINAL_RETURN, this::iterateVisit);
+        addVisit(AstNode.CONDITION, this::iterateVisit);
 
         addVisit(AstNode.METHOD_DECL, this::methodAndMainDeclarationVisit);
         addVisit(AstNode.MAIN_DECL, this::methodAndMainDeclarationVisit);
@@ -122,27 +123,21 @@ public class ConstPropagationVisitor extends AJmmVisitor<ConstPropagationParam, 
         JmmNode scopeNode = whileNode.getJmmChild(whileNode.getNumChildren() - 1);
 
         if (constPropagationParam.isToJustRemoveAssigned()) {
-            for (JmmNode child : scopeNode.getChildren()) {
-                change = visit(child, constPropagationParam) || change;
-            }
+            change = visit(scopeNode, constPropagationParam) || change;
+
         } else {
             // visit extra node to detect do_whiles at compile time
             change = visit(extraCondNode, constPropagationParam) || change;
 
             // 1st remove all that are assigned inside the scope
             constPropagationParam.setToJustRemoveAssigned(true);
-            for (JmmNode child : scopeNode.getChildren()) {
-                change = visit(child, constPropagationParam) || change;
-            }
+            change = visit(scopeNode, constPropagationParam) || change;
             constPropagationParam.setToJustRemoveAssigned(false);
 
-            for (JmmNode child : scopeNode.getChildren()) {
-                change = visit(child, constPropagationParam) || change;
-            }
+            change = visit(scopeNode, constPropagationParam) || change;
 
-            for (JmmNode child : condNode.getChildren()) {
-                change = visit(child, constPropagationParam) || change;
-            }
+            change = visit(condNode, constPropagationParam) || change;
+
         }
 
         return change;
@@ -159,20 +154,14 @@ public class ConstPropagationVisitor extends AJmmVisitor<ConstPropagationParam, 
         JmmNode elseScopeNode = elseNode.getJmmChild(0);
 
         if (!constPropagationParam.isToJustRemoveAssigned()) {
-            for (JmmNode child : ifCondNode.getChildren()) {
-                change = visit(child, constPropagationParam) || change;
-            }
+            change = visit(ifCondNode, constPropagationParam) || change;
         }
 
         ConstPropagationParam constPropagationParam1 = new ConstPropagationParam(constPropagationParam);
-        for (JmmNode child : ifScopeNode.getChildren()) {
-            change = visit(child, constPropagationParam1) || change;
-        }
+        change = visit(ifScopeNode, constPropagationParam1) || change;
 
         ConstPropagationParam constPropagationParam2 = new ConstPropagationParam(constPropagationParam);
-        for (JmmNode child : elseScopeNode.getChildren()) {
-            change = visit(child, constPropagationParam2) || change;
-        }
+        change = visit(elseScopeNode, constPropagationParam2) || change;
 
         ConstPropagationVisitor.intersectMaps(
                 constPropagationParam.getConstants(),

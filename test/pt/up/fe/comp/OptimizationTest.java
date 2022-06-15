@@ -260,4 +260,15 @@ public class OptimizationTest {
         TestUtils.noErrors(jasminResult);
     }
 
+    @Test
+    public void testSelfMadeFieldsOpt() {
+        Map<String, String> config = new HashMap<>();
+        config.put("optimize", "true");
+
+        JasminResult jasminResult = TestUtils.backend(SpecsIo.getResource("fixtures/public/selfMade/SelfMade1Fields.jmm"), config);
+        jasminResult.compile();
+        assertEquals("5\r\n", jasminResult.run());
+        TestUtils.noErrors(jasminResult);
+    }
+
 }
