@@ -55,9 +55,9 @@ displayed.
 
 ### Type Verification 
 	
-- Verify if variable names used in the code have a corresponding declaration, either as a local variable, a method parameter or a field of the class (if applicable).
+- Verify if variable names used in the code have a corresponding declaration, either as a local variable, a method parameter or a field of the class (if applicable)
 - Declarations must be of a known type or class
-- Operands types of an operation must be compatible with the operation (e.g. int + boolean is an error because + expects two integers.) 
+- Operand types of an operation must be compatible with the operation (e.g. int + boolean is an error because + expects two integers) 
 - Array cannot be used in arithmetic operations (e.g. array1 + array2 is an error) 	
 - Array access is done over an array 	
 - Array access index is an expression of type integer
@@ -100,7 +100,7 @@ The first substitutes local variables that can be replaced by constant values.
 The second performs constant folding in `not` operations and`binary` operations, including short-cut evaluation of
 the `&&` operation.
 The third checks if `if` and `while` conditions are immediate values and if so eliminates the code accordingly.
-Note that in the case of `<` condition, if its the operands are the same id, the condition evaluates to false, and
+Note that in the case of `<` condition, if its operands are the same id, the condition evaluates to false, and
 dead code can be eliminated.
 
 Also, additional care is taken in order to detect the value of while loop conditions at the start of execution,
@@ -134,7 +134,7 @@ And after checking its value on which the optimizations were performed to check 
 
 The rationale for choosing this particular order of optimizations is that if we first propagate
 constants on the expressions and then fold them, we can detect ifs and whiles whose conditions
-allows inlining/deleting them.
+allow inlining/deleting them.
 
 Example:
 
@@ -204,9 +204,7 @@ previously stated in while loops.
 With the -r option the user can limit the maximum number of local variables a method may use.
 The optimization applies a graph colouring heuristic on the interference graph (at [LocalVariableInterferenceGraph.java](src/pt/up/fe/comp/ollir/optimization/LocalVariableInterferenceGraph.java)
 ) to allocate the variables to JVM local
-variables. This graph is created by performing a liveness analysis at [LivenessAnalyser.java](src/pt/up/fe/comp/ollir/optimization/LivenessAnalyser.java) and
-)
-on the control flow graph.
+variables. This graph is created by performing a liveness analysis at [LivenessAnalyser.java](src/pt/up/fe/comp/ollir/optimization/LivenessAnalyser.java) on the control flow graph.
 If the algorithm cannot colour the graph with the provided limit, the compiler reports an error with the required number
 of local variables.
 
