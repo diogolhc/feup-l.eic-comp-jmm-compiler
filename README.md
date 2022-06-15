@@ -182,9 +182,7 @@ previously stated in while loops.
 With the -r option the user can limit the maximum number of local variables a method may use.
 The optimization applies a graph colouring heuristic on the interference graph (at [LocalVariableInterferenceGraph.java](src/pt/up/fe/comp/ollir/optimization/LocalVariableInterferenceGraph.java)
 ) to allocate the variables to JVM local
-variables. This graph is created by performing a liveness analysis at [LivenessAnalyser.java](src/pt/up/fe/comp/ollir/optimization/LivenessAnalyser.java) and
-)
-on the control flow graph.
+variables. This graph is created by performing a liveness analysis at [LivenessAnalyser.java](src/pt/up/fe/comp/ollir/optimization/LivenessAnalyser.java) on the control flow graph.
 If the algorithm cannot colour the graph with the provided limit, the compiler reports an error with the required number
 of local variables.
 
